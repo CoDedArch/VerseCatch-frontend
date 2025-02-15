@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState} from "react";
 import useSpeeachRecognitionHook from "./UseSpeechRecognitionHook";
 
 const InteractionSection = () => {
@@ -10,14 +10,12 @@ const InteractionSection = () => {
 
   // use speech recognition
   const {
-    text,
     isListening,
     startListening,
     stopListening,
     hasRecognitionSupport,
   } = useSpeeachRecognitionHook();
 
-  
   const handleButtonClick = () => {
     if (!listening) {
       setListening(true);
@@ -61,11 +59,10 @@ const InteractionSection = () => {
                 <img src={buttonIcon} alt="mic" /> <span>{buttonText}</span>
               </button>
             </li>
-            <li>{text}</li>
           </ul>
         </section>
       ) : (
-        <div>Your Browswer doesn't have recognition support</div>
+        <div>Your Browser doesn't have recognition support</div>
       )}
     </>
   );
