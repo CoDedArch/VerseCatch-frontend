@@ -1,15 +1,25 @@
+import { useState } from 'react';
 import InteractionSection from "@/shared/InteractionSection";
+
 const HomePage = () => {
+    const [receivedData, setReceivedData] = useState<string | null>(null);
+
+    const parsedData = receivedData ? JSON.parse(receivedData)[0] : null;
+
     return (
         <main className="h-[100vh] xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-10">
-            <section  className=" font-bold text-lg">VerseCatch</section>
+            <section className="font-bold text-lg">VerseCatch</section>
             <section className="xl:w-1/2 space-y-4">
-                <h1 className="text-center font-bold xl:text-3xl text-xl">Romans 8:28 (NIV)</h1>
-                <p className="text-center xl:text-2xl text-xl px-8 xl:px-0">Consider it wholly joyful, my brethren, whenever you are enveloped in or encounter trials of any sort or fall into various temptations. Be assured and understand that the trial and proving of your faith bring out endurance and steadfastness and patience.</p>
+                {parsedData ? (
+                    <>
+                        <h1 className="text-center font-bold xl:text-3xl text-xl">{`${parsedData.book} ${parsedData.chapter}:${parsedData.verse_number} (${parsedData.version})`}</h1>
+                        <p className="text-center xl:text-2xl text-xl px-8 xl:px-0">{parsedData.text}</p>
+                    </>
+                ) : ""}
             </section>
-            <InteractionSection />
-      </main>
-  );
+            <InteractionSection setReceivedData={setReceivedData} />
+        </main>
+    );
 };
 
 export default HomePage;
