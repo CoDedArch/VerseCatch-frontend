@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 const useSpeechRecognitionHook = () => {
   const [isListening, setIsListening] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const [receivedData, setReceivedData] = useState(null);
   const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
@@ -17,6 +18,7 @@ const useSpeechRecognitionHook = () => {
 
     ws.onmessage = (event) => {
       console.log("Message from server:", event.data);
+      setReceivedData(event.data);
     };
 
     ws.onerror = (error) => {
@@ -110,6 +112,7 @@ const useSpeechRecognitionHook = () => {
 
   return {
     isListening,
+    receivedData,
     startListening,
     stopListening,
     hasRecognitionSupport: "AudioContext" in window,
