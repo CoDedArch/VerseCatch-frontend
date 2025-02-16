@@ -32,3 +32,24 @@ background-color: var(--btn-red);
 color: var(--text-red);
 }
 
+@keyframes gradientAnimation {
+  0% {
+    box-shadow: 0 0 10px #ea5a5a, 0 0 20px #ea5a5a, 0 0 30px #ea5a5a;
+  }
+  25% {
+    box-shadow: 0 0 10px #a7771f, 0 0 20px #a7771f, 0 0 30px #a7771f;
+  }
+  50% {
+    box-shadow: 0 0 10px #6d498f, 0 0 20px #6d498f, 0 0 30px #6d498f;
+  }
+  75% {
+    box-shadow: 0 0 10px #92e992, 0 0 20px #92e992, 0 0 30px #92e992;
+  }
+  100% {
+    box-shadow: 0 0 10px #9696f6, 0 0 20px #9696f6, 0 0 30px #9696f6;
+  }
+}
+
+.shadow-gradient {
+  animation: gradientAnimation 3s infinite;
+}
