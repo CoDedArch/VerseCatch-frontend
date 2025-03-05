@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const useSpeechRecognitionHook = () => {
+const useSpeechRecognitionHook = (selectedVersion: string) => {
   const [isListening, setIsListening] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [receivedData, setReceivedData] = useState(null);
@@ -9,7 +9,9 @@ const useSpeechRecognitionHook = () => {
 
   useEffect(() => {
     const API_KEY = "e8ce358cf4d831935f6138e4b777c8c73c5b6f6051ab2aa5ced6b8d66a564f1e";
-    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/detect-quotes?api_key=${API_KEY}`);
+    const ws = new WebSocket(
+      `ws://127.0.0.1:8000/ws/detect-quotes?api_key=${API_KEY}&version=${selectedVersion}`
+    );
 
     ws.onopen = () => {
       console.log("WebSocket connected");
@@ -34,7 +36,7 @@ const useSpeechRecognitionHook = () => {
         ws.close();
       }
     };
-  }, []);
+  }, [selectedVersion]); // Reconnect WebSocket when selectedVersion changes
 
   const startListening = async () => {
     try {

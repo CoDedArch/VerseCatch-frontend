@@ -53,3 +53,35 @@ color: var(--text-red);
 .shadow-gradient {
   animation: gradientAnimation 3s infinite;
 }
+
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animated-gradient {
+  background: linear-gradient(135deg, #6DD5FA, #b0adf4, #bdb5c3, #f2f1d6);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.bouncing-button {
+  animation: scale 3s infinite;
+}

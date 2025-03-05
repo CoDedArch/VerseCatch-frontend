@@ -3,6 +3,8 @@ import useSpeechRecognitionHook from "./UseSpeechRecognitionHook";
 
 interface InteractionSectionProps {
   setReceivedData: (data: string) => void;
+  selectedVersion: string; // Selected version passed from HomePage
+  setSelectedVersion: (version: string) => void; // Function to update selected version
 }
 
 const book_versions = [
@@ -35,14 +37,17 @@ const book_versions = [
   "YLT_bible",
 ];
 
-const InteractionSection: React.FC<InteractionSectionProps> = ({ setReceivedData }) => {
+const InteractionSection: React.FC<InteractionSectionProps> = ({
+  setReceivedData,
+  selectedVersion,
+  setSelectedVersion,
+}) => {
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
   const [buttonText, setButtonText] = useState("Start Listening");
   const [buttonColor, setButtonColor] = useState("btn-black");
   const [buttonIcon, setButtonIcon] = useState("/assets/mic.png");
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState(book_versions[0]);
   const dropdownRef = useRef<HTMLUListElement | null>(null);
 
   // use speech recognition
@@ -52,7 +57,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({ setReceivedData
     startListening,
     stopListening,
     hasRecognitionSupport,
-  } = useSpeechRecognitionHook();
+  } = useSpeechRecognitionHook(selectedVersion); // Pass selectedVersion to the hook
 
   const handleButtonClick = () => {
     if (!listening) {
@@ -77,7 +82,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({ setReceivedData
   };
 
   const handleVersionChange = (version: string) => {
-    setSelectedVersion(version);
+    setSelectedVersion(version); // Update the selected version in the parent component
     setDropdownVisible(false);
   };
 
@@ -145,7 +150,9 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({ setReceivedData
             </li>
             <li className="">
               <button
-                className={`w-[197px] h-[48px] ${buttonColor} text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold`}
+                className={`w-[197px] h-[48px] ${buttonColor} text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold ${
+                  (buttonText === "Start Listening" || buttonText === "Continue Listening") ? "bouncing-button" : ""
+                }`}
                 onClick={handleButtonClick}
               >
                 <img src={buttonIcon} alt="mic" /> <span>{buttonText}</span>
