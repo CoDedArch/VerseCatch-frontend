@@ -85,3 +85,22 @@ color: var(--text-red);
 .bouncing-button {
   animation: scale 3s infinite;
 }
+
+.profile-button {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.profile-button:hover {
+  transition: background-color 0.5s ease;
+  background: linear-gradient(135deg, rgba(20, 30, 48, 1), rgba(36, 59, 85, 0.2));
+}
+
+.profile-button:hover span {
+  transition: color 0.3s ease;
+  color:white;
+}
+
+.profile-button:hover img {
+  background-color: white; /* Change image background to white on hover */
+  transition: background-color 0.3s ease;
+}
