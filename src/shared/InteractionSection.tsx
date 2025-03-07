@@ -48,7 +48,9 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   const [buttonColor, setButtonColor] = useState("btn-black");
   const [buttonIcon, setButtonIcon] = useState("/assets/mic.png");
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false); // State for profile menu visibility
   const dropdownRef = useRef<HTMLUListElement | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null); // Ref for profile menu
 
   // use speech recognition
   const {
@@ -87,8 +89,14 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   const handleClickOutside = (event: MouseEvent) => {
+    // Hide dropdown if clicked outside
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setDropdownVisible(false);
+    }
+
+    // Hide profile menu if clicked outside
+    if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+      setShowProfileMenu(false);
     }
   };
 
@@ -99,21 +107,100 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   }, [receivedData, setReceivedData]);
 
   useEffect(() => {
-    if (dropdownVisible) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
+    // Add event listener for outside clicks
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
+      // Clean up event listener
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownVisible]);
+  }, []);
 
   return (
     <>
       {hasRecognitionSupport ? (
         <section className="bg-white px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
+          {/* Profile Menu */}
+          {showProfileMenu && (
+            <div
+              ref={profileMenuRef}
+              className="bg-slate-500/20 sm:hidden absolute right-1 w-fit -top-[21em] rounded-lg p-2"
+            >
+              <ul className="space-y-5">
+                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
+                  <img
+                    src="/assets/setting.png"
+                    alt="Settings"
+                    className="w-5 sm:w-5"
+                  />
+                  <span className="bg-slate-400/10">Settings</span>
+                </li>
+                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
+                  <img
+                    src="/assets/help.png"
+                    alt="Get Help"
+                    className="w-5 sm:w-5"
+                  />
+                  <span className="bg-slate-400/10">Get Help</span>
+                </li>
+                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
+                  <img
+                    src="/assets/about.png"
+                    alt="About"
+                    className="w-5 sm:w-5"
+                  />
+                  <span className="bg-slate-400/10">About</span>
+                </li>
+                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
+                  <img
+                    src="/assets/setting.png"
+                    alt="Change Password"
+                    className="w-5 sm:w-5"
+                  />
+                  <span className="bg-slate-400/10">Change Password</span>
+                </li>
+                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
+                  <img
+                    src="/assets/out.png"
+                    alt="Sign Out"
+                    className="w-5 sm:w-5"
+                  />
+                  <span className="bg-slate-400/10">Sign Out</span>
+                </li>
+              </ul>
+            </div>
+          )}
+
+          {/* Profile Button */}
+          {!receivedData && (
+            <div>
+              <button
+                className="profile-button absolute sm:hidden sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center hover:cursor-pointer transition-all"
+                onClick={() => setShowProfileMenu(!showProfileMenu)} // Toggle profile menu
+              >
+                <img
+                  src="/assets/profile.png"
+                  alt="Bible Version"
+                  className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
+                />
+                <span className="p-3">profile</span>
+              </button>
+            </div>
+          )}
+
+          {/* Rest of the code remains unchanged */}
+          {!receivedData && (
+            <div className="absolute sm:hidden sm:static left-2 sm:ml-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center sm:gap-2">
+              <img
+                src="/assets/version.png"
+                alt="Bible Version"
+                className="w-8 sm:w-14"
+              />
+              <span className="bg-slate-400/10 p-3">
+                {selectedVersion || "Bible version"}
+              </span>
+            </div>
+          )}
           <img
             title="Bible Versions"
             src="/assets/dots.png"
@@ -122,8 +209,13 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             onClick={toggleDropdown}
           />
           {dropdownVisible && (
-            <ul ref={dropdownRef} className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-48 h-[10em] overflow-y-scroll bg-white border border-gray-300 rounded shadow-lg">
-              <p className="text-center p-2 font-bold underline">Bible Versions</p>
+            <ul
+              ref={dropdownRef}
+              className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-48 h-[10em] overflow-y-scroll bg-white border border-gray-300 rounded shadow-lg"
+            >
+              <p className="text-center p-2 font-bold underline">
+                Bible Versions
+              </p>
               {book_versions.map((version) => (
                 <li
                   key={version}
@@ -151,7 +243,10 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             <li className="">
               <button
                 className={`w-[197px] h-[48px] ${buttonColor} text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold ${
-                  (buttonText === "Start Listening" || buttonText === "Continue Listening") ? "bouncing-button" : ""
+                  buttonText === "Start Listening" ||
+                  buttonText === "Continue Listening"
+                    ? "bouncing-button"
+                    : ""
                 }`}
                 onClick={handleButtonClick}
               >
