@@ -5,6 +5,11 @@ interface InteractionSectionProps {
   setReceivedData: (data: string) => void;
   selectedVersion: string; // Selected version passed from HomePage
   setSelectedVersion: (version: string) => void; // Function to update selected version
+  userIsLoggedIn: boolean;
+  userEmail: string;
+  tourSteps: { id: string; description: string }[];
+  isTourActive: boolean,
+  currentStep: number
 }
 
 const book_versions = [
@@ -41,6 +46,11 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   setReceivedData,
   selectedVersion,
   setSelectedVersion,
+  userIsLoggedIn,
+  userEmail,
+  tourSteps,
+  isTourActive,
+  currentStep
 }) => {
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
@@ -59,7 +69,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     startListening,
     stopListening,
     hasRecognitionSupport,
-  } = useSpeechRecognitionHook(selectedVersion); // Pass selectedVersion to the hook
+  } = useSpeechRecognitionHook(selectedVersion, userEmail); // Pass selectedVersion to the hook
 
   const handleButtonClick = () => {
     if (!listening) {
@@ -83,19 +93,54 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     setDropdownVisible(!dropdownVisible);
   };
 
-  const handleVersionChange = (version: string) => {
+  // Function to update the user's Bible version in the backend
+  const updateUserBibleVersion = async (version: string) => {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/update-bible-version",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bible_version: version, email: userEmail }), // Include userEmail to identify the user
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update Bible version");
+      }
+
+      console.log("Bible version updated successfully");
+    } catch (error) {
+      console.error("Error updating Bible version:", error);
+    }
+  };
+
+  const handleVersionChange = async (version: string) => {
     setSelectedVersion(version); // Update the selected version in the parent component
     setDropdownVisible(false);
+
+    // Update the user's Bible version in the backend
+    if (userIsLoggedIn) {
+      await updateUserBibleVersion(version);
+    }
   };
 
   const handleClickOutside = (event: MouseEvent) => {
     // Hide dropdown if clicked outside
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node)
+    ) {
       setDropdownVisible(false);
     }
 
     // Hide profile menu if clicked outside
-    if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+    if (
+      profileMenuRef.current &&
+      !profileMenuRef.current.contains(event.target as Node)
+    ) {
       setShowProfileMenu(false);
     }
   };
@@ -119,9 +164,18 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   return (
     <>
       {hasRecognitionSupport ? (
-        <section className="bg-white px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
+        <section className="bg-white sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
+          {isTourActive && currentStep === 3 && (
+            <div id="interaction-section">
+              <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
+                {tourSteps[3].description}
+                <img src="/assets/down.png" alt="hand down" className="animate-move-up-down" />
+              </div>
+            </div>
+          )}
+
           {/* Profile Menu */}
-          {showProfileMenu && (
+          {userIsLoggedIn && showProfileMenu && (
             <div
               ref={profileMenuRef}
               className="bg-slate-500/20 sm:hidden absolute right-1 w-fit -top-[21em] rounded-lg p-2"
@@ -172,7 +226,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
           )}
 
           {/* Profile Button */}
-          {!receivedData && (
+          {userIsLoggedIn && !receivedData && (
             <div>
               <button
                 className="profile-button absolute sm:hidden sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center hover:cursor-pointer transition-all"
@@ -230,7 +284,9 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
           <ul className="flex flex-col items-center space-y-5">
             <li
               className={`span-color p-3 w-fit min-h-[50px] ${
-                listening ? "pt-4 shadow-gradient" : ""
+                listening
+                  ? `pt-4 ${userEmail ? "shadow-gradient listening-glow" : ""}`
+                  : ""
               } rounded-full`}
             >
               <span className="">
