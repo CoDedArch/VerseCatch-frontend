@@ -7,8 +7,27 @@ const Introduction = ({
   onComplete: (version: string) => void;
 }) => {
   const [showGreeting, setShowGreeting] = useState(true);
+  const [showAuthOptions, setShowAuthOptions] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
-  const [isExiting, setIsExiting] = useState(false); // New state to handle exit animation
+  const [isExiting, setIsExiting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [step, setStep] = useState<"email" | "details" | "version">("email");
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState(false);
+  const [isWaitingForVerification, setIsWaitingForVerification] =
+    useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCheckmark, setShowCheckmark] = useState(false);
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState("");
+  const [isVersionSelectionLoading, setIsVersionSelectionLoading] =
+    useState(false);
+
   const bibleVersions = [
     "AKJV_bible",
     "ASV_bible",
@@ -37,23 +56,286 @@ const Introduction = ({
     "NRSVUE_bible",
     "WEB_bible",
     "YLT_bible",
-  ]; // Example versions
+  ];
+
+  // Detect if the device is a touch device
+  const isTouchDevice = () => {
+    return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  };
+
+  // Toggle tooltip visibility on touch devices
+  const handleInfoClick = () => {
+    if (isTouchDevice()) {
+      setIsTooltipVisible(!isTooltipVisible);
+    }
+  };
 
   useEffect(() => {
-    // Show greeting for 4 seconds, then transition to Bible versions
     const greetingTimer = setTimeout(() => {
       setShowGreeting(false);
-      setShowVersions(true);
+      setShowAuthOptions(true);
     }, 4000);
 
     return () => clearTimeout(greetingTimer);
   }, []);
 
-  const handleVersionSelect = (version: string) => {
-    setIsExiting(true); // Trigger exit animation
-    setTimeout(() => {
-      onComplete(version); // Pass the selected version to the onComplete callback
-    }, 500); // Match the duration of the exit animation
+  const handleAuthOptionSelect = (option: string) => {
+    if (option === "Anonymous") {
+      setShowAuthOptions(false);
+      setShowVersions(true);
+    } else {
+      setShowAuthOptions(false);
+      setShowVersions(false);
+    }
+  };
+
+  const handleVersionSelect = async (version: string) => {
+    if (isLogin) {
+      setIsExiting(true);
+      setTimeout(() => {
+        onComplete(version);
+        window.location.reload();
+      }, 500);
+    } else if (step === "version") {
+      setIsVersionSelectionLoading(true);
+      setSelectedVersion(version);
+      await handleSignUpSubmit(version);
+      setIsVersionSelectionLoading(false);
+    } else {
+      setIsExiting(true);
+      setTimeout(() => {
+        localStorage.setItem("username", "anonymous");
+        localStorage.setItem("bible_version", version);
+        // onComplete(version);
+        window.location.reload();
+      }, 500);
+    }
+  };
+
+  // Validate email
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  // Validate password strength
+  const validatePassword = (password: string) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return regex.test(password);
+  };
+
+  const checkEmailExists = async (email: string) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/check-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to check email existence.");
+      }
+
+      return data.exists;
+    } catch (err) {
+      console.error("Error checking email:", err);
+      throw err;
+    }
+  };
+
+  // Handle "Next" button click for sign-up
+  const handleNext = async () => {
+    if (isLogin) {
+      // If logging in, submit the form
+      await handleLoginSubmit();
+      return;
+    }
+
+    if (step === "email") {
+      if (!validateEmail(email)) {
+        setError("Please enter a valid email address.");
+        return;
+      }
+
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const emailExists = await checkEmailExists(email);
+
+        if (emailExists) {
+          setError(
+            "This email is already registered. Please log in or use a different email."
+          );
+        } else {
+          setStep("details"); // Proceed to the details step
+        }
+      } catch (err) {
+        setError(
+          (err as Error).message ||
+            "An error occurred while checking the email. Please try again."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    } else if (step === "details") {
+      // Validate password strength
+      if (!validatePassword(password)) {
+        setError(
+          "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."
+        );
+        return;
+      }
+
+      // Validate password match
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
+
+      setStep("version"); // Proceed to the Bible version selection step
+      setShowVersions(true); // Show the Bible version selection UI
+    }
+  };
+
+  // Handle form submission for sign-up
+  const handleSignUpSubmit = async (version: string) => {
+    const userData = {
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      password,
+      bible_version: version, // Use the passed version instead of selectedVersion
+    };
+
+    console.log("user Data: ", userData);
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Signup failed. Please try again.");
+      }
+
+      setIsWaitingForVerification(true);
+      setShowAuthOptions(false); // Hide auth options while waiting for verification
+      setShowVersions(false); // Hide versions UI while waiting for verification
+
+      // Poll the backend for verification status
+      const pollVerificationStatus = async () => {
+        try {
+          const loginResponse = await fetch(
+            "http://127.0.0.1:8000/auth/login",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: userData.email,
+                password: userData.password,
+              }),
+            }
+          );
+
+          if (loginResponse.ok) {
+            clearInterval(pollingInterval);
+            setShowCheckmark(true);
+            setTimeout(() => {
+              setIsWaitingForVerification(false);
+              setShowCheckmark(false);
+              // onComplete(version); // Complete the process after verification
+              window.location.reload(); // Reload the page after sign-up
+            }, 1500);
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      };
+
+      const pollingInterval = setInterval(pollVerificationStatus, 5000);
+    } catch (err) {
+      setError(
+        (err as Error).message || "An error occurred. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle form submission for login
+  const handleLoginSubmit = async () => {
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Login failed. Please try again.");
+      }
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("isLoggedIn", "true");
+      const expirationTime = Date.now() + 30 * 60 * 1000;
+      localStorage.setItem("token_expiry", expirationTime.toString());
+
+      setShowCheckmark(true);
+
+      setTimeout(() => {
+        setShowAuthOptions(false);
+        setShowVersions(false); // No need to show versions for login
+        setShowCheckmark(false);
+        // onComplete(""); // Complete the process
+        window.location.reload(); // Reload the page after login
+      }, 1500);
+
+      setEmail("");
+      setPassword("");
+      setError("");
+    } catch (err) {
+      setError(
+        (err as Error).message || "An error occurred. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,14 +347,285 @@ const Introduction = ({
               key="greeting"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }} // Fade out when exiting
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
               style={{
                 background: "linear-gradient(135deg, #1CB5E0, #000046)",
               }}
-              className="absolute w-full text-center h-full inset-0 z-50 flex items-center justify-center text-white text-3xl font-bold"
+              className="absolute w-full text-center h-full inset-0 z-[100000] flex items-center justify-center text-white text-3xl font-bold"
             >
               Hello and welcome to VerseCatch!
+            </motion.section>
+          )}
+
+          {(showAuthOptions || isWaitingForVerification) && (
+            <motion.section
+              key="auth-options"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{
+                background: "linear-gradient(135deg, #1CB5E0, #000046)",
+              }}
+              className="absolute w-full inset-0 z-50 flex flex-col items-center justify-center pt-10 sm:pt-0 space-y-10 sm:space-y-30"
+            >
+              <motion.h2
+                initial={{ y: -50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="text-white text-2xl sm:text-4xl font-extrabold pl-10"
+              >
+                {isWaitingForVerification
+                  ? "🎉 One last step! Verify your email to unlock the full VerseCatch experience. 🎉"
+                  : "How would you like to proceed?"}
+              </motion.h2>
+              <div className="flex flex-wrap gap-18 justify-center pb-10 p-2">
+                <motion.div
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="bg-white w-fit px-6 py-2 pb-10 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
+                >
+                  <h1 className="text-3xl text-black font-bold text-center">
+                    {isWaitingForVerification
+                      ? "VerseCatch Team 📖😊"
+                      : isLogin
+                      ? "Login to VerseCatch"
+                      : "Create your VerseCatch account"}
+                  </h1>
+                  <div className="space-y-3">
+                    <h2 className="text-sm text-center text-black font-bold">
+                      {isLogin
+                        ? "Welcome back! Please log in to continue."
+                        : "Start your journey and catch meaningful verses effortlessly."}
+                    </h2>
+                    <h2
+                      className={`text-lg text-center text-blue-500 font-bold  ${
+                        isWaitingForVerification ? "hidden" : ""
+                      }`}
+                    >
+                      {isLogin ? (
+                        <>
+                          Don't have an account?{" "}
+                          <span
+                            className="underline text-black cursor-pointer"
+                            onClick={() => {
+                              setIsLogin(false);
+                              setStep("email");
+                            }}
+                          >
+                            Sign up
+                          </span>
+                          {showCheckmark && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.8 }}
+                              className="flex justify-center"
+                            >
+                              <img
+                                src="/assets/check.png"
+                                alt="check mark"
+                                className="w-20"
+                              />
+                            </motion.div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          Already have an account?{" "}
+                          <span
+                            className="underline text-black cursor-pointer"
+                            onClick={() => {
+                              setIsLogin(true);
+                              setStep("email");
+                            }}
+                          >
+                            Login
+                          </span>
+                        </>
+                      )}
+                    </h2>
+                  </div>
+                  {isWaitingForVerification && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="text-center text-blue-500 font-bold pt-10"
+                    >
+                      Waiting for email verification. Please check your inbox.
+                      {showCheckmark && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.8 }}
+                          className="flex justify-center pt-5"
+                        >
+                          <img
+                            src="/assets/check.png"
+                            alt="check mark"
+                            className="w-20"
+                          />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  )}
+                  <form
+                    onSubmit={(e) => e.preventDefault()}
+                    className={`mt-10 space-y-2 ${
+                      isWaitingForVerification ? "hidden" : ""
+                    }`}
+                  >
+                    {!isLogin && step === "details" && (
+                      <div>
+                        <input
+                          type="text"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          className="border-2 w-full h-13 rounded-2xl p-2"
+                          placeholder="First Name"
+                          required
+                        />
+                      </div>
+                    )}
+                    {!isLogin && step === "details" && (
+                      <div>
+                        <input
+                          type="text"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          className="border-2 w-full h-13 rounded-2xl p-2"
+                          placeholder="Last Name"
+                          required
+                        />
+                      </div>
+                    )}
+                    <div className={`${step === "details" ? "hidden" : ""}`}>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="border-2 w-full h-13 rounded-2xl p-2"
+                        placeholder="Enter your email"
+                        required
+                      />
+                    </div>
+                    {(isLogin || step === "details") && (
+                      <div>
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="border-2 w-full h-13 rounded-2xl p-2"
+                          placeholder="Enter your password"
+                          required
+                        />
+                      </div>
+                    )}
+                    {!isLogin && step === "details" && (
+                      <div>
+                        <input
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="border-2 w-full h-13 rounded-2xl p-2"
+                          placeholder="Confirm Password"
+                          required
+                        />
+                      </div>
+                    )}
+                    {error && <p className={`text-red-500 text-sm`}>{error}</p>}
+                    {isLoading ? (
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        className="border-2 w-full h-13 rounded-2xl text-black bg-blue-100 hover:bg-blue-200 transition-colors"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="flex justify-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                          </div>
+                        ) : isLogin ? (
+                          "Login"
+                        ) : step === "email" || step === "details" ? (
+                          "Next"
+                        ) : (
+                          "Submit"
+                        )}
+                      </button>
+                    )}
+                  </form>
+                </motion.div>
+
+                <motion.div
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.9, duration: 0.5 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`bg-white text-blue-500 h-fit ${
+                    isHovered ? "" : "self-center"
+                  } ${
+                    step === "details" || isWaitingForVerification
+                      ? "hidden"
+                      : ""
+                  } px-6 py-2 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold flex items-center gap-3 relative `}
+                  onHoverStart={() => !isTouchDevice() && setIsHovered(true)}
+                  onHoverEnd={() => !isTouchDevice() && setIsHovered(false)}
+                  onClick={() => handleAuthOptionSelect("Anonymous")}
+                >
+                  Continue as Anonymous{" "}
+                  <img
+                    src="/assets/incognito.png"
+                    alt="incognito"
+                    className="w-10"
+                  />
+                  <motion.img
+                    src="/assets/info.png"
+                    alt="info"
+                    className="absolute w-8 -top-1 -left-2 cursor-pointer p-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleInfoClick();
+                    }}
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                  <motion.ul
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: isHovered || isTooltipVisible ? 1 : 0,
+                      y: isHovered || isTooltipVisible ? 0 : 20,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className={`absolute gradient-bg-small-screen w-full text-white left-0 right-0 top-20  text-[16px] space-y-2 list-disc list-inside text-center`}
+                  >
+                    <li>
+                      Your activity will not be saved or synced across devices.
+                    </li>
+                    <li>
+                      You won't have access to personalized features like saved
+                      verses or reading plans.
+                    </li>
+                    <li>
+                      You can still explore the app and catch Bible verses in
+                      real-time.
+                    </li>
+                    <li>
+                      You can always create an account later to unlock full
+                      features.
+                    </li>
+                  </motion.ul>
+                </motion.div>
+              </div>
             </motion.section>
           )}
 
@@ -81,7 +634,7 @@ const Introduction = ({
               key="versions"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }} // Fade out and shrink (move towards the screen)
+              exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.5 }}
               style={{
                 background: "linear-gradient(135deg, #1CB5E0, #000046)",
@@ -96,22 +649,31 @@ const Introduction = ({
               >
                 Choose a Bible version:
               </motion.h2>
-              <div className="flex flex-wrap gap-10 justify-center pb-10">
-                {bibleVersions.map((version, index) => (
-                  <motion.button
-                    key={version}
-                    initial={{ x: -100, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 1 + index * 0.2, duration: 0.5 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="bg-white text-blue-500 px-6 py-2 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
-                    onClick={() => handleVersionSelect(version)} // Pass the selected version
-                  >
-                    {version}
-                  </motion.button>
-                ))}
-              </div>
+              {isVersionSelectionLoading ? (
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-10 justify-center pb-10">
+                  {bibleVersions
+                    .slice() // Create a copy of the array to avoid mutating the original
+                    .sort((a, b) => a.localeCompare(b)) // Sort alphabetically
+                    .map((version, index) => (
+                      <motion.button
+                        key={version}
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 1 + index * 0.2, duration: 0.5 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="bg-white text-blue-500 px-6 py-2 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
+                        onClick={() => handleVersionSelect(version)}
+                      >
+                        {version}
+                      </motion.button>
+                    ))}
+                </div>
+              )}
             </motion.section>
           )}
         </>
