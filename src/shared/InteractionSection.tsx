@@ -1,15 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import useSpeechRecognitionHook from "./UseSpeechRecognitionHook";
 
+interface InteractionBackgroundStyles {
+  background: string;
+  textColor: string;
+  buttonColor: string;
+}
+
 interface InteractionSectionProps {
   setReceivedData: (data: string) => void;
-  selectedVersion: string; // Selected version passed from HomePage
-  setSelectedVersion: (version: string) => void; // Function to update selected version
+  selectedVersion: string;
+  setSelectedVersion: (version: string) => void;
   userIsLoggedIn: boolean;
   userEmail: string;
   tourSteps: { id: string; description: string }[];
-  isTourActive: boolean,
-  currentStep: number
+  isTourActive: boolean;
+  currentStep: number;
+  interactionBackground: InteractionBackgroundStyles;
 }
 
 const book_versions = [
@@ -50,7 +57,8 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   userEmail,
   tourSteps,
   isTourActive,
-  currentStep
+  currentStep,
+  interactionBackground
 }) => {
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
@@ -61,6 +69,17 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false); // State for profile menu visibility
   const dropdownRef = useRef<HTMLUListElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null); // Ref for profile menu
+
+  // Default styles if not provided
+  const defaultStyles = {
+    background: "bg-white",
+    textColor: "text-gray-800",
+    buttonColor: "bg-black"
+  };
+
+  // Merge with default styles
+  const styles = interactionBackground || defaultStyles;
+
 
   // use speech recognition
   const {
@@ -164,7 +183,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   return (
     <>
       {hasRecognitionSupport ? (
-        <section className="bg-white sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
+        <section className={`${styles.background ||defaultStyles.background} ${styles.textColor || defaultStyles.textColor} sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl`}>
           {isTourActive && currentStep === 3 && (
             <div id="interaction-section">
               <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
@@ -298,7 +317,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             </li>
             <li className="">
               <button
-                className={`w-[197px] h-[48px] ${buttonColor} text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold ${
+                className={`w-[197px] h-[48px] ${styles.buttonColor || defaultStyles.buttonColor}  text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold ${
                   buttonText === "Start Listening" ||
                   buttonText === "Continue Listening"
                     ? "bouncing-button"
