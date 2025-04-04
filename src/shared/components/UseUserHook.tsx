@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { UserData } from "../constants/constants";
+import { UserData } from "../constants/interfaceConstants";
 
 const useUserDataHook = (): {
   userData: UserData | null;
   isConnected: boolean;
 } => {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const socketRef = useRef<WebSocket | null>(null); 
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     // Get the JWT token from localStorage
@@ -57,7 +57,7 @@ const useUserDataHook = (): {
 
   return {
     userData, // Return the user data
-    isConnected: socketRef.current?.readyState === WebSocket.OPEN, 
+    isConnected: socketRef.current?.readyState === WebSocket.OPEN,
   };
 };
 

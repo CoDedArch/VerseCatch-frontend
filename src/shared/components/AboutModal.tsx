@@ -1,6 +1,5 @@
 import { FC } from "react";
-import { AboutModelInterface } from "../constants/constants";
-
+import { AboutModelInterface } from "../constants/interfaceConstants";
 
 const AboutModal: FC<AboutModelInterface> = ({ setShowAboutModal }) => {
   return (

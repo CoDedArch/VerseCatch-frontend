@@ -1,5 +1,5 @@
 import getThemeStyles from "../components/GetThemeHook";
-import { ThemeStyles, Theme } from "../constants/constants";
+import { ThemeStyles, Theme } from "../constants/interfaceConstants";
 
 export const parseThemeStyles = (styles: string | ThemeStyles): ThemeStyles => {
   if (typeof styles === "string") {

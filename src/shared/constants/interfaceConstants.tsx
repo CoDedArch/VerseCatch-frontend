@@ -164,32 +164,81 @@ export interface TaskCompInterface {
   setIsTaskVisible: (value: boolean) => void;
 }
 
-export const book_versions = [
-  "AKJV_bible",
-  "ASV_bible",
-  "BRG_bible",
-  "EHV_bible",
-  "ESV_bible",
-  "ESVUK_bible",
-  "GNV_bible",
-  "GW_bible",
-  "ISV_bible",
-  "JUB_bible",
-  "KJ21_bible",
-  "KJV_bible",
-  "LEB_bible",
-  "MEV_bible",
-  "NASB_bible",
-  "NASB1995_bible",
-  "NET_bible",
-  "NIV_bible",
-  "NIVUK_bible",
-  "NKJV_bible",
-  "NLT_bible",
-  "NLV_bible",
-  "NOG_bible",
-  "NRSV_bible",
-  "NRSVUE_bible",
-  "WEB_bible",
-  "YLT_bible",
-];
+export interface WaitingVerificationInterface {
+  showCheckmark: boolean;
+}
+
+export type SignUpStep = "email" | "details" | "version";
+
+export interface SignUpFormInterface {
+  isWaitingForVerification: boolean;
+  isLogin: boolean;
+  isLoading: boolean;
+  step: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  error: string;
+  setLastName: (value: string) => void;
+  setFirstName: (value: string) => void;
+  setPassword: (value: string) => void;
+  setEmail: (value: string) => void;
+  setError: (value: string) => void;
+  setStep: (value: SignUpStep) => void;
+  setShowAuthOptions: (value: boolean) => void;
+  setIsLoading: (value: boolean) => void;
+  setShowVersions: (value: boolean) => void;
+  setShowCheckmark: (value: boolean) => void;
+}
+
+export interface SignUpFormInterface {
+  isWaitingForVerification: boolean;
+  isLogin: boolean;
+  isLoading: boolean;
+  step: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  error: string;
+  setLastName: (value: string) => void;
+  setFirstName: (value: string) => void;
+  setPassword: (value: string) => void;
+  setEmail: (value: string) => void;
+  setError: (value: string) => void;
+  setStep: (value: SignUpStep) => void;
+  setShowAuthOptions: (value: boolean) => void;
+  setIsLoading: (value: boolean) => void;
+  setShowVersions: (value: boolean) => void;
+  setShowCheckmark: (value: boolean) => void;
+}
+
+export interface BibleSelectionInterface {
+  isWaitingForVerification: boolean;
+  isLogin: boolean;
+  isLoading: boolean;
+  step: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  onComplete: (version: string) => void;
+  setError: (value: string) => void;
+  setShowAuthOptions: (value: boolean) => void;
+  setIsLoading: (value: boolean) => void;
+  setShowVersions: (value: boolean) => void;
+  setShowCheckmark: (value: boolean) => void;
+  setIsExiting: (value: boolean) => void;
+  setIsWaitingForVerification: (value: boolean) => void;
+}
+
+export interface AnonnymousSignUpInterface {
+  step: string;
+  isWaitingForVerification: boolean;
+  setShowAuthOptions: (value: boolean) => void;
+  setShowVersions: (value: boolean) => void;
+}
+
+
+

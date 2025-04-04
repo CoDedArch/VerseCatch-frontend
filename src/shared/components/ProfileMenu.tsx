@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ProfileMenuInterface } from "../constants/constants";
+import { ProfileMenuInterface } from "../constants/interfaceConstants";
 
 const ProfileMenu: FC<ProfileMenuInterface> = ({
   profileMenuRef,

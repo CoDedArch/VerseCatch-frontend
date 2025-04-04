@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { HelpModelInterface } from "../constants/constants";
+import { HelpModelInterface } from "../constants/interfaceConstants";
 
 const HelpModal: FC<HelpModelInterface> = ({ setShowHelpModal }) => {
   return (

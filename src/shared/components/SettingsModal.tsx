@@ -2,7 +2,9 @@ import { FC } from "react";
 import { useEffect, useState } from "react";
 import getThemeStyles from "./GetThemeHook";
 import { parseThemeStyles } from "../Services/ThemeServices";
-import { SettingsModelInterface, Theme } from "../constants/constants";
+import { SET_THEME_URL,  THEMES_URL, UNLOCK_THEME_URL } from "../constants/urlConstants";
+import { SettingsModelInterface, Theme } from "../constants/interfaceConstants";
+
 
 const SettingsModal: FC<SettingsModelInterface> = ({
   userIsLoggedIn,
@@ -39,7 +41,7 @@ const SettingsModal: FC<SettingsModelInterface> = ({
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/themes", {
+      const response = await fetch(THEMES_URL, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
@@ -112,7 +114,7 @@ const SettingsModal: FC<SettingsModelInterface> = ({
   const handleUnlockTheme = async (themeId: string, viaAd: boolean) => {
     setIsProcessing(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/unlock-theme", {
+      const response = await fetch(UNLOCK_THEME_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,7 +173,7 @@ const SettingsModal: FC<SettingsModelInterface> = ({
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/set-theme", {
+      const response = await fetch(SET_THEME_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

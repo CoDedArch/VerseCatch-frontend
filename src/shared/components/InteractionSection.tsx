@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import useSpeechRecognitionHook from "./UseSpeechRecognitionHook";
-import { InteractionSectionProps, book_versions } from "../constants/constants";
+import {
+  UPDATE_BIBLE_VERSION_FAIL,
+  UPDATE_BIBLE_VERSION_SUCCESS,
+  book_versions,
+} from "../constants/varConstants";
+import { UPDATE_BIBLE_VERSION_URL } from "../constants/urlConstants";
+import { InteractionSectionProps } from "../constants/interfaceConstants";
 
 const InteractionSection: React.FC<InteractionSectionProps> = ({
   setReceivedData,
@@ -60,22 +66,19 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   // Function to update the user's Bible version in the backend
   const updateUserBibleVersion = async (version: string) => {
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/update-bible-version",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ bible_version: version, email: userEmail }),
-        }
-      );
+      const response = await fetch(UPDATE_BIBLE_VERSION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bible_version: version, email: userEmail }),
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to update Bible version");
+        throw new Error(UPDATE_BIBLE_VERSION_FAIL);
       }
 
-      console.log("Bible version updated successfully");
+      console.log(UPDATE_BIBLE_VERSION_SUCCESS);
     } catch (error) {
       console.error("Error updating Bible version:", error);
     }

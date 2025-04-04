@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ProfileSectionInterface } from "../constants/constants";
+import { ProfileSectionInterface } from "../constants/interfaceConstants";
 
 const ProfileSection: FC<ProfileSectionInterface> = ({
   userData,

@@ -11,8 +11,7 @@ const useSpeechRecognitionHook = (
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const API_KEY =
-      "e8ce358cf4d831935f6138e4b777c8c73c5b6f6051ab2aa5ced6b8d66a564f1e";
+    const API_KEY = import.meta.env.VITE_API_KEY
     const ws = new WebSocket(
       `ws://127.0.0.1:8000/ws/detect-quotes?api_key=${API_KEY}&version=${selectedVersion}&user_email=${userEmail}`
     );

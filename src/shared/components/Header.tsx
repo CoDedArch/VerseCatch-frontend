@@ -6,7 +6,11 @@ import HelpModal from "./HelpModal";
 import SettingsModal from "./SettingsModal";
 import ProfileMenu from "./ProfileMenu";
 import ProfileSection from "./ProfileSection";
-import { Theme, ThemeStyles, HeaderInterface } from "../constants/constants";
+import {
+  Theme,
+  ThemeStyles,
+  HeaderInterface,
+} from "../constants/interfaceConstants";
 
 const Header: FC<HeaderInterface> = ({
   userIsLoggedIn,

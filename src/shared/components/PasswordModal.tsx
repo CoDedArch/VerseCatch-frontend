@@ -1,6 +1,15 @@
 import { FC } from "react";
 import { useState } from "react";
-import { PasswordModelInterface } from "../constants/constants";
+import {
+  ALL_PASSWORD_FIELDS_REQUIRED_PROMPT,
+  DIFF_PASSWORD_PROMPT,
+  NEW_PASSWORD_DIFF_PROMPT,
+  NEW_PASSWORD_FAILED_PROMPT,
+  NEW_PASSWORD_SUCCESS_PROMPT,
+  WEAK_PASSWORD_PROMPT,
+} from "../constants/varConstants";
+import { CHANGE_PASSWORD_URL } from "../constants/urlConstants";
+import { PasswordModelInterface } from "../constants/interfaceConstants";
 
 const PasswordModal: FC<PasswordModelInterface> = ({
   setShowChangePasswordModal,
@@ -14,18 +23,18 @@ const PasswordModal: FC<PasswordModelInterface> = ({
   const handleChangePassword = async () => {
     // Validate inputs
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("All fields are required");
+      setPasswordError(ALL_PASSWORD_FIELDS_REQUIRED_PROMPT);
       return;
     }
 
     // Check if new password matches current password
     if (currentPassword === newPassword) {
-      setPasswordError("New password must be different from current password");
+      setPasswordError(DIFF_PASSWORD_PROMPT);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords don't match");
+      setPasswordError(NEW_PASSWORD_DIFF_PROMPT);
       return;
     }
 
@@ -33,38 +42,29 @@ const PasswordModal: FC<PasswordModelInterface> = ({
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
-      setPasswordError(
-        "Password must be at least 8 characters and include:\n" +
-          "- At least one uppercase letter\n" +
-          "- At least one lowercase letter\n" +
-          "- At least one number\n" +
-          "- At least one special character (@$!%*?&)"
-      );
+      setPasswordError(WEAK_PASSWORD_PROMPT);
       return;
     }
 
     try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/auth/change-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({
-            current_password: currentPassword,
-            new_password: newPassword,
-          }),
-        }
-      );
+      const response = await fetch(CHANGE_PASSWORD_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to change password");
+        throw new Error(errorData.detail || NEW_PASSWORD_FAILED_PROMPT);
       }
 
-      setPasswordSuccess("Password changed successfully!");
+      setPasswordSuccess(NEW_PASSWORD_SUCCESS_PROMPT);
       setPasswordError("");
 
       // Clear fields after successful change

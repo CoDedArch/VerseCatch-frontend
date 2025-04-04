@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { TaskCompInterface } from "../constants/constants";
+import { TaskCompInterface } from "../constants/interfaceConstants";
 
 const TaskComp: FC<TaskCompInterface> = ({
   themeStyles,
