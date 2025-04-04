@@ -10,7 +10,7 @@
   }
 }
 
-@theme{
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 }
@@ -28,8 +28,8 @@ main {
 }
 
 .btn-red {
-background-color: var(--btn-red);
-color: var(--text-red);
+  background-color: var(--btn-red);
+  color: var(--text-red);
 }
 
 @keyframes gradientAnimation {
@@ -54,7 +54,6 @@ color: var(--text-red);
   animation: gradientAnimation 3s infinite;
 }
 
-
 @keyframes gradientAnimation {
   0% {
     background-position: 0% 50%;
@@ -68,13 +67,14 @@ color: var(--text-red);
 }
 
 .animated-gradient {
-  background: linear-gradient(135deg, #6DD5FA, #b0adf4, #bdb5c3, #f2f1d6);
+  background: linear-gradient(135deg, #6dd5fa, #b0adf4, #bdb5c3, #f2f1d6);
   background-size: 400% 400%;
   animation: gradientAnimation 10s ease infinite;
 }
 
 @keyframes scale {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -92,19 +92,22 @@ color: var(--text-red);
 
 .profile-button:hover {
   transition: background-color 0.5s ease;
-  background: linear-gradient(135deg, rgba(20, 30, 48, 1), rgba(36, 59, 85, 0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(20, 30, 48, 1),
+    rgba(36, 59, 85, 0.2)
+  );
 }
 
 .profile-button:hover span {
   transition: color 0.3s ease;
-  color:white;
+  color: white;
 }
 
 .profile-button:hover img {
   background-color: white; /* Change image background to white on hover */
   transition: background-color 0.3s ease;
 }
-
 
 @keyframes pulse {
   0% {
@@ -189,25 +192,32 @@ color: var(--text-red);
 
 @media (max-width: 640px) {
   .gradient-bg-small-screen {
-    background: linear-gradient(104deg, #1CB5E0, #000046);
+    background: linear-gradient(104deg, #1cb5e0, #000046);
   }
 }
 
 @keyframes glow {
   0% {
-    box-shadow: 0 0 10px rgba(147, 112, 219, 0.7), 0 0 20px rgba(255, 105, 180, 0.5);
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.7),
+      0 0 20px rgba(255, 105, 180, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(147, 112, 219, 0.9), 0 0 30px rgba(255, 105, 180, 0.7);
+    box-shadow: 0 0 20px rgba(147, 112, 219, 0.9),
+      0 0 30px rgba(255, 105, 180, 0.7);
   }
   100% {
-    box-shadow: 0 0 10px rgba(147, 112, 219, 0.7), 0 0 20px rgba(255, 105, 180, 0.5);
+    box-shadow: 0 0 10px rgba(147, 112, 219, 0.7),
+      0 0 20px rgba(255, 105, 180, 0.5);
   }
 }
 
 .listening-glow {
   animation: glow 2s infinite;
-  background: linear-gradient(135deg, rgba(173, 216, 230, 0.8), rgba(100, 149, 237, 0.8));
+  background: linear-gradient(
+    135deg,
+    rgba(173, 216, 230, 0.8),
+    rgba(100, 149, 237, 0.8)
+  );
 }
 
 @keyframes moveLeftRight {
@@ -240,4 +250,23 @@ color: var(--text-red);
 
 .animate-move-up-down {
   animation: moveUpDown 1.5s ease-in-out infinite; /* Smooth up-and-down motion */
+}
+
+/* For smooth modal animations */
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+.modal-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.modal-exit {
+  opacity: 1;
+}
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 300ms, transform 300ms;
 }
