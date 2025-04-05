@@ -1,4 +1,4 @@
-import getThemeStyles from "../components/GetThemeHook";
+import getThemeStyles from "../components/Hooks/GetThemeHook";
 import { ThemeStyles, Theme } from "../constants/interfaceConstants";
 
 export const parseThemeStyles = (styles: string | ThemeStyles): ThemeStyles => {

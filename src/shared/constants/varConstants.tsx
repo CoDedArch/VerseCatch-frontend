@@ -49,3 +49,26 @@ export const book_versions = [
   "WEB_bible",
   "YLT_bible",
 ];
+
+
+export const tourSteps = [
+  {
+    id: "task-section",
+    description:
+      "This is your personal hub for staying organized and on top of your goals.",
+  },
+  {
+    id: "version-section",
+    description: "This displays your Bible Version Preference.",
+  },
+  {
+    id: "profile-section",
+    description:
+      "This section displays your current tag, faith coins, login streak, and profile settings.",
+  },
+  {
+    id: "interaction-section",
+    description:
+      "This displays your Bible Version Preference in the interaction component.",
+  },
+];

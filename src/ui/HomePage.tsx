@@ -1,54 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import InteractionSection from "@/shared/components/InteractionSection";
-import Introduction from "@/shared/components/Introduction";
-import useUserDataHook from "@/shared/components/UseUserHook";
-import getThemeStyles from "@/shared/components/GetThemeHook";
-import Header from "@/shared/components/Header";
-import TaskComp from "@/shared/components/TaskComp";
-
-interface ThemeStyles {
-  mainBackground: {
-    background: string;
-  };
-  taskBackground: {
-    background: string;
-    color: string;
-    contentBackground: string;
-  };
-  verseBackground: {
-    background: string;
-    color: string;
-    verseHighlight: string;
-  };
-  interactionBackground: {
-    background: string;
-    color: string;
-    buttonColor: string;
-  };
-}
-
-interface Theme {
-  id: string;
-  name: string;
-  display_name: string;
-  price: number;
-  preview_image_url: string;
-  is_default: boolean;
-  is_current?: boolean; // Optional if it exists in your data
-  unlocked?: boolean; // Optional if it exists in your data
-  styles: string | ThemeStyles; // Can be string or parsed object
-}
-
-interface Verse {
-  verse_number: string;
-  text: string;
-}
-
-interface EntireBookDataInterface {
-  chapter: string;
-  verses: Verse[];
-}
+import InteractionSection from "@/shared/components/containers/InteractionSection";
+import Introduction from "@/shared/components/containers/Introduction";
+import useUserDataHook from "@/shared/components/Hooks/UseUserHook";
+import getThemeStyles from "@/shared/components/Hooks/GetThemeHook";
+import Header from "@/shared/components/containers/Header";
+import TaskComp from "@/shared/components/presentation/TaskComp";
+import {
+  Theme,
+  ThemeStyles,
+  Verse,
+  EntireBookDataInterface,
+} from "@/shared/constants/interfaceConstants";
+import { tourSteps } from "@/shared/constants/varConstants";
+import { UPDATE_HAS_TAKEN_TOUR_URL } from "@/shared/constants/urlConstants";
 
 const HomePage = () => {
   const { userData } = useUserDataHook();
@@ -81,28 +46,6 @@ const HomePage = () => {
     setThemeStyles(newThemeStyles);
     setSelectedTheme(newSelectedTheme);
   };
-
-  const tourSteps = [
-    {
-      id: "task-section",
-      description:
-        "This is your personal hub for staying organized and on top of your goals.",
-    },
-    {
-      id: "version-section",
-      description: "This displays your Bible Version Preference.",
-    },
-    {
-      id: "profile-section",
-      description:
-        "This section displays your current tag, faith coins, login streak, and profile settings.",
-    },
-    {
-      id: "interaction-section",
-      description:
-        "This displays your Bible Version Preference in the interaction component.",
-    },
-  ];
 
   // all Handlers
 
@@ -139,7 +82,7 @@ const HomePage = () => {
   const updateHasTakenTour = async (email: string, hasTakenTour: boolean) => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/update-has-taken-tour",
+       UPDATE_HAS_TAKEN_TOUR_URL,
         {
           method: "POST",
           headers: {
@@ -372,8 +315,8 @@ const HomePage = () => {
       {!introComplete ? (
         <Introduction
           onComplete={(version) => {
-            setSelectedVersion(version); // Update the selected version
-            setIntroComplete(true); // Mark introduction as complete
+            setSelectedVersion(version); 
+            setIntroComplete(true);
           }}
         />
       ) : (
@@ -509,7 +452,7 @@ const HomePage = () => {
               displayThemeName={selectedTheme?.display_name}
             />
           ) : (
-            <p>Loading user data...</p> // Optional: Show a loading state
+            <p>Loading user data...</p>
           )}
         </main>
       )}

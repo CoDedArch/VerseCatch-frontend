@@ -1,5 +1,17 @@
 import { Ref } from "react";
 
+
+export interface Verse {
+  verse_number: string;
+  text: string;
+}
+
+export interface EntireBookDataInterface {
+  chapter: string;
+  verses: Verse[];
+}
+
+
 export interface ThemeStyles {
   mainBackground: {
     background: string;
