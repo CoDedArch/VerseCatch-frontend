@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { useState } from "react";
 import {
   ALL_PASSWORD_FIELDS_REQUIRED_PROMPT,
@@ -9,11 +8,8 @@ import {
   WEAK_PASSWORD_PROMPT,
 } from "../../constants/varConstants";
 import { CHANGE_PASSWORD_URL } from "../../constants/urlConstants";
-import { PasswordModelInterface } from "../../constants/interfaceConstants";
 
-const PasswordModal: FC<PasswordModelInterface> = ({
-  setShowChangePasswordModal,
-}) => {
+const PasswordModal= () => {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -74,7 +70,6 @@ const PasswordModal: FC<PasswordModelInterface> = ({
 
       // Close modal after 3 seconds
       setTimeout(() => {
-        setShowChangePasswordModal(false);
         setPasswordSuccess("");
       }, 3000);
     } catch (error) {
@@ -139,7 +134,6 @@ const PasswordModal: FC<PasswordModelInterface> = ({
 
           <div className="flex justify-center space-x-2">
             <button
-              onClick={() => setShowChangePasswordModal(false)}
               className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400 transition-all hover:cursor-pointer"
             >
               Cancel

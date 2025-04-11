@@ -7,18 +7,13 @@ import {
 } from "../../constants/varConstants";
 import { UPDATE_BIBLE_VERSION_URL } from "../../constants/urlConstants";
 import { InteractionSectionProps } from "../../constants/interfaceConstants";
+import { tourSteps } from "../../constants/varConstants";
 
 const InteractionSection: React.FC<InteractionSectionProps> = ({
   setReceivedData,
-  selectedVersion,
-  setSelectedVersion,
-  userIsLoggedIn,
-  userEmail,
-  tourSteps,
-  isTourActive,
-  currentStep,
-  interactionBackground,
-  displayThemeName,
+  version,
+  user,
+  tourState,
 }) => {
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
@@ -37,11 +32,11 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   // Merge with default styles
-  const styles = interactionBackground || defaultStyles;
+  const styles = defaultStyles;
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
-    useSpeechRecognitionHook(selectedVersion, userEmail); // Pass selectedVersion to the hook
+    useSpeechRecognitionHook(version.value, user.email);
 
   const handleButtonClick = () => {
     if (!listening) {
@@ -71,7 +66,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ bible_version: version, email: userEmail }),
+        body: JSON.stringify({ bible_version: version, email: user.email }),
       });
 
       if (!response.ok) {
@@ -84,13 +79,13 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     }
   };
 
-  const handleVersionChange = async (version: string) => {
-    setSelectedVersion(version);
+  const handleVersionChange = async (new_version: string) => {
+     version.onChange(new_version);
     setDropdownVisible(false);
 
     // Update the user's Bible version in the backend
-    if (userIsLoggedIn) {
-      await updateUserBibleVersion(version);
+    if (user.isLoggedIn) {
+      await updateUserBibleVersion(new_version);
     }
   };
 
@@ -132,13 +127,13 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     <>
       {hasRecognitionSupport ? (
         <section
-          style={{
-            background: styles?.background || defaultStyles.background,
-            color: styles?.color,
-          }}
+          // style={{
+          //   background: styles?.background || defaultStyles.background,
+          //   color: styles?.color,
+          // }}
           className={`sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl`}
         >
-          {isTourActive && currentStep === 3 && (
+          {tourState.isTourActive && tourState.currentStep === 3 && (
             <div id="interaction-section">
               <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
                 {tourSteps[3].description}
@@ -152,7 +147,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
           )}
 
           {/* Profile Menu */}
-          {userIsLoggedIn && showProfileMenu && (
+          {user.isLoggedIn && showProfileMenu && (
             <div
               ref={profileMenuRef}
               className="bg-slate-500/20 sm:hidden absolute right-1 w-fit -top-[21em] rounded-lg p-2"
@@ -203,7 +198,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
           )}
 
           {/* Profile Button */}
-          {userIsLoggedIn && !receivedData && (
+          {user.isLoggedIn && !receivedData && (
             <div>
               <button
                 className="profile-button absolute sm:hidden sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center hover:cursor-pointer transition-all"
@@ -228,18 +223,13 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
                 className="w-8 sm:w-14"
               />
               <span className="bg-slate-400/10 p-3">
-                {selectedVersion || "Bible version"}
+                {version.value || "Bible version"}
               </span>
             </div>
           )}
           <img
             title="Bible Versions"
-            src={
-              displayThemeName === "Twilight" ||
-              displayThemeName === "Dark Night"
-                ? "/assets/dots1.png"
-                : "/assets/dots.png"
-            }
+            src="/assets/dots.png"
             alt="three dots"
             className="absolute right-0 w-9 cursor-pointer"
             onClick={toggleDropdown}
@@ -267,7 +257,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             <li
               className={`span-color p-3 w-fit min-h-[50px] ${
                 listening
-                  ? `pt-4 ${userEmail ? "shadow-gradient listening-glow" : ""}`
+                  ? `pt-4 ${user.email ? "shadow-gradient listening-glow" : ""}`
                   : ""
               } rounded-full`}
             >

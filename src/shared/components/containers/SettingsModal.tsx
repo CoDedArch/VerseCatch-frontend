@@ -1,4 +1,3 @@
-import { FC } from "react";
 import { useEffect, useState } from "react";
 import getThemeStyles from "../Hooks/GetThemeHook";
 import { parseThemeStyles } from "../../Services/ThemeServices";
@@ -8,41 +7,15 @@ import {
   UNLOCK_THEME_URL,
 } from "../../constants/urlConstants";
 import {
-  SettingsModelInterface,
   Theme,
 } from "../../constants/interfaceConstants";
 
-const SettingsModal: FC<SettingsModelInterface> = ({
-  userIsLoggedIn,
-  userData,
-  isTourActive,
-  showProfileMenu,
-  selectedVersion,
-  setShowProfileMenu,
-  setShowSettingsModal,
-  showSettingsModal,
-  onThemeChange,
-}) => {
+const SettingsModal = () => {
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
-
-  const currentThemeObj: Theme = themes.find((t) => t.is_current) ||
-    themes.find((t) => t.is_default) || {
-      id: "default",
-      name: "default",
-      display_name: "Default",
-      price: 0,
-      preview_image_url: "",
-      is_default: true,
-      is_current: false,
-      unlocked: true,
-      styles: getThemeStyles("default"),
-    };
-
-  const themeStyles = parseThemeStyles(currentThemeObj.styles);
 
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
@@ -94,7 +67,6 @@ const SettingsModal: FC<SettingsModelInterface> = ({
         };
 
       setSelectedTheme(currentTheme);
-      onThemeChange(parseThemeStyles(currentTheme.styles), currentTheme);
 
       // Store theme in localStorage for persistence
       localStorage.setItem("currentTheme", JSON.stringify(currentTheme));
@@ -113,7 +85,6 @@ const SettingsModal: FC<SettingsModelInterface> = ({
         styles: getThemeStyles("default"),
       };
       setSelectedTheme(defaultTheme);
-      onThemeChange(parseThemeStyles(defaultTheme.styles), defaultTheme);
     }
   };
 
@@ -156,7 +127,6 @@ const SettingsModal: FC<SettingsModelInterface> = ({
       try {
         const parsedTheme = JSON.parse(savedTheme);
         setSelectedTheme(parsedTheme);
-        onThemeChange(parseThemeStyles(parsedTheme.styles), parsedTheme);
       } catch (error) {
         console.error("Error parsing saved theme:", error);
       }
@@ -164,17 +134,13 @@ const SettingsModal: FC<SettingsModelInterface> = ({
   }, []);
 
   useEffect(() => {
-    if (showSettingsModal) {
-      fetchThemes();
-    }
-  }, [showSettingsModal]);
+    fetchThemes();
+  });
 
   // Add this useEffect to fetch themes when user logs in
   useEffect(() => {
-    if (userIsLoggedIn) {
-      fetchThemes();
-    }
-  }, [userIsLoggedIn]);
+    fetchThemes();
+  });
 
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
@@ -212,20 +178,13 @@ const SettingsModal: FC<SettingsModelInterface> = ({
           styles: getThemeStyles("default"),
         };
         setSelectedTheme(defaultTheme);
-        onThemeChange(parseThemeStyles(defaultTheme.styles), defaultTheme);
         localStorage.setItem("currentTheme", JSON.stringify(defaultTheme));
       } else {
         // For non-default themes, use the selected theme's styles
         const themeToApply =
           themes.find((t) => t.id === themeId) || selectedTheme;
         if (themeToApply) {
-          const styles =
-            typeof themeToApply.styles === "string"
-              ? themeToApply.styles
-              : JSON.stringify(
-                  themeToApply.styles || getThemeStyles("default")
-                );
-          onThemeChange(parseThemeStyles(styles), themeToApply);
+          //
           localStorage.setItem("currentTheme", JSON.stringify(themeToApply));
         }
       }
@@ -244,12 +203,6 @@ const SettingsModal: FC<SettingsModelInterface> = ({
   };
 
   useEffect(() => {
-    if (themeStyles && selectedTheme) {
-      onThemeChange(themeStyles, selectedTheme);
-    }
-  }, [themeStyles, selectedTheme, onThemeChange]);
-
-  useEffect(() => {
     if (showAdModal && selectedTheme) {
       // Add null check here
       const timer = setTimeout(() => {
@@ -266,10 +219,7 @@ const SettingsModal: FC<SettingsModelInterface> = ({
         <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Theme Settings</h2>
-            <button
-              onClick={() => setShowSettingsModal(false)}
-              className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
-            >
+            <button className="text-gray-500 hover:text-gray-700 hover:cursor-pointer">
               ✕
             </button>
           </div>
@@ -420,14 +370,13 @@ const SettingsModal: FC<SettingsModelInterface> = ({
                 >
                   <div className="flex items-center">
                     <img
-                      src={`/assets/${
-                        isTourActive ? "version2.png" : "version.png"
+                      src={`/assets/version.png
                       }`}
                       alt="Bible Version"
                       className="w-8 h-8"
                     />
                     <span className="bg-slate-400/10 p-3 text-sm">
-                      {selectedVersion || "Bible version"}
+                      {"Bible version"} //provide a selected version
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -447,24 +396,24 @@ const SettingsModal: FC<SettingsModelInterface> = ({
                       className="self-center p-1 rounded-2xl relative shadow-black shadow-2xl"
                     >
                       <span className="bg-white text-black p-2 rounded-2xl text-sm relative -top-3 shadow-black shadow-2xl">
-                        {userData?.current_tag || "Newbie"}
+                        "Newbie"
                       </span>
                     </p>
                     <div className="flex">
                       <img src="/assets/coin.png" alt="Coins" className="w-6" />
                       <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                        {userData?.faith_coins}
+                        10
                       </span>
                     </div>
                     <div className="flex">
                       <img src="/assets/fire.png" alt="Coins" className="w-6" />
                       <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                        {userData?.streak}
+                        2
                       </span>
                     </div>
                     <button
                       className="profile-button absolute sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 top-[21em] sm:top-8 font-bold text-lg sm:flex items-center hidden hover:cursor-pointer transition-all"
-                      onClick={() => setShowProfileMenu(!showProfileMenu)}
+                      // onClick={() => setShowProfileMenu(!showProfileMenu)}
                     >
                       <img
                         src="/assets/profile.png"
@@ -472,8 +421,7 @@ const SettingsModal: FC<SettingsModelInterface> = ({
                         className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
                       />
                       <span className="p-3 font-bold">
-                        {userData?.first_name?.[0]?.toUpperCase() || ""}{" "}
-                        {userData?.last_name?.[0]?.toUpperCase() || ""}
+                        John Doe
                       </span>
                     </button>
                   </div>
