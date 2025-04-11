@@ -1,3 +1,5 @@
+import { TourState, TaskState } from "./interfaceConstants";
+
 export const LOGIN_FAIL_PROMPT = "Login failed. Please try again.";
 export const CHECK_EMAIL_FAIL_PROMPT =
   "An error occurred while checking the email. Please try again.";
@@ -72,3 +74,15 @@ export const tourSteps = [
       "This displays your Bible Version Preference in the interaction component.",
   },
 ];
+
+
+export const INITIALTOURSTATE: TourState = {
+  isTourActive: false,
+  currentStep: 0,
+  isCancelled: false,
+}
+export const INITIAL_TASK_STATE: TaskState = {
+  isTaskVisible: true,
+  isTaskHighlighted: false,
+  showControls: true,
+}
