@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import InteractionSection from "@/shared/components/containers/InteractionSection";
 import Introduction from "@/shared/components/containers/Introduction";
 import useUserDataHook from "@/shared/components/Hooks/UseUserHook";
-import getThemeStyles from "@/shared/components/Hooks/GetThemeHook";
 import Header from "@/shared/components/containers/Header";
 import TaskComp from "@/shared/components/presentation/TaskComp";
 import {
-  Theme,
-  ThemeStyles,
+  INITIALTOURSTATE,
+} from "@/shared/constants/varConstants";
+import {
   Verse,
   EntireBookDataInterface,
 } from "@/shared/constants/interfaceConstants";
@@ -17,60 +17,53 @@ import { UPDATE_HAS_TAKEN_TOUR_URL } from "@/shared/constants/urlConstants";
 
 const HomePage = () => {
   const { userData } = useUserDataHook();
-  const [isTourActive, setIsTourActive] = useState(false); // Set to true to start the tour
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isCancelled, setIsCancelled] = useState(false);
+  const [tourState, setTourState] = useState(INITIALTOURSTATE);
+
   const [userIsLoggedIn, setUserIsLoggedIn] = useState(false);
   const [receivedData, setReceivedData] = useState<string | null>(null);
   const [introComplete, setIntroComplete] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState<string>("KJV_bible");
-  const [showLoginTaskComplete, setShowLoginTaskComplete] = useState(true);
-  const [showImage, setShowImage] = useState(false);
-  const [animate, setAnimate] = useState(false);
+  
   const parsedData = receivedData ? JSON.parse(receivedData)[0] : null;
-  const [isTaskVisible, setIsTaskVisible] = useState(true);
-  const [isTaskHighlighted, setIsTaskHighlighted] = useState(false);
   const [entireBookData, setEntireBookData] = useState<
     EntireBookDataInterface[] | null
   >(null);
   const [highlightedVerse, setHighlightedVerse] = useState<string | null>(null);
-  const [themeStyles, setThemeStyles] = useState<ThemeStyles>(
-    getThemeStyles("default")
-  );
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
-
-  const handleThemeChange = (
-    newThemeStyles: ThemeStyles,
-    newSelectedTheme: Theme | null
-  ) => {
-    setThemeStyles(newThemeStyles);
-    setSelectedTheme(newSelectedTheme);
-  };
+  
 
   // all Handlers
 
   // Function to move to the next step
   const nextStep = async () => {
-    if (currentStep < tourSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (tourState.currentStep < tourSteps.length - 1) {
+      setTourState((prev) => ({
+        ...prev,
+        currentStep: prev.currentStep + 1,
+      }));
     } else {
       // End of tour
-      setIsTourActive(false);
+      setTourState((prev) => ({
+        ...prev,
+        isTourActive: false,
+      }));
       await updateHasTakenTour(userData?.email || "", true);
     }
   };
 
   // Function to cancel the tour
   const cancelTour = async () => {
-    setIsTourActive(false);
-    setIsCancelled(true);
+    setTourState((prev) => ({
+      ...prev,
+      isTourActive: false,
+    }));
+    setTourState((prev) => ({
+      ...prev,
+      isCancelled: false,
+    }));
     await updateHasTakenTour(userData?.email || "", true);
   };
 
-  const handleShowClick = () => {
-    setIsTaskVisible(true);
-  };
-
+ 
   // handler to fetch chapters, verse text from the book in which the verse belong
   const handleVerseClick = () => {
     if (parsedData) {
@@ -81,17 +74,14 @@ const HomePage = () => {
   // handler to set the tour status of the auth user
   const updateHasTakenTour = async (email: string, hasTakenTour: boolean) => {
     try {
-      const response = await fetch(
-       UPDATE_HAS_TAKEN_TOUR_URL,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify({ email, has_taken_tour: hasTakenTour }),
-        }
-      );
+      const response = await fetch(UPDATE_HAS_TAKEN_TOUR_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: JSON.stringify({ email, has_taken_tour: hasTakenTour }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to update has_taken_tour");
@@ -123,7 +113,10 @@ const HomePage = () => {
   // set the tour status of the user
   useEffect(() => {
     if (userData) {
-      setIsTourActive(!userData?.has_taken_tour);
+      setTourState((prev) => ({
+        ...prev,
+        isTourActive: !userData?.has_taken_tour,
+      }));
     }
   }, [userData]);
 
@@ -140,32 +133,25 @@ const HomePage = () => {
   }, [entireBookData, parsedData]);
 
   // apply z index to the task for 5 seconds
-  useEffect(() => {
-    if (isTourActive) {
-      setIsTaskHighlighted(true);
-      const timer = setTimeout(() => {
-        setIsTaskHighlighted(false);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isTourActive]);
+ 
 
   // Automatically move to the next step every 3 seconds
   useEffect(() => {
-    if (isTourActive && !isCancelled) {
+    if (tourState.isTourActive && !tourState.isCancelled) {
       const timer = setTimeout(() => {
         nextStep();
       }, 5000); // 5 seconds
 
       return () => clearTimeout(timer);
     }
-  }, [currentStep, isTourActive, isCancelled]);
+  }, [tourState.currentStep, tourState.isTourActive, tourState.isCancelled]);
 
   // Add z-index to the current step and its parent
   useEffect(() => {
-    if (isTourActive && !isCancelled) {
-      const currentElement = document.getElementById(tourSteps[currentStep].id);
+    if (tourState.isTourActive && !tourState.isCancelled) {
+      const currentElement = document.getElementById(
+        tourSteps[tourState.currentStep].id
+      );
       if (currentElement && currentElement.parentElement) {
         // Set high z-index for the current step and its parent
         currentElement.style.zIndex = "10000";
@@ -182,7 +168,7 @@ const HomePage = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, [currentStep, isTourActive, isCancelled]);
+  }, [tourState.currentStep, tourState.isTourActive, tourState.isCancelled]);
 
   // set the bible version to the preferred version of the user in their database
   useEffect(() => {
@@ -191,21 +177,7 @@ const HomePage = () => {
     }
   }, [userData]);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 640px)");
-    setIsTaskVisible(!mediaQuery.matches);
-
-    // Optional: Add a listener to handle screen size changes dynamically
-    const handleMediaChange = (event: MediaQueryListEvent) => {
-      setIsTaskVisible(!event.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleMediaChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleMediaChange);
-    };
-  }, []);
+  
 
   useEffect(() => {
     const username = localStorage.getItem("username");
@@ -221,26 +193,7 @@ const HomePage = () => {
     }
   }, []);
 
-  // Trigger animation when faith_coins changes
-  useEffect(() => {
-    if (userData?.faith_coins !== undefined) {
-      setAnimate(true);
-      const timer = setTimeout(() => setAnimate(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [userData?.faith_coins]);
-
-  useEffect(() => {
-    if (showLoginTaskComplete) {
-      // After 2 seconds, stop the animation and show the image
-      const timer = setTimeout(() => {
-        setShowLoginTaskComplete(false);
-        setShowImage(true);
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [showLoginTaskComplete]);
+  
 
   // Check for token, login state, or anonymous user on page load
   useEffect(() => {
@@ -301,7 +254,7 @@ const HomePage = () => {
 
   return (
     <>
-      {isTourActive && introComplete && (
+      {tourState.isTourActive && introComplete && (
         <section className="bg-black/80 fixed inset-0 h-screen w-full z-50 flex justify-center items-center">
           <button
             className="text-white font-bold text-2xl ml-10 bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-red-700/50"
@@ -315,38 +268,23 @@ const HomePage = () => {
       {!introComplete ? (
         <Introduction
           onComplete={(version) => {
-            setSelectedVersion(version); 
+            setSelectedVersion(version);
             setIntroComplete(true);
           }}
         />
       ) : (
         <main
-          style={{ background: themeStyles?.mainBackground?.background }}
-          className={`${themeStyles.mainBackground.background} min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5`}
+          // style={{ background: themeStyles?.mainBackground?.background }}
+            className={` 
+            min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5`}
         >
-          <img
-            src="/assets/show.png"
-            alt="show"
-            className={`w-14 absolute left-3 z-[100] top-[470px] bg-black/50 p-1 rounded-full cursor-pointer transition-opacity duration-300 ${
-              isTaskVisible ? "opacity-0" : "opacity-100"
-            }`}
-            onClick={handleShowClick}
-          />
+          
 
           {/* Task Div */}
           {userData && (
             <TaskComp
-              themeStyles={themeStyles}
               userData={userData}
-              isTaskHighlighted={isTaskHighlighted}
-              isTaskVisible={isTaskVisible}
-              isTourActive={isTourActive}
-              currentStep={currentStep}
-              tourSteps={tourSteps}
-              setIsTaskVisible={setIsTaskVisible}
-              showImage={showImage}
-              animate={animate}
-              showLoginTaskComplete={showLoginTaskComplete}
+              tourState={tourState}
             />
           )}
           {/* Show the first version div only if there's no receivedData */}
@@ -354,15 +292,11 @@ const HomePage = () => {
           <Header
             userIsLoggedIn={userIsLoggedIn}
             receivedData={receivedData}
-            isTourActive={isTourActive}
-            selectedVersion={selectedVersion}
-            currentStep={currentStep}
-            tourSteps={tourSteps}
+            tourState={tourState}
             userData={userData}
-            animate={animate}
+            selectedVersion={selectedVersion}
             setIntroComplete={setIntroComplete}
             setUserIsLoggedIn={setUserIsLoggedIn}
-            onThemeChange={handleThemeChange}
           />
 
           {/* Show the section with version2 div only if there's receivedData */}
@@ -374,10 +308,10 @@ const HomePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                style={{
-                  background: themeStyles?.verseBackground?.background,
-                  color: themeStyles?.verseBackground?.color,
-                }}
+                // style={{
+                //   background: themeStyles?.verseBackground?.background,
+                //   color: themeStyles?.verseBackground?.color,
+                // }}
                 className={`xl:w-1/2 space-y-4 p-10 relative rounded-2xl`}
                 onClick={handleVerseClick}
               >
@@ -420,10 +354,7 @@ const HomePage = () => {
                               className={`text-center xl:text-xl text-lg px-0 xl:px-0 py-5 ${
                                 highlightedVerse ===
                                 `${chapter.chapter}:${verse.verse_number}`
-                                  ? ` ${
-                                      themeStyles.verseBackground
-                                        .verseHighlight || "text-green-200"
-                                    } `
+                                  ? "text-green-200"
                                   : ""
                               }`}
                             >
@@ -441,15 +372,14 @@ const HomePage = () => {
           {userData || localStorage.getItem("username") === "anonymous" ? (
             <InteractionSection
               setReceivedData={setReceivedData}
-              selectedVersion={selectedVersion}
-              setSelectedVersion={setSelectedVersion}
-              userIsLoggedIn={userIsLoggedIn}
-              userEmail={userData?.email || "anonymous"}
-              tourSteps={tourSteps}
-              isTourActive={isTourActive}
-              currentStep={currentStep}
-              interactionBackground={themeStyles.interactionBackground}
-              displayThemeName={selectedTheme?.display_name}
+              version={{ value: selectedVersion, onChange: setSelectedVersion }}
+              user={{
+                isLoggedIn: userIsLoggedIn,
+                email: userData?.email || "anonymous",
+              }}
+              tourState={tourState}
+              // interactionBackground={themeStyles.interactionBackground}
+              // displayThemeName={selectedTheme?.display_name}
             />
           ) : (
             <p>Loading user data...</p>
