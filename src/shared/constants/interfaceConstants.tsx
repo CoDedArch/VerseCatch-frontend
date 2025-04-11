@@ -1,6 +1,3 @@
-import { Ref } from "react";
-
-
 export interface Verse {
   verse_number: string;
   text: string;
@@ -11,6 +8,17 @@ export interface EntireBookDataInterface {
   verses: Verse[];
 }
 
+export interface TourState {
+  isTourActive: boolean;
+  currentStep: number;
+  isCancelled: boolean;
+}
+
+export interface TaskState {
+  isTaskVisible: boolean;
+  isTaskHighlighted: boolean;
+  showControls: boolean;
+}
 
 export interface ThemeStyles {
   mainBackground: {
@@ -80,26 +88,11 @@ export interface UserData {
 export interface HeaderInterface {
   userIsLoggedIn: boolean;
   receivedData: string | null;
-  isTourActive: boolean;
+  tourState: TourState;
   selectedVersion: string;
-  currentStep: number;
-  tourSteps: TourSteps[];
   userData: UserData | null;
-  animate: boolean;
-  onThemeChange: (
-    themeStyles: ThemeStyles,
-    selectedTheme: Theme | null
-  ) => void;
   setIntroComplete: (value: boolean) => void;
   setUserIsLoggedIn: (value: boolean) => void;
-}
-
-export interface AboutModelInterface {
-  setShowAboutModal: (value: boolean) => void;
-}
-
-export interface HelpModelInterface {
-  setShowHelpModal: (value: boolean) => void;
 }
 
 export interface InteractionBackgroundStyles {
@@ -108,17 +101,23 @@ export interface InteractionBackgroundStyles {
   buttonColor: string;
 }
 
+export interface VersionSelection {
+  value: string;
+  onChange: (version: string) => void;
+}
+
+export interface UserInfo {
+  isLoggedIn: boolean;
+  email: string;
+}
+
 export interface InteractionSectionProps {
   setReceivedData: (data: string) => void;
-  selectedVersion: string;
-  setSelectedVersion: (version: string) => void;
-  userIsLoggedIn: boolean;
-  userEmail: string;
-  tourSteps: { id: string; description: string }[];
-  isTourActive: boolean;
-  currentStep: number;
-  interactionBackground: InteractionBackgroundStyles;
-  displayThemeName: string | undefined;
+  version: VersionSelection;
+  user: UserInfo;
+  tourState: TourState;
+  // interactionBackground: InteractionBackgroundStyles;
+  // displayThemeName: string | undefined;
 }
 
 export interface PasswordModelInterface {
@@ -126,54 +125,18 @@ export interface PasswordModelInterface {
 }
 
 export interface ProfileMenuInterface {
-  profileMenuRef: Ref<HTMLDivElement | null>;
-  selectedTheme: Theme | null;
-  setIntroComplete: (value: boolean) => void;
-  setUserIsLoggedIn: (value: boolean) => void;
-  setShowSettingsModal: (value: boolean) => void;
-  setShowProfileMenu: (value: boolean) => void;
-  setShowAboutModal: (value: boolean) => void;
-  setShowHelpModal: (value: boolean) => void;
-  setShowChangePasswordModal: (value: boolean) => void;
+  userData: UserData | null;
 }
 
 export interface ProfileSectionInterface {
   userData: UserData | null;
-  isTourActive: boolean;
-  animate: boolean;
-  currentStep: number;
-  tourSteps: TourSteps[];
-  showProfileMenu: boolean;
-  setShowProfileMenu: (value: boolean) => void;
+  tourState: TourState;
 }
 
-export interface SettingsModelInterface {
-  userIsLoggedIn: boolean;
-  isTourActive: boolean;
-  showProfileMenu: boolean;
-  selectedVersion: string;
-  showSettingsModal: boolean;
-  userData: UserData | null;
-  setShowSettingsModal: (value: boolean) => void;
-  setShowProfileMenu: (value: boolean) => void;
-  onThemeChange: (
-    themeStyles: ThemeStyles,
-    selectedTheme: Theme | null
-  ) => void;
-}
 
 export interface TaskCompInterface {
   userData: UserData;
-  themeStyles: ThemeStyles;
-  isTaskHighlighted: boolean;
-  isTaskVisible: boolean;
-  isTourActive: boolean;
-  animate: boolean;
-  showLoginTaskComplete: boolean;
-  currentStep: number;
-  tourSteps: TourSteps[];
-  showImage: boolean;
-  setIsTaskVisible: (value: boolean) => void;
+  tourState: TourState;
 }
 
 export interface WaitingVerificationInterface {
@@ -251,6 +214,3 @@ export interface AnonnymousSignUpInterface {
   setShowAuthOptions: (value: boolean) => void;
   setShowVersions: (value: boolean) => void;
 }
-
-
-
