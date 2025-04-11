@@ -1,14 +1,11 @@
-import { FC } from "react";
-import { HelpModelInterface } from "../../constants/interfaceConstants";
 
-const HelpModal: FC<HelpModelInterface> = ({ setShowHelpModal }) => {
+const HelpModal = () => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
       <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Get Help</h2>
           <button
-            onClick={() => setShowHelpModal(false)}
             className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
           >
             ✕
@@ -120,7 +117,6 @@ const HelpModal: FC<HelpModelInterface> = ({ setShowHelpModal }) => {
                 background:
                   "linear-gradient(13deg, rgba(20, 50, 20, 1), rgba(36, 20, 15, 0.2))",
               }}
-              onClick={() => setShowHelpModal(false)}
               className="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 hover:cursor-pointer"
             >
               Close

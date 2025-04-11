@@ -1,14 +1,11 @@
-import { FC } from "react";
-import { AboutModelInterface } from "../../constants/interfaceConstants";
 
-const AboutModal: FC<AboutModelInterface> = ({ setShowAboutModal }) => {
+const AboutModal= () => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
       <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">About VerseCatch</h2>
           <button
-            onClick={() => setShowAboutModal(false)}
             className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
           >
             ✕
@@ -75,7 +72,6 @@ const AboutModal: FC<AboutModelInterface> = ({ setShowAboutModal }) => {
 
           <div className="flex justify-end">
             <button
-              onClick={() => setShowAboutModal(false)}
               style={{
                 backgroundImage: "url('/assets/fr.jpg')",
                 backgroundSize: "cover",
