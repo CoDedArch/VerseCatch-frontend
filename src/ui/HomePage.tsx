@@ -267,10 +267,10 @@ const HomePage = () => {
 
       {!introComplete ? (
         <Introduction
-          onComplete={(version) => {
-            setSelectedVersion(version);
-            setIntroComplete(true);
-          }}
+          // onComplete={(version) => {
+          //   setSelectedVersion(version);
+          //   setIntroComplete(true);
+          // }}
         />
       ) : (
         <main
