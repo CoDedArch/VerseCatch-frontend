@@ -9,8 +9,9 @@ import {
 import {
   Theme,
 } from "../../constants/interfaceConstants";
+import { ModalProps } from "../../constants/interfaceConstants";
 
-const SettingsModal = () => {
+const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -213,13 +214,16 @@ const SettingsModal = () => {
       return () => clearTimeout(timer);
     }
   }, [showAdModal, selectedTheme]);
+
+  if (!isOpen) return null;
+
   return (
     <>
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
         <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Theme Settings</h2>
-            <button className="text-gray-500 hover:text-gray-700 hover:cursor-pointer">
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 hover:cursor-pointer">
               ✕
             </button>
           </div>

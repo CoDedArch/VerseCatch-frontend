@@ -1,14 +1,7 @@
-import { FC } from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { AnonnymousSignUpInterface } from "../../constants/interfaceConstants";
 
-const AnonnymousSignUpCard: FC<AnonnymousSignUpInterface> = ({
-  step,
-  isWaitingForVerification,
-  setShowAuthOptions,
-  setShowVersions,
-}) => {
+const AnonnymousSignUpCard = () => {
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -25,16 +18,6 @@ const AnonnymousSignUpCard: FC<AnonnymousSignUpInterface> = ({
     }
   };
 
-  const handleAuthOptionSelect = (option: string) => {
-    if (option === "Anonymous") {
-      setShowAuthOptions(false);
-      setShowVersions(true);
-    } else {
-      setShowAuthOptions(false);
-      setShowVersions(false);
-    }
-  };
-
   return (
     <motion.div
       initial={{ x: -100, opacity: 0 }}
@@ -44,12 +27,10 @@ const AnonnymousSignUpCard: FC<AnonnymousSignUpInterface> = ({
       whileTap={{ scale: 0.9 }}
       className={`bg-white text-blue-500 h-fit ${
         isHovered ? "" : "self-center"
-      } ${
-        step === "details" || isWaitingForVerification ? "hidden" : ""
       } px-6 py-2 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold flex items-center gap-3 relative `}
       onHoverStart={() => !isTouchDevice() && setIsHovered(true)}
       onHoverEnd={() => !isTouchDevice() && setIsHovered(false)}
-      onClick={() => handleAuthOptionSelect("Anonymous")}
+      // onClick={() => handleAuthOptionSelect("Anonymous")}
     >
       Continue as Anonymous{" "}
       <img src="/assets/incognito.png" alt="incognito" className="w-10" />
@@ -65,10 +46,10 @@ const AnonnymousSignUpCard: FC<AnonnymousSignUpInterface> = ({
         transition={{ duration: 1, repeat: Infinity }}
       />
       <motion.ul
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{
           opacity: isHovered || isTooltipVisible ? 1 : 0,
-          y: isHovered || isTooltipVisible ? 0 : 20,
+          y: isHovered || isTooltipVisible ? 0 : 10,
         }}
         transition={{ duration: 0.3 }}
         className={`absolute gradient-bg-small-screen w-full text-white left-0 right-0 top-20  text-[16px] space-y-2 list-disc list-inside text-center`}

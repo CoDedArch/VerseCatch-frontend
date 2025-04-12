@@ -8,8 +8,9 @@ import {
   WEAK_PASSWORD_PROMPT,
 } from "../../constants/varConstants";
 import { CHANGE_PASSWORD_URL } from "../../constants/urlConstants";
+import { ModalProps } from "@/shared/constants/interfaceConstants";
 
-const PasswordModal= () => {
+const PasswordModal = ({ isOpen, onClose }: ModalProps) => {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -71,6 +72,7 @@ const PasswordModal= () => {
       // Close modal after 3 seconds
       setTimeout(() => {
         setPasswordSuccess("");
+        onClose();
       }, 3000);
     } catch (error) {
       setPasswordError((error as Error).message);
@@ -78,10 +80,17 @@ const PasswordModal= () => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
       <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-2xl font-bold mb-4">Change Password</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Change Password</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            ✕
+          </button>
+        </div>
 
         {passwordError && (
           <div className="text-red-500 mb-4 text-sm text-center">
@@ -134,7 +143,8 @@ const PasswordModal= () => {
 
           <div className="flex justify-center space-x-2">
             <button
-              className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400 transition-all hover:cursor-pointer"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400 transition-all"
             >
               Cancel
             </button>
@@ -148,7 +158,7 @@ const PasswordModal= () => {
                 background:
                   "linear-gradient(13deg, rgba(20, 50, 20, 1), rgba(36, 20, 15, 0.2))",
               }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-2xl text-sm hover:bg-blue-600 hover:cursor-pointer"
+              className="px-4 py-2 text-white rounded-2xl text-sm hover:opacity-90"
             >
               Change Password
             </button>

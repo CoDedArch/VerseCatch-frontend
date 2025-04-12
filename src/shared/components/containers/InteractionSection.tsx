@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import useSpeechRecognitionHook from "../Hooks/UseSpeechRecognitionHook";
 import {
   UPDATE_BIBLE_VERSION_FAIL,
@@ -20,9 +21,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   const [buttonText, setButtonText] = useState("Start Listening");
   const [buttonIcon, setButtonIcon] = useState("/assets/mic.png");
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const dropdownRef = useRef<HTMLUListElement | null>(null);
-  const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Default styles if not provided
   const defaultStyles = {
@@ -30,9 +29,6 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     textColor: "text-gray-800",
     buttonColor: "black",
   };
-
-  // Merge with default styles
-  const styles = defaultStyles;
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
@@ -58,7 +54,6 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
     setDropdownVisible(!dropdownVisible);
   };
 
-  // Function to update the user's Bible version in the backend
   const updateUserBibleVersion = async (version: string) => {
     try {
       const response = await fetch(UPDATE_BIBLE_VERSION_URL, {
@@ -72,7 +67,6 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
       if (!response.ok) {
         throw new Error(UPDATE_BIBLE_VERSION_FAIL);
       }
-
       console.log(UPDATE_BIBLE_VERSION_SUCCESS);
     } catch (error) {
       console.error("Error updating Bible version:", error);
@@ -80,30 +74,16 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   const handleVersionChange = async (new_version: string) => {
-     version.onChange(new_version);
+    version.onChange(new_version);
     setDropdownVisible(false);
-
-    // Update the user's Bible version in the backend
     if (user.isLoggedIn) {
       await updateUserBibleVersion(new_version);
     }
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    // Hide dropdown if clicked outside
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setDropdownVisible(false);
-    }
-
-    // Hide profile menu if clicked outside
-    if (
-      profileMenuRef.current &&
-      !profileMenuRef.current.contains(event.target as Node)
-    ) {
-      setShowProfileMenu(false);
     }
   };
 
@@ -114,25 +94,14 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   }, [receivedData, setReceivedData]);
 
   useEffect(() => {
-    // Add event listener for outside clicks
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      // Clean up event listener
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <>
       {hasRecognitionSupport ? (
-        <section
-          // style={{
-          //   background: styles?.background || defaultStyles.background,
-          //   color: styles?.color,
-          // }}
-          className={`sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl`}
-        >
+        <section className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
           {tourState.isTourActive && tourState.currentStep === 3 && (
             <div id="interaction-section">
               <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
@@ -146,75 +115,6 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             </div>
           )}
 
-          {/* Profile Menu */}
-          {user.isLoggedIn && showProfileMenu && (
-            <div
-              ref={profileMenuRef}
-              className="bg-slate-500/20 sm:hidden absolute right-1 w-fit -top-[21em] rounded-lg p-2"
-            >
-              <ul className="space-y-5">
-                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
-                  <img
-                    src="/assets/setting.png"
-                    alt="Settings"
-                    className="w-5 sm:w-5"
-                  />
-                  <span className="bg-slate-400/10">Settings</span>
-                </li>
-                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
-                  <img
-                    src="/assets/help.png"
-                    alt="Get Help"
-                    className="w-5 sm:w-5"
-                  />
-                  <span className="bg-slate-400/10">Get Help</span>
-                </li>
-                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
-                  <img
-                    src="/assets/about.png"
-                    alt="About"
-                    className="w-5 sm:w-5"
-                  />
-                  <span className="bg-slate-400/10">About</span>
-                </li>
-                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
-                  <img
-                    src="/assets/setting.png"
-                    alt="Change Password"
-                    className="w-5 sm:w-5"
-                  />
-                  <span className="bg-slate-400/10">Change Password</span>
-                </li>
-                <li className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center gap-2">
-                  <img
-                    src="/assets/out.png"
-                    alt="Sign Out"
-                    className="w-5 sm:w-5"
-                  />
-                  <span className="bg-slate-400/10">Sign Out</span>
-                </li>
-              </ul>
-            </div>
-          )}
-
-          {/* Profile Button */}
-          {user.isLoggedIn && !receivedData && (
-            <div>
-              <button
-                className="profile-button absolute sm:hidden sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center hover:cursor-pointer transition-all"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-              >
-                <img
-                  src="/assets/profile.png"
-                  alt="Bible Version"
-                  className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
-                />
-                <span className="p-3">profile</span>
-              </button>
-            </div>
-          )}
-
-          {/* Rest of the code remains unchanged */}
           {!receivedData && (
             <div className="absolute sm:hidden sm:static left-2 sm:ml-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center sm:gap-2">
               <img
@@ -227,62 +127,88 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
               </span>
             </div>
           )}
-          <img
+
+          <motion.img
             title="Bible Versions"
             src="/assets/dots.png"
             alt="three dots"
             className="absolute right-0 w-9 cursor-pointer"
             onClick={toggleDropdown}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           />
-          {dropdownVisible && (
-            <ul
-              ref={dropdownRef}
-              className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-48 h-[10em] overflow-y-scroll text-gray-800 bg-white border border-gray-300 rounded shadow-lg"
-            >
-              <p className="text-center p-2 font-bold underline">
-                Bible Versions
-              </p>
-              {book_versions.map((version) => (
-                <li
-                  key={version}
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleVersionChange(version)}
-                >
-                  {version}
-                </li>
-              ))}
-            </ul>
-          )}
+
+          <AnimatePresence>
+            {dropdownVisible && (
+              <motion.ul
+                ref={dropdownRef}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-48 h-[10em] overflow-y-scroll text-gray-800 bg-white border border-gray-300 rounded shadow-lg z-50"
+              >
+                <p className="text-center p-2 font-bold underline">
+                  Bible Versions
+                </p>
+                {book_versions.map((version) => (
+                  <motion.li
+                    key={version}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleVersionChange(version)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {version}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            )}
+          </AnimatePresence>
+
           <ul className="flex flex-col items-center space-y-5">
-            <li
+            <motion.li
               className={`span-color p-3 w-fit min-h-[50px] ${
                 listening
                   ? `pt-4 ${user.email ? "shadow-gradient listening-glow" : ""}`
                   : ""
               } rounded-full`}
+              animate={{
+                scale: listening ? 1.05 : 1,
+                transition: { duration: 0.3 }
+              }}
             >
               <span className="">
                 <img src={icon} alt="" />
               </span>
-            </li>
+            </motion.li>
             <li className="w-[214px] text-center font-semibold">
               Transcribing and detecting Bible quotations in real time
             </li>
             <li className="">
-              <button
+              <motion.button
                 style={{
-                  background: styles?.buttonColor || defaultStyles.buttonColor,
+                  background: defaultStyles.buttonColor,
                 }}
-                className={`w-[197px] h-[48px] text-white flex justify-center hover:scale-105 transition-all hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold ${
-                  buttonText === "Start Listening" ||
-                  buttonText === "Continue Listening"
-                    ? "bouncing-button"
-                    : ""
-                }`}
+                className={`w-[197px] h-[48px] text-white flex justify-center items-center hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold`}
                 onClick={handleButtonClick}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  y: buttonText === "Start Listening" || buttonText === "Continue Listening" ? 
+                    [0, -5, 0] : 0,
+                }}
+                transition={{
+                  y: {
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut"
+                  },
+                }}
               >
-                <img src={buttonIcon} alt="mic" /> <span>{buttonText}</span>
-              </button>
+                <img src={buttonIcon} alt="mic" className="w-5 h-5" /> 
+                <span>{buttonText}</span>
+              </motion.button>
             </li>
           </ul>
         </section>
