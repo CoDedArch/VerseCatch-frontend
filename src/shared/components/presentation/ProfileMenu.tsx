@@ -1,15 +1,37 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import PasswordModal from "../containers/PasswordModal";
 import AboutModal from "./AboutModal";
 import HelpModal from "./HelpModal";
 import SettingsModal from "../containers/SettingsModal";
+import { ProfileMenuProps } from "@/shared/constants/interfaceConstants";
 
-const ProfileMenu = () => {
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [showAboutModal, setShowAboutModal] = useState(false);
-  const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const profileMenuRef = useRef<HTMLDivElement | null>(null);
+const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
+  const [activeModal, setActiveModal] = useState<null | 
+    'password' | 'about' | 'help' | 'settings'
+  >(null);
+  
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close menu (only when no modals are open)
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        !activeModal && // Only close if no modal is active
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node) &&
+        triggerRef?.current &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose, triggerRef, activeModal]);
 
   const handleSignOut = () => {
     localStorage.removeItem("access_token");
@@ -20,71 +42,96 @@ const ProfileMenu = () => {
     window.location.reload();
   };
 
+  const openModal = (modalType: typeof activeModal) => {
+    setActiveModal(modalType);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
+
   return (
     <>
-      <div
-        ref={profileMenuRef}
-        className={`bg-slate-500/20 absolute right-1 w-fit top-20 rounded-lg p-2`}
-      >
-        <ul className="space-y-5">
-          <li
-            className=" hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all hover:cursor-pointer"
-            onClick={() => {
-              setShowSettingsModal(true);
-            }}
-          >
-            <img
-              src="/assets/setting.png"
-              alt="Settings"
-              className="w-5 sm:w-5"
-            />
-            <span className="bg-slate-400/10">Settings</span>
-          </li>
-          <li
-            className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all hover:cursor-pointer"
-            onClick={() => {
-              setShowAboutModal(true);
-            }}
-          >
-            <img src="/assets/about.png" alt="About" className="w-5 sm:w-5" />
-            <span className="bg-slate-400/10">About</span>
-          </li>
-          <li
-            className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all hover:cursor-pointer"
-            onClick={() => {
-              setShowHelpModal(true);
-            }}
-          >
-            <img src="/assets/help.png" alt="Get Help" className="w-5 sm:w-5" />
-            <span className="bg-slate-400/10">Get Help</span>
-          </li>
+      <AnimatePresence>
+        <motion.div
+          ref={profileMenuRef}
+          initial={{ opacity: 0, y: -20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.95 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="bg-slate-500/20 absolute right-1 top-20 w-fit rounded-lg p-2 backdrop-blur-sm z-50 shadow-lg"
+        >
+          <ul className="space-y-3">
+            <motion.li
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
+              onClick={() => openModal('settings')}
+            >
+              <img src="/assets/setting.png" alt="Settings" className="w-5 sm:w-5" />
+              <span className="bg-slate-400/10 p-1 rounded">Settings</span>
+            </motion.li>
 
-          <li
-            className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all hover:cursor-pointer"
-            onClick={() => {
-              setShowChangePasswordModal(true);
-            }}
-          >
-            <img
-              src="/assets/setting.png"
-              alt="Change Password"
-              className="w-5 sm:w-5"
-            />
-            <span className="bg-slate-400/10">Change Password</span>
-          </li>
-          <li
-            className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all hover:cursor-pointer"
-            onClick={handleSignOut}
-          >
-            <img src="/assets/out.png" alt="Sign Out" className="w-5 sm:w-5" />
-            <span className="bg-slate-400/10">Sign Out</span>
-          </li>
-        </ul>
-      </div>
-      {showChangePasswordModal && <PasswordModal />}
-      {showAboutModal && <AboutModal />}
-      {showHelpModal && <HelpModal />}
-      {showSettingsModal && <SettingsModal />}
+            <motion.li
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
+              onClick={() => openModal('about')}
+            >
+              <img src="/assets/about.png" alt="About" className="w-5 sm:w-5" />
+              <span className="bg-slate-400/10 p-1 rounded">About</span>
+            </motion.li>
+
+            <motion.li
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
+              onClick={() => openModal('help')}
+            >
+              <img src="/assets/help.png" alt="Get Help" className="w-5 sm:w-5" />
+              <span className="bg-slate-400/10 p-1 rounded">Get Help</span>
+            </motion.li>
+
+            <motion.li
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
+              onClick={() => openModal('password')}
+            >
+              <img src="/assets/setting.png" alt="Change Password" className="w-5 sm:w-5" />
+              <span className="bg-slate-400/10 p-1 rounded">Change Password</span>
+            </motion.li>
+
+            <motion.li
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer text-red-500"
+              onClick={handleSignOut}
+            >
+              <img src="/assets/out.png" alt="Sign Out" className="w-5 sm:w-5" />
+              <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
+            </motion.li>
+          </ul>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Modal Components */}
+      <PasswordModal 
+        isOpen={activeModal === 'password'} 
+        onClose={closeModal} 
+      />
+      <AboutModal 
+        isOpen={activeModal === 'about'} 
+        onClose={closeModal} 
+      />
+      <HelpModal 
+        isOpen={activeModal === 'help'} 
+        onClose={closeModal} 
+      />
+      <SettingsModal 
+        isOpen={activeModal === 'settings'} 
+        onClose={closeModal} 
+      />
     </>
   );
 };

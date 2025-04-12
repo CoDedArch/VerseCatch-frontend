@@ -2,14 +2,18 @@ import { FC } from "react";
 import { ProfileSectionInterface } from "../../constants/interfaceConstants";
 import { tourSteps } from "@/shared/constants/varConstants";
 import ProfileMenu from "./ProfileMenu";
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const ProfileSection: FC<ProfileSectionInterface> = ({
   userData,
   tourState,
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleCloseProfileMenu = () => {
+    setShowProfileMenu(false);
+  };
 
   return (
     <>
@@ -50,7 +54,7 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
           <img
             src="/assets/coin.png"
             alt="coin"
-            className={`w-8 ${"animate-coin"}`} // fix animation for coin later
+            className={`w-8 ${"animate-coin"}`}
           />{" "}
           <span className="text-sm">{userData?.faith_coins}</span>
         </div>
@@ -59,8 +63,11 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
           <span className="text-sm">{userData?.streak}</span>
         </div>
         <button
+          ref={profileButtonRef}
           className="profile-button absolute sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 top-[21em] sm:top-8 font-bold text-lg sm:flex items-center hidden hover:cursor-pointer transition-all"
           onClick={() => setShowProfileMenu(!showProfileMenu)}
+          aria-expanded={showProfileMenu}
+          aria-haspopup="true"
         >
           <img
             src="/assets/profile.png"
@@ -74,7 +81,12 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
         </button>
       </div>
 
-      {showProfileMenu && <ProfileMenu/>}
+      {showProfileMenu && (
+        <ProfileMenu 
+          onClose={handleCloseProfileMenu} 
+          triggerRef={profileButtonRef}
+        />
+      )}
     </>
   );
 };

@@ -1,5 +1,7 @@
+import { ModalProps } from "@/shared/constants/interfaceConstants";
 
-const HelpModal = () => {
+const HelpModal = ({ isOpen, onClose }: ModalProps) => {
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
       <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -7,6 +9,7 @@ const HelpModal = () => {
           <h2 className="text-2xl font-bold">Get Help</h2>
           <button
             className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
+            onClick={onClose}
           >
             ✕
           </button>
@@ -109,6 +112,7 @@ const HelpModal = () => {
 
           <div className="flex justify-end">
             <button
+              onClick={onClose}
               style={{
                 backgroundImage: "url('/assets/fr.jpg')",
                 backgroundSize: "cover",
