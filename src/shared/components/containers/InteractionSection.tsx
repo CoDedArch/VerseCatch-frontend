@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import useSpeechRecognitionHook from "../Hooks/UseSpeechRecognitionHook";
 import {
   UPDATE_BIBLE_VERSION_FAIL,
@@ -16,19 +18,13 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   user,
   tourState,
 }) => {
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
   const [buttonText, setButtonText] = useState("Start Listening");
   const [buttonIcon, setButtonIcon] = useState("/assets/mic.png");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLUListElement | null>(null);
-
-  // Default styles if not provided
-  const defaultStyles = {
-    background: "white",
-    textColor: "text-gray-800",
-    buttonColor: "black",
-  };
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
@@ -101,7 +97,11 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   return (
     <>
       {hasRecognitionSupport ? (
-        <section className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
+        <section
+          style={{
+            background: theme.styles.interactionBackground?.background
+          }}
+          className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
           {tourState.isTourActive && tourState.currentStep === 3 && (
             <div id="interaction-section">
               <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
@@ -188,7 +188,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             <li className="">
               <motion.button
                 style={{
-                  background: defaultStyles.buttonColor,
+                  background: theme.styles.interactionBackground?.buttonColor,
                 }}
                 className={`w-[197px] h-[48px] text-white flex justify-center items-center hover:cursor-pointer rounded-3xl p-3 space-x-2 font-semibold`}
                 onClick={handleButtonClick}

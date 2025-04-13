@@ -20,7 +20,7 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
       <div
         key={userData?.id}
         className={`gap-5 ${
-          userData ? "flex absolute right-2 top-[55px] sm:top-0" : "hidden"
+          userData ? "flex right-2 top-[55px] sm:top-0" : "hidden"
         } ${tourState.isTourActive ? "text-white" : ""}`}
       >
         {tourState.isTourActive && tourState.currentStep === 2 && (
@@ -82,8 +82,8 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
       </div>
 
       {showProfileMenu && (
-        <ProfileMenu 
-          onClose={handleCloseProfileMenu} 
+        <ProfileMenu
+          onClose={handleCloseProfileMenu}
           triggerRef={profileButtonRef}
         />
       )}

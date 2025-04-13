@@ -5,17 +5,20 @@ const AnonnymousSignUpCard = () => {
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Detect if the device is a touch device
   const isTouchDevice = () => {
     return "ontouchstart" in window || navigator.maxTouchPoints > 0;
   };
-
-  // Toggle tooltip visibility on touch devices
 
   const handleInfoClick = () => {
     if (isTouchDevice()) {
       setIsTooltipVisible(!isTooltipVisible);
     }
+  };
+
+  const handleAnonymousLogin = () => {
+    localStorage.setItem("isAnonymous", "true");
+    localStorage.setItem("username", "anonymous");
+    window.location.reload();
   };
 
   return (
@@ -30,7 +33,7 @@ const AnonnymousSignUpCard = () => {
       } px-6 py-2 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold flex items-center gap-3 relative `}
       onHoverStart={() => !isTouchDevice() && setIsHovered(true)}
       onHoverEnd={() => !isTouchDevice() && setIsHovered(false)}
-      // onClick={() => handleAuthOptionSelect("Anonymous")}
+      onClick={handleAnonymousLogin}
     >
       Continue as Anonymous{" "}
       <img src="/assets/incognito.png" alt="incognito" className="w-10" />

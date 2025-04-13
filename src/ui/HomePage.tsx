@@ -1,21 +1,19 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 import InteractionSection from "@/shared/components/containers/InteractionSection";
 import Introduction from "@/shared/components/containers/Introduction";
 import useUserDataHook from "@/shared/components/Hooks/UseUserHook";
 import Header from "@/shared/components/containers/Header";
 import TaskComp from "@/shared/components/presentation/TaskComp";
-import {
-  INITIALTOURSTATE,
-} from "@/shared/constants/varConstants";
-import {
-  Verse,
-  EntireBookDataInterface,
-} from "@/shared/constants/interfaceConstants";
+import VerseSection from "@/shared/components/presentation/VerseSection";
+import { INITIALTOURSTATE } from "@/shared/constants/varConstants";
+import { EntireBookDataInterface } from "@/shared/constants/interfaceConstants";
 import { tourSteps } from "@/shared/constants/varConstants";
 import { UPDATE_HAS_TAKEN_TOUR_URL } from "@/shared/constants/urlConstants";
 
 const HomePage = () => {
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { userData } = useUserDataHook();
   const [tourState, setTourState] = useState(INITIALTOURSTATE);
 
@@ -23,13 +21,12 @@ const HomePage = () => {
   const [receivedData, setReceivedData] = useState<string | null>(null);
   const [introComplete, setIntroComplete] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState<string>("KJV_bible");
-  
+
   const parsedData = receivedData ? JSON.parse(receivedData)[0] : null;
   const [entireBookData, setEntireBookData] = useState<
     EntireBookDataInterface[] | null
   >(null);
   const [highlightedVerse, setHighlightedVerse] = useState<string | null>(null);
-  
 
   // all Handlers
 
@@ -63,7 +60,6 @@ const HomePage = () => {
     await updateHasTakenTour(userData?.email || "", true);
   };
 
- 
   // handler to fetch chapters, verse text from the book in which the verse belong
   const handleVerseClick = () => {
     if (parsedData) {
@@ -133,7 +129,6 @@ const HomePage = () => {
   }, [entireBookData, parsedData]);
 
   // apply z index to the task for 5 seconds
- 
 
   // Automatically move to the next step every 3 seconds
   useEffect(() => {
@@ -177,8 +172,6 @@ const HomePage = () => {
     }
   }, [userData]);
 
-  
-
   useEffect(() => {
     const username = localStorage.getItem("username");
 
@@ -193,19 +186,15 @@ const HomePage = () => {
     }
   }, []);
 
-  
-
   // Check for token, login state, or anonymous user on page load
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     const username = localStorage.getItem("username");
-    const bibleVersion = localStorage.getItem("bible_version");
 
-    if (username === "anonymous" && bibleVersion) {
+    if (username === "anonymous") {
       // Anonymous user detected
       setUserIsLoggedIn(false);
-      setSelectedVersion(bibleVersion);
       setIntroComplete(true);
     } else if (
       token &&
@@ -239,6 +228,8 @@ const HomePage = () => {
           localStorage.removeItem("access_token");
           localStorage.removeItem("isLoggedIn");
           localStorage.removeItem("token_expiry");
+          localStorage.removeItem("isAnonymous");
+          localStorage.removeItem("username");
           setIntroComplete(false);
         }, expiryTime);
 
@@ -248,6 +239,8 @@ const HomePage = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("token_expiry");
+        localStorage.removeItem("isAnonymous");
+        localStorage.removeItem("username");
       }
     }
   }, []);
@@ -266,108 +259,33 @@ const HomePage = () => {
       )}
 
       {!introComplete ? (
-        <Introduction
-          // onComplete={(version) => {
-          //   setSelectedVersion(version);
-          //   setIntroComplete(true);
-          // }}
-        />
+        <Introduction />
       ) : (
         <main
-          // style={{ background: themeStyles?.mainBackground?.background }}
-            className={` 
-            min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5`}
-        >
-          
-
+          style={{ background: theme.styles.mainBackground?.background}}
+          className={` 
+            min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5 ${theme.styles.mainBackground?.background}`}
+          >
           {/* Task Div */}
-          {userData && (
-            <TaskComp
-              userData={userData}
-              tourState={tourState}
-            />
-          )}
+          {userData && <TaskComp userData={userData} tourState={tourState} />}
           {/* Show the first version div only if there's no receivedData */}
 
           <Header
-            userIsLoggedIn={userIsLoggedIn}
-            receivedData={receivedData}
             tourState={tourState}
             userData={userData}
             selectedVersion={selectedVersion}
-            setIntroComplete={setIntroComplete}
-            setUserIsLoggedIn={setUserIsLoggedIn}
           />
 
           {/* Show the section with version2 div only if there's receivedData */}
           {receivedData && (
-            <AnimatePresence>
-              <motion.section
-                key="verse-section"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                // style={{
-                //   background: themeStyles?.verseBackground?.background,
-                //   color: themeStyles?.verseBackground?.color,
-                // }}
-                className={`xl:w-1/2 space-y-4 p-10 relative rounded-2xl`}
-                onClick={handleVerseClick}
-              >
-                <div className="absolute left-10 sm:left-10 top-1 sm:top-8 font-bold text-lg flex items-center gap-1">
-                  <img
-                    src="/assets/version2.png"
-                    alt="Bible Version"
-                    className="w-8 sm:w-8"
-                  />
-                  <span className="bg-slate-400/10 p-3">
-                    {selectedVersion || "Bible version"}
-                  </span>
-                </div>
-                <div className="absolute left-10 sm:right-10 top-1 sm:bottom-40 font-bold text-lg flex items-center gap-1">
-                  <img
-                    src="/assets/back.png"
-                    alt="Bible Version"
-                    className="w-8 sm:w-8"
-                  />
-                  <span className="bg-slate-400/10 p-3">Back</span>
-                </div>
-
-                {parsedData && !entireBookData ? (
-                  <>
-                    <h1 className="text-center font-bold xl:text-3xl text-xl pt-10">{`${parsedData.book} ${parsedData.chapter}:${parsedData.verse_number}`}</h1>
-                    <p className="text-center xl:text-2xl text-xl px-0 xl:px-0">
-                      {parsedData.text}
-                    </p>
-                  </>
-                ) : (
-                  entireBookData && (
-                    <div className="overflow-y-auto max-h-96">
-                      {entireBookData.map((chapter) => (
-                        <div key={chapter.chapter}>
-                          <h2 className="text-center font-bold xl:text-2xl text-xl pt-5">{` ${parsedData.book} Chapter ${chapter.chapter}`}</h2>
-                          {chapter.verses.map((verse: Verse) => (
-                            <p
-                              key={`${chapter.chapter}:${verse.verse_number}`}
-                              id={`${chapter.chapter}:${verse.verse_number}`}
-                              className={`text-center xl:text-xl text-lg px-0 xl:px-0 py-5 ${
-                                highlightedVerse ===
-                                `${chapter.chapter}:${verse.verse_number}`
-                                  ? "text-green-200"
-                                  : ""
-                              }`}
-                            >
-                              {verse.verse_number}. {verse.text}
-                            </p>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )
-                )}
-              </motion.section>
-            </AnimatePresence>
+            <VerseSection
+              parsedData={parsedData}
+              entireBookData={entireBookData}
+              selectedVersion={selectedVersion}
+              highlightedVerse={highlightedVerse}
+              handleVerseClick={handleVerseClick}
+              setEntireBookData={setEntireBookData}
+            />
           )}
           {userData || localStorage.getItem("username") === "anonymous" ? (
             <InteractionSection
@@ -378,8 +296,6 @@ const HomePage = () => {
                 email: userData?.email || "anonymous",
               }}
               tourState={tourState}
-              // interactionBackground={themeStyles.interactionBackground}
-              // displayThemeName={selectedTheme?.display_name}
             />
           ) : (
             <p>Loading user data...</p>

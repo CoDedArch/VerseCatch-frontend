@@ -3,8 +3,12 @@ import { TaskCompInterface } from "../../constants/interfaceConstants";
 import { tourSteps } from "@/shared/constants/varConstants";
 import { INITIAL_TASK_STATE } from "@/shared/constants/varConstants";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
+
   const [taskState, setTaskState] = useState(INITIAL_TASK_STATE);
   const [showLoginTaskComplete, setShowLoginTaskComplete] = useState(true);
   const [showImage, setShowImage] = useState(false);
@@ -96,16 +100,20 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
       <AnimatePresence>
         {taskState.isTaskVisible && (
           <motion.div
-            initial={{ x: -320, opacity: 0 }}
-            animate={{ 
-              x: 0, 
-              opacity: 1,
-              transition: { type: "spring", stiffness: 300, damping: 25 }
+            style={{
+              background: theme.styles?.taskBackground.background,
+              color: theme.styles?.taskBackground.color,
             }}
-            exit={{ 
-              x: -320, 
+            initial={{ x: -320, opacity: 0 }}
+            animate={{
+              x: 0,
+              opacity: 1,
+              transition: { type: "spring", stiffness: 300, damping: 25 },
+            }}
+            exit={{
+              x: -320,
               opacity: 0,
-              transition: { duration: 0.2 }
+              transition: { duration: 0.2 },
             }}
             className={`fixed left-2 sm:top-37 ${
               taskState.isTaskHighlighted ? "sm:z-[10000]" : "z-[1]"
@@ -136,14 +144,17 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
             )}
 
             <div className="flex justify-center">
-              <h1 className="font-bold text-center text-2xl flex text-black">
+              <h1 className="font-bold text-center text-2xl flex">
                 Daily Task{" "}
                 <img src="/assets/trophy.png" alt="trophy" className="w-6" />
               </h1>
             </div>
 
-            <ul className="space-y-2 text-black text-xl list-disc px-2 font-bold">
+            <ul className="space-y-2 text-xl list-disc px-2 font-bold">
               <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
                 className={`relative flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                   showLoginTaskComplete
                     ? "bg-green-400 animate-pulse"
@@ -164,6 +175,9 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                 </div>
               </li>
               <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
                 className={`flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                   animate ? "bg-green-400 animate-pulse" : "bg-green-200"
                 }`}
@@ -177,14 +191,17 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
             </ul>
 
             <div className="flex justify-center">
-              <h1 className="font-bold text-center text-2xl flex text-black">
+              <h1 className="font-bold text-center text-2xl flex">
                 Keep Going{" "}
                 <img src="/assets/trophy.png" alt="trophy" className="w-6" />
               </h1>
             </div>
 
-            <ul className="space-y-2 text-md list-disc px-2 font-bold text-black">
+            <ul className="space-y-2 text-md list-disc px-2 font-bold">
               <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
                 className={`relative flex gap-5 bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
                   (userData?.total_verses_caught / 100) * 100 === 100
                     ? "bg-green-400 animate-pulse"
@@ -203,7 +220,10 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
                       {Math.round(
-                        Math.min((userData?.total_verses_caught / 100) * 100, 100)
+                        Math.min(
+                          (userData?.total_verses_caught / 100) * 100,
+                          100
+                        )
                       )}
                       %
                     </span>
@@ -218,6 +238,9 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                 )}
               </li>
               <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
                 className={`relative flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
                   userData?.streak === 7 ? "bg-green-400 animate-pulse" : ""
                 }`}
@@ -235,6 +258,9 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                 </div>
               </li>
               <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
                 className={`relative flex gap-1 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
                   (userData?.unique_books_caught / 60) * 100 === 100
                     ? "bg-green-400 animate-pulse"
@@ -253,7 +279,10 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
                       {Math.round(
-                        Math.min((userData?.unique_books_caught / 60) * 100, 100)
+                        Math.min(
+                          (userData?.unique_books_caught / 60) * 100,
+                          100
+                        )
                       )}
                       %
                     </span>
@@ -267,7 +296,11 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                   />
                 )}
               </li>
-              <li className="flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100">
+              <li
+                 style={{
+                  background: theme.styles?.taskBackground.contentBackground,
+                }}
+                className="flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100">
                 Share 50 verses with friends{" "}
                 <div className="flex items-center gap-1">
                   <span className="text-md font-bold">(Sharing Saint)</span>

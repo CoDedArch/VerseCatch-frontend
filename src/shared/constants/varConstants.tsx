@@ -1,4 +1,7 @@
 import { TourState, TaskState } from "./interfaceConstants";
+import getThemeStyles from "../components/Hooks/GetThemeHook";
+
+
 
 export const LOGIN_FAIL_PROMPT = "Login failed. Please try again.";
 export const CHECK_EMAIL_FAIL_PROMPT =
@@ -86,3 +89,16 @@ export const INITIAL_TASK_STATE: TaskState = {
   isTaskHighlighted: false,
   showControls: true,
 }
+
+
+export const defaultTheme = {
+        id: "default",
+        name: "default",
+        display_name: "Default",
+        price: 0,
+        preview_image_url: "",
+        is_default: true,
+        is_current: true,
+        unlocked: true,
+        styles: getThemeStyles("default"),
+      };

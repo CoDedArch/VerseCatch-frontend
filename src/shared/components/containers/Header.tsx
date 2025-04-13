@@ -2,25 +2,38 @@ import { FC } from "react";
 import ProfileSection from "../presentation/ProfileSection";
 import { tourSteps } from "@/shared/constants/varConstants";
 import { HeaderInterface } from "../../constants/interfaceConstants";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 const Header: FC<HeaderInterface> = ({
   tourState,
   selectedVersion,
   userData,
 }) => {
-  
+  const [isAnonymous, setIsAnonymous] = useState(false);
+
+  const handleConvertToAccount = () => {
+    // Clear anonymous flag
+    localStorage.removeItem("isAnonymous");
+    localStorage.removeItem("username");
+
+    // Redirect to signup page
+    // navigate('/signup');
+    window.location.href = "/";
+  };
+
+  useEffect(() => {
+    setIsAnonymous(localStorage.getItem("isAnonymous") === "true");
+  }, []);
+
   return (
     <section
-      className={`"bg-slate-100 font-bold text-2xl relative flex items-center justify-center ${
-        userData
-          ? ""
-          : `${userData ? "" : `${!userData ? "" : "sm:justify-between"}`} `
-      }  w-full`}
+      className={`"bg-slate-100 font-bold text-2xl relative flex items-center justify-center sm:justify-between w-full`}
     >
       {/* Version Display */}
       {selectedVersion && (
         <div
-          className={`absolute hidden left-10 sm:ml-2 sm:left-2 top-[21em] sm:top-0 font-bold text-lg sm:flex items-center sm:gap-2 ${
+          className={`top-[21em] sm:top-0 font-bold text-lg sm:flex items-center sm:gap-2 ${
             tourState.isTourActive ? "text-white" : ""
           }`}
         >
@@ -54,10 +67,19 @@ const Header: FC<HeaderInterface> = ({
         <img src="/assets/book.png" alt="Bible" className="w-14" /> VerseCatch
       </div>
 
-      <ProfileSection
-        userData={userData}
-        tourState={tourState}
-      />
+      {isAnonymous && (
+        <motion.li
+          whileHover={{ scale: 1 }}
+          whileTap={{ scale: 0.98 }}
+          className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
+          onClick={handleConvertToAccount}
+        >
+          <img src="/assets/user.png" alt="Upgrade" className="w-5 sm:w-5" />
+          <span className="bg-slate-400/10 p-1 rounded">Create Account</span>
+        </motion.li>
+      )}
+
+      <ProfileSection userData={userData} tourState={tourState} />
     </section>
   );
 };

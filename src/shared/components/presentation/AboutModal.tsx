@@ -1,14 +1,23 @@
 import { ModalProps } from "@/shared/constants/interfaceConstants";
-
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const AboutModal = ({ isOpen, onClose }: ModalProps) => {
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
-      <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        style={{ background: theme.styles.mainBackground?.background }}
+        className={`${theme.styles.mainBackground?.background } bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">About VerseCatch</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 hover:cursor-pointer">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
+          >
             ✕
           </button>
         </div>
@@ -43,7 +52,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
             <h3 className="text-lg font-semibold mb-2">Key Features</h3>
             <ul className="list-disc pl-5 space-y-2 text-gray-700">
               <li>Real-time Bible verse transcription and retrieval</li>
-              <li>Support for over 25 Bible versions (KJV, NIV, ESV, etc.)</li>
+              <li>Support for over 27 Bible versions (KJV, NIV, ESV, etc.)</li>
               <li>Voice recognition for hands-free operation</li>
               <li>Daily scripture engagement tracking</li>
               <li>Reward system for consistent Bible reading</li>

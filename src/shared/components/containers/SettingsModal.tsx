@@ -1,22 +1,30 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setTheme } from "@/store/themeSlice";
+import { RootState } from "@/store/store";
 import getThemeStyles from "../Hooks/GetThemeHook";
 import { parseThemeStyles } from "../../Services/ThemeServices";
+import { Theme } from "../../constants/interfaceConstants";
+import { ModalProps } from "../../constants/interfaceConstants";
+import { defaultTheme } from "@/shared/constants/varConstants";
 import {
   SET_THEME_URL,
   THEMES_URL,
   UNLOCK_THEME_URL,
 } from "../../constants/urlConstants";
-import {
-  Theme,
-} from "../../constants/interfaceConstants";
-import { ModalProps } from "../../constants/interfaceConstants";
 
 const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
+  const dispatch = useDispatch();
+  const currentTheme = useSelector(
+    (state: RootState) => state.theme.currentTheme
+  );
+
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false); // Add this state
 
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
@@ -36,7 +44,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             : theme.styles,
       }));
 
-      // Ensure default theme is always included and properly marked
       if (!parsedThemes.some((t) => t.is_default)) {
         parsedThemes.push({
           id: "default",
@@ -52,40 +59,11 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
       }
 
       setThemes(parsedThemes);
-
-      // Find and set the current theme
-      const currentTheme = parsedThemes.find((t) => t.is_current) ||
-        parsedThemes.find((t) => t.is_default) || {
-          id: "default",
-          name: "default",
-          display_name: "Default",
-          price: 0,
-          preview_image_url: "",
-          is_default: true,
-          is_current: true,
-          unlocked: true,
-          styles: getThemeStyles("default"),
-        };
-
-      setSelectedTheme(currentTheme);
-
-      // Store theme in localStorage for persistence
-      localStorage.setItem("currentTheme", JSON.stringify(currentTheme));
+      setHasFetched(true); // Mark as fetched
     } catch (error) {
       console.error("Error fetching themes:", error);
-      // Fallback to default theme
-      const defaultTheme = {
-        id: "default",
-        name: "default",
-        display_name: "Default",
-        price: 0,
-        preview_image_url: "",
-        is_default: true,
-        is_current: true,
-        unlocked: true,
-        styles: getThemeStyles("default"),
-      };
       setSelectedTheme(defaultTheme);
+      setHasFetched(true); // Mark as fetched even if error
     }
   };
 
@@ -121,27 +99,19 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   };
 
+  // Fetch themes only when modal opens and hasn't been fetched yet
   useEffect(() => {
-    // Check for saved theme in localStorage
-    const savedTheme = localStorage.getItem("currentTheme");
-    if (savedTheme) {
-      try {
-        const parsedTheme = JSON.parse(savedTheme);
-        setSelectedTheme(parsedTheme);
-      } catch (error) {
-        console.error("Error parsing saved theme:", error);
-      }
+    if (isOpen && !hasFetched) {
+      fetchThemes();
     }
-  }, []);
+  }, [isOpen, hasFetched]);
 
+  // Reset hasFetched when modal closes
   useEffect(() => {
-    fetchThemes();
-  });
-
-  // Add this useEffect to fetch themes when user logs in
-  useEffect(() => {
-    fetchThemes();
-  });
+    if (!isOpen) {
+      setHasFetched(false);
+    }
+  }, [isOpen]);
 
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
@@ -178,15 +148,13 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
           unlocked: true,
           styles: getThemeStyles("default"),
         };
-        setSelectedTheme(defaultTheme);
-        localStorage.setItem("currentTheme", JSON.stringify(defaultTheme));
+        dispatch(setTheme(defaultTheme));
       } else {
         // For non-default themes, use the selected theme's styles
         const themeToApply =
           themes.find((t) => t.id === themeId) || selectedTheme;
         if (themeToApply) {
-          //
-          localStorage.setItem("currentTheme", JSON.stringify(themeToApply));
+          dispatch(setTheme(themeToApply));
         }
       }
 
@@ -220,10 +188,16 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   return (
     <>
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
-        <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div
+          style={{ background: currentTheme.styles.mainBackground?.background }}
+          className={`${currentTheme.styles.mainBackground?.background } p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto`}
+        >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Theme Settings</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 hover:cursor-pointer">
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 hover:cursor-pointer"
+            >
               ✕
             </button>
           </div>
@@ -238,7 +212,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
               return (
                 <div
                   key={theme.id}
-                  className={`border rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
+                  className={`border bg-white rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
                     theme.is_current ? "ring-2 ring-blue-500" : ""
                   } ${theme.unlocked ? "hover:shadow-md" : "opacity-70"}`}
                   onClick={() => {
@@ -374,13 +348,12 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                 >
                   <div className="flex items-center">
                     <img
-                      src={`/assets/version.png
-                      }`}
+                      src="/assets/version.png"
                       alt="Bible Version"
                       className="w-8 h-8"
                     />
                     <span className="bg-slate-400/10 p-3 text-sm">
-                      {"Bible version"} //provide a selected version
+                      KJ_version
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -400,33 +373,24 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                       className="self-center p-1 rounded-2xl relative shadow-black shadow-2xl"
                     >
                       <span className="bg-white text-black p-2 rounded-2xl text-sm relative -top-3 shadow-black shadow-2xl">
-                        "Newbie"
+                        Newbie
                       </span>
                     </p>
                     <div className="flex">
                       <img src="/assets/coin.png" alt="Coins" className="w-6" />
-                      <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                        10
-                      </span>
+                      <span className="px-2 py-1 rounded text-sm">10</span>
                     </div>
                     <div className="flex">
                       <img src="/assets/fire.png" alt="Coins" className="w-6" />
-                      <span className="bg-white/20 px-2 py-1 rounded text-sm">
-                        2
-                      </span>
+                      <span className="px-2 py-1 rounded text-sm">2</span>
                     </div>
-                    <button
-                      className="profile-button absolute sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 top-[21em] sm:top-8 font-bold text-lg sm:flex items-center hidden hover:cursor-pointer transition-all"
-                      // onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    >
+                    <button className="profile-button absolute sm:static bg-slate-400/30 rounded-2xl sm:mr-2 right-2 sm:left-10 top-[21em] sm:top-8 font-bold text-lg sm:flex items-center hidden hover:cursor-pointer transition-all">
                       <img
                         src="/assets/profile.png"
                         alt="Bible Version"
                         className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
                       />
-                      <span className="p-3 font-bold">
-                        John Doe
-                      </span>
+                      <span className="p-3 font-bold">J D</span>
                     </button>
                   </div>
                 </div>
@@ -469,7 +433,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                       parseThemeStyles(selectedTheme.styles)
                         .interactionBackground
                     }
-                    className={`rounded-lg p-4 h-48 w-1/2 flex flex-col items-center justify-center`}
+                    className={`rounded-lg p-4 h-48 ml-5 w-[410px] flex flex-col items-center justify-center`}
                   >
                     <div
                       style={{
@@ -537,14 +501,11 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                 <strong>{selectedTheme.display_name}</strong> theme...
               </p>
 
-              {/* Ad player placeholder - in a real app, this would be your ad SDK */}
               <div className="bg-gray-200 h-48 flex items-center justify-center rounded relative">
-                {/* Simulated ad player */}
                 <div className="w-full h-full bg-black flex items-center justify-center">
                   <p className="text-white">Ad playing (5 seconds)...</p>
                 </div>
 
-                {/* Simulated progress bar */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
                   <div
                     className="h-full bg-blue-500 ad-progress"

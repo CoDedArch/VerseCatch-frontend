@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 export interface Verse {
   verse_number: string;
   text: string;
@@ -50,7 +52,7 @@ export interface Theme {
   is_default: boolean;
   is_current?: boolean;
   unlocked?: boolean;
-  styles: string | ThemeStyles;
+  styles: ThemeStyles;
 }
 
 export interface TourSteps {
@@ -86,13 +88,10 @@ export interface UserData {
 }
 
 export interface HeaderInterface {
-  userIsLoggedIn: boolean;
-  receivedData: string | null;
+ 
   tourState: TourState;
   selectedVersion: string;
   userData: UserData | null;
-  setIntroComplete: (value: boolean) => void;
-  setUserIsLoggedIn: (value: boolean) => void;
 }
 
 export interface InteractionBackgroundStyles {
@@ -120,9 +119,6 @@ export interface InteractionSectionProps {
   // displayThemeName: string | undefined;
 }
 
-export interface PasswordModelInterface {
-  setShowChangePasswordModal: (value: boolean) => void;
-}
 
 export interface ProfileMenuInterface {
   userData: UserData | null;
@@ -133,84 +129,63 @@ export interface ProfileSectionInterface {
   tourState: TourState;
 }
 
-
 export interface TaskCompInterface {
   userData: UserData;
   tourState: TourState;
 }
 
-export interface WaitingVerificationInterface {
-  showCheckmark: boolean;
-}
-
 export type SignUpStep = "email" | "details" | "version";
 
-export interface SignUpFormInterface {
-  isWaitingForVerification: boolean;
-  isLogin: boolean;
-  isLoading: boolean;
-  step: string;
+interface UserDetails {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
-  error: string;
-  setLastName: (value: string) => void;
-  setFirstName: (value: string) => void;
-  setPassword: (value: string) => void;
-  setEmail: (value: string) => void;
-  setError: (value: string) => void;
-  setStep: (value: SignUpStep) => void;
-  setShowAuthOptions: (value: boolean) => void;
-  setIsLoading: (value: boolean) => void;
-  setShowVersions: (value: boolean) => void;
-  setShowCheckmark: (value: boolean) => void;
 }
 
-export interface SignUpFormInterface {
-  isWaitingForVerification: boolean;
+interface AuthState {
   isLogin: boolean;
-  isLoading: boolean;
   step: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  error: string;
-  setLastName: (value: string) => void;
-  setFirstName: (value: string) => void;
-  setPassword: (value: string) => void;
-  setEmail: (value: string) => void;
+}
+
+interface StateHandlers {
   setError: (value: string) => void;
-  setStep: (value: SignUpStep) => void;
-  setShowAuthOptions: (value: boolean) => void;
-  setIsLoading: (value: boolean) => void;
   setShowVersions: (value: boolean) => void;
   setShowCheckmark: (value: boolean) => void;
+  setIsVerifying: (value: boolean) => void;
 }
 
 export interface BibleSelectionInterface {
-  isWaitingForVerification: boolean;
-  isLogin: boolean;
-  isLoading: boolean;
-  step: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  onComplete: (version: string) => void;
-  setError: (value: string) => void;
-  setShowAuthOptions: (value: boolean) => void;
-  setIsLoading: (value: boolean) => void;
-  setShowVersions: (value: boolean) => void;
-  setShowCheckmark: (value: boolean) => void;
-  setIsExiting: (value: boolean) => void;
-  setIsWaitingForVerification: (value: boolean) => void;
+  userDetails: UserDetails;
+  authState: AuthState;
+  stateHandlers: StateHandlers
+}
+export interface ProfileMenuProps {
+  onClose: () => void;
+  triggerRef?: RefObject<HTMLElement | null>;
 }
 
-export interface AnonnymousSignUpInterface {
-  step: string;
-  isWaitingForVerification: boolean;
-  setShowAuthOptions: (value: boolean) => void;
-  setShowVersions: (value: boolean) => void;
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export interface VerseSectionProps {
+  parsedData: {
+    book: string;
+    chapter: string;
+    verse_number: string;
+    text: string;
+  } | null;
+  entireBookData: EntireBookDataInterface[] | null;
+  selectedVersion: string;
+  highlightedVerse: string | null;
+  handleVerseClick: () => void;
+  setEntireBookData: (data: EntireBookDataInterface[] | null) => void;
+}
+
+
+export interface ThemeState {
+  currentTheme: Theme;
 }

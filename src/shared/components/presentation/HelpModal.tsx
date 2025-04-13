@@ -1,10 +1,17 @@
 import { ModalProps } from "@/shared/constants/interfaceConstants";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const HelpModal = ({ isOpen, onClose }: ModalProps) => {
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
-      <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        style={{ background: theme.styles.mainBackground?.background }}
+        className={`${theme.styles.mainBackground?.background } bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Get Help</h2>
           <button
