@@ -16,12 +16,10 @@ const HomePage = () => {
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { userData } = useUserDataHook();
   const [tourState, setTourState] = useState(INITIALTOURSTATE);
-
   const [userIsLoggedIn, setUserIsLoggedIn] = useState(false);
   const [receivedData, setReceivedData] = useState<string | null>(null);
   const [introComplete, setIntroComplete] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState<string>("KJV_bible");
-
   const parsedData = receivedData ? JSON.parse(receivedData)[0] : null;
   const [entireBookData, setEntireBookData] = useState<
     EntireBookDataInterface[] | null

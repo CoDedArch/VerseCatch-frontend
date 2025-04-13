@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { anonymousLogin } from "@/store/userSlice";
 
 const AnonnymousSignUpCard = () => {
+  const dispatch = useDispatch();
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -16,8 +19,7 @@ const AnonnymousSignUpCard = () => {
   };
 
   const handleAnonymousLogin = () => {
-    localStorage.setItem("isAnonymous", "true");
-    localStorage.setItem("username", "anonymous");
+    dispatch(anonymousLogin());
     window.location.reload();
   };
 

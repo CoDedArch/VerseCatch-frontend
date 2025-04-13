@@ -69,26 +69,27 @@ interface Achievement {
 }
 
 export interface UserData {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  is_active: boolean;
-  verified: boolean;
-  streak: number;
-  faith_coins: number;
-  current_tag: string;
-  bible_version: string;
-  has_taken_tour: boolean;
-  created_at: string;
-  logged_in_today: boolean;
-  total_verses_caught: number;
-  unique_books_caught: number;
-  achievements: Achievement[];
+  id?: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  isAnonymous?: boolean
+  email?: string;
+  is_active?: boolean;
+  verified?: boolean;
+  streak?: number;
+  faith_coins?: number;
+  current_tag?: string;
+  bible_version?: string;
+  has_taken_tour?: boolean;
+  created_at?: string;
+  logged_in_today?: boolean;
+  total_verses_caught?: number;
+  unique_books_caught?: number;
+  achievements?: Achievement[];
 }
 
 export interface HeaderInterface {
- 
   tourState: TourState;
   selectedVersion: string;
   userData: UserData | null;
@@ -119,7 +120,6 @@ export interface InteractionSectionProps {
   // displayThemeName: string | undefined;
 }
 
-
 export interface ProfileMenuInterface {
   userData: UserData | null;
 }
@@ -143,28 +143,37 @@ interface UserDetails {
   password: string;
 }
 
-interface AuthState {
-  isLogin: boolean;
-  step: string;
+export interface AuthState {
+  user: UserData | null;
+  token: string | null;
+  isLoggedIn: boolean;
+  tokenExpiry: number | null;
+  isLoading: boolean;
+  error: string | null;
+  isWebSocketConnected: boolean;
+  isAnonymous: boolean;
 }
 
 interface StateHandlers {
   setError: (value: string) => void;
   setShowVersions: (value: boolean) => void;
-  setShowCheckmark: (value: boolean) => void;
   setIsVerifying: (value: boolean) => void;
 }
 
+
+
 export interface BibleSelectionInterface {
   userDetails: UserDetails;
-  authState: AuthState;
-  stateHandlers: StateHandlers
+  authState: {
+    isLogin: boolean; 
+    step: string
+  };
+  stateHandlers: StateHandlers;
 }
 export interface ProfileMenuProps {
   onClose: () => void;
   triggerRef?: RefObject<HTMLElement | null>;
 }
-
 
 export interface ModalProps {
   isOpen: boolean;
@@ -184,7 +193,6 @@ export interface VerseSectionProps {
   handleVerseClick: () => void;
   setEntireBookData: (data: EntireBookDataInterface[] | null) => void;
 }
-
 
 export interface ThemeState {
   currentTheme: Theme;

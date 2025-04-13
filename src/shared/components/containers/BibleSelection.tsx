@@ -10,7 +10,7 @@ import {
 import { SIGNUP_URL, LOGIN_URL } from "../../constants/urlConstants";
 
 const BibleSelection: FC<BibleSelectionInterface> = ({
-  userDetails, 
+  userDetails,
   authState, 
   stateHandlers
 }) => {
@@ -75,7 +75,6 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
 
           if (loginResponse.ok) {
             clearInterval(interval);
-            stateHandlers.setShowCheckmark(true);
             setTimeout(() => window.location.reload(), 1500);
           }
         } catch (err) {

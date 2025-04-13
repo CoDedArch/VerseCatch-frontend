@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
 import { SignUpStep } from "../../constants/interfaceConstants";
 import BibleSelection from "./BibleSelection";
 import {
@@ -13,8 +14,10 @@ import {
   WEAK_PASSWORD_PROMPT,
 } from "../../constants/varConstants";
 import { LOGIN_URL, CHECK_EMAIL_URL } from "../../constants/urlConstants";
+import { loginStart, loginFailure, loginSuccess} from "@/store/userSlice";
 
 const SignUpForm = () => {
+  const dispatch = useDispatch();
   const [step, setStep] = useState<SignUpStep>("email");
   const [showVersions, setShowVersions] = useState(false);
   const [email, setEmail] = useState("");
@@ -111,6 +114,7 @@ const SignUpForm = () => {
 
     setIsLoading(true);
     setError("");
+    dispatch(loginStart())
 
     try {
       const response = await fetch(LOGIN_URL, {
@@ -124,14 +128,17 @@ const SignUpForm = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || LOGIN_FAIL_PROMPT);
 
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("token_expiry", (Date.now() + 30 * 60 * 1000).toString());
-
+      dispatch(loginSuccess({
+        user: data.user,
+        token: data.access_token
+      }))
+      
       setShowCheckmark(true);
       setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
-      setError((err as Error).message || ERROR_OCCURRED_PROMPT);
+      const errorMessage =(err as Error).message || ERROR_OCCURRED_PROMPT 
+      setError(errorMessage);
+      dispatch(loginFailure(errorMessage))
     } finally {
       setIsLoading(false);
     }
@@ -284,7 +291,6 @@ const SignUpForm = () => {
           stateHandlers={{ 
             setError, 
             setShowVersions: (value) => !isVerifying && setShowVersions(value),
-            setShowCheckmark,
             setIsVerifying
           }}
         />

@@ -24,7 +24,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false); // Add this state
+  const [hasFetched, setHasFetched] = useState(false);
 
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
@@ -132,25 +132,12 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         throw new Error(errorData.detail || "Failed to set theme");
       }
 
-      // Refresh themes list to get updated current theme status
       await fetchThemes();
 
       // Handle default theme case
       if (themeId === "default") {
-        const defaultTheme = {
-          id: "default",
-          name: "default",
-          display_name: "Default",
-          price: 0,
-          preview_image_url: "",
-          is_default: true,
-          is_current: true,
-          unlocked: true,
-          styles: getThemeStyles("default"),
-        };
         dispatch(setTheme(defaultTheme));
       } else {
-        // For non-default themes, use the selected theme's styles
         const themeToApply =
           themes.find((t) => t.id === themeId) || selectedTheme;
         if (themeToApply) {
