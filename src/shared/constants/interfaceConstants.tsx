@@ -101,6 +101,12 @@ export interface InteractionBackgroundStyles {
   buttonColor: string;
 }
 
+export interface CancelTourProps {
+  setTourState: React.Dispatch<React.SetStateAction<TourState>>;
+  updateHasTakenTour: (email: string, hasTakenTour: boolean) => Promise<void>;
+}
+
+
 export interface VersionSelection {
   value: string;
   onChange: (version: string) => void;

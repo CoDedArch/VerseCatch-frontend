@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import InteractionSection from "@/shared/components/containers/InteractionSection";
 import Introduction from "@/shared/components/containers/Introduction";
-import Header from "@/shared/components/containers/Header";
-import TaskComp from "@/shared/components/presentation/TaskComp";
+import Header from "@/shared/components/presentation/Header";
+import TaskComp from "@/shared/components/containers/TaskComp";
 import VerseSection from "@/shared/components/presentation/VerseSection";
 import { INITIALTOURSTATE } from "@/shared/constants/varConstants";
 import { EntireBookDataInterface } from "@/shared/constants/interfaceConstants";
@@ -12,7 +12,7 @@ import { tourSteps } from "@/shared/constants/varConstants";
 import { UPDATE_HAS_TAKEN_TOUR_URL } from "@/shared/constants/urlConstants";
 import { logout } from "@/store/userSlice";
 import { useUserData } from "@/shared/components/Hooks/useUserData";
-import CancelTour from "@/shared/components/containers/CancelTour";
+import CancelTour from "@/shared/components/presentation/CancelTour";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -182,7 +182,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Handle anonymous user
-    console.log(isAnonymous)
+    console.log(isAnonymous);
     if (isAnonymous) {
       setIntroComplete(true);
       setIsUserDataLoaded(true);
@@ -234,7 +234,11 @@ const HomePage = () => {
           {/* Task Div */}
           {!isAnonymous && <TaskComp tourState={tourState} />}
           {/* Show the first version div only if there's no receivedData */}
-          <Header tourState={tourState} selectedVersion={selectedVersion} setIntroComplete={setIntroComplete}/>
+          <Header
+            tourState={tourState}
+            selectedVersion={selectedVersion}
+            setIntroComplete={setIntroComplete}
+          />
 
           {/* Show the section with version2 div only if there's receivedData */}
           {receivedData && (
