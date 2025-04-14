@@ -1,8 +1,6 @@
 import { TourState, TaskState } from "./interfaceConstants";
 import getThemeStyles from "../components/Hooks/GetThemeHook";
 
-
-
 export const LOGIN_FAIL_PROMPT = "Login failed. Please try again.";
 export const CHECK_EMAIL_FAIL_PROMPT =
   "An error occurred while checking the email. Please try again.";
@@ -55,7 +53,6 @@ export const book_versions = [
   "YLT_bible",
 ];
 
-
 export const tourSteps = [
   {
     id: "task-section",
@@ -78,27 +75,25 @@ export const tourSteps = [
   },
 ];
 
-
 export const INITIALTOURSTATE: TourState = {
   isTourActive: false,
   currentStep: 0,
   isCancelled: false,
-}
+};
 export const INITIAL_TASK_STATE: TaskState = {
   isTaskVisible: true,
   isTaskHighlighted: false,
   showControls: true,
-}
-
+};
 
 export const defaultTheme = {
-        id: "default",
-        name: "default",
-        display_name: "Default",
-        price: 0,
-        preview_image_url: "",
-        is_default: true,
-        is_current: true,
-        unlocked: true,
-        styles: getThemeStyles("default"),
-      };
+  id: "default",
+  name: "default",
+  display_name: "Default",
+  price: 0,
+  preview_image_url: "",
+  is_default: true,
+  is_current: true,
+  unlocked: true,
+  styles: getThemeStyles("default"),
+};

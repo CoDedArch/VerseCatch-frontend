@@ -3,11 +3,14 @@ import { ProfileSectionInterface } from "../../constants/interfaceConstants";
 import { tourSteps } from "@/shared/constants/varConstants";
 import ProfileMenu from "./ProfileMenu";
 import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const ProfileSection: FC<ProfileSectionInterface> = ({
-  userData,
   tourState,
 }) => {
+  const {user} = useSelector((state: RootState)=> state.user)
+
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -18,9 +21,9 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
   return (
     <>
       <div
-        key={userData?.id}
+        key={user?.id}
         className={`gap-5 ${
-          userData ? "flex right-2 top-[55px] sm:top-0" : "hidden"
+          user ? "flex right-2 top-[55px] sm:top-0" : "hidden"
         } ${tourState.isTourActive ? "text-white" : ""}`}
       >
         {tourState.isTourActive && tourState.currentStep === 2 && (
@@ -47,7 +50,7 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
           className="self-center p-1 rounded-2xl relative shadow-black shadow-2xl"
         >
           <span className="bg-white text-black p-2 rounded-2xl text-sm relative -top-3 shadow-black shadow-2xl">
-            {userData?.current_tag || "Newbie"}
+            {user?.current_tag || "Newbie"}
           </span>
         </p>
         <div className="flex items-center gap-1">
@@ -56,11 +59,11 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
             alt="coin"
             className={`w-8 ${"animate-coin"}`}
           />{" "}
-          <span className="text-sm">{userData?.faith_coins}</span>
+          <span className="text-sm">{user?.faith_coins}</span>
         </div>
         <div className="flex items-center gap-1">
           <img src="/assets/fire.png" alt="fire" className="w-8" />{" "}
-          <span className="text-sm">{userData?.streak}</span>
+          <span className="text-sm">{user?.streak}</span>
         </div>
         <button
           ref={profileButtonRef}
@@ -75,8 +78,8 @@ const ProfileSection: FC<ProfileSectionInterface> = ({
             className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
           />
           <span className="p-3 font-bold">
-            {userData?.first_name?.[0]?.toUpperCase() || ""}{" "}
-            {userData?.last_name?.[0]?.toUpperCase() || ""}
+            {user?.first_name?.[0]?.toUpperCase() || ""}{" "}
+            {user?.last_name?.[0]?.toUpperCase() || ""}
           </span>
         </button>
       </div>

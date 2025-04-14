@@ -73,7 +73,7 @@ export interface UserData {
   first_name?: string;
   last_name?: string;
   username?: string;
-  isAnonymous?: boolean
+  isAnonymous?: boolean;
   email?: string;
   is_active?: boolean;
   verified?: boolean;
@@ -92,7 +92,7 @@ export interface UserData {
 export interface HeaderInterface {
   tourState: TourState;
   selectedVersion: string;
-  userData: UserData | null;
+  setIntroComplete: (value: boolean) => void;
 }
 
 export interface InteractionBackgroundStyles {
@@ -114,7 +114,6 @@ export interface UserInfo {
 export interface InteractionSectionProps {
   setReceivedData: (data: string) => void;
   version: VersionSelection;
-  user: UserInfo;
   tourState: TourState;
   // interactionBackground: InteractionBackgroundStyles;
   // displayThemeName: string | undefined;
@@ -125,12 +124,10 @@ export interface ProfileMenuInterface {
 }
 
 export interface ProfileSectionInterface {
-  userData: UserData | null;
   tourState: TourState;
 }
 
 export interface TaskCompInterface {
-  userData: UserData;
   tourState: TourState;
 }
 
@@ -160,13 +157,11 @@ interface StateHandlers {
   setIsVerifying: (value: boolean) => void;
 }
 
-
-
 export interface BibleSelectionInterface {
   userDetails: UserDetails;
   authState: {
-    isLogin: boolean; 
-    step: string
+    isLogin: boolean;
+    step: string;
   };
   stateHandlers: StateHandlers;
 }

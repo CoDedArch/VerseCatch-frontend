@@ -12,13 +12,15 @@ import { UPDATE_BIBLE_VERSION_URL } from "../../constants/urlConstants";
 import { InteractionSectionProps } from "../../constants/interfaceConstants";
 import { tourSteps } from "../../constants/varConstants";
 
+
+
 const InteractionSection: React.FC<InteractionSectionProps> = ({
   setReceivedData,
   version,
-  user,
   tourState,
 }) => {
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
+  const {user, isLoggedIn} = useSelector((state: RootState)=> state.user)
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
   const [buttonText, setButtonText] = useState("Start Listening");
@@ -28,7 +30,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
-    useSpeechRecognitionHook(version.value, user.email);
+    useSpeechRecognitionHook(version.value, user?.email || "anonymous");
 
   const handleButtonClick = () => {
     if (!listening) {
@@ -57,7 +59,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ bible_version: version, email: user.email }),
+        body: JSON.stringify({ bible_version: version, email: user?.email }),
       });
 
       if (!response.ok) {
@@ -72,7 +74,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   const handleVersionChange = async (new_version: string) => {
     version.onChange(new_version);
     setDropdownVisible(false);
-    if (user.isLoggedIn) {
+    if (isLoggedIn && user?.email) {
       await updateUserBibleVersion(new_version);
     }
   };
@@ -102,7 +104,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             background: theme.styles.interactionBackground?.background
           }}
           className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
-          {tourState.isTourActive && tourState.currentStep === 3 && (
+          {tourState.isTourActive && tourState.currentStep === 3 && isLoggedIn &&(
             <div id="interaction-section">
               <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
                 {tourSteps[3].description}
@@ -170,7 +172,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             <motion.li
               className={`span-color p-3 w-fit min-h-[50px] ${
                 listening
-                  ? `pt-4 ${user.email ? "shadow-gradient listening-glow" : ""}`
+                  ? `pt-4 ${user?.email ? "shadow-gradient listening-glow" : ""}`
                   : ""
               } rounded-full`}
               animate={{

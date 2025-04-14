@@ -177,7 +177,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
         <div
           style={{ background: currentTheme.styles.mainBackground?.background }}
-          className={`${currentTheme.styles.mainBackground?.background } p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto`}
+          className={`${currentTheme.styles.mainBackground?.background} p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto`}
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Theme Settings</h2>

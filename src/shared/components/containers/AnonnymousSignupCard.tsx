@@ -20,7 +20,6 @@ const AnonnymousSignUpCard = () => {
 
   const handleAnonymousLogin = () => {
     dispatch(anonymousLogin());
-    window.location.reload();
   };
 
   return (

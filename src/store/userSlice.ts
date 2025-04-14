@@ -31,6 +31,7 @@ export const userSlice = createSlice({
         token: string;
       }>
     ) => {
+      console.log(action.payload.user)
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isLoggedIn = true;
@@ -50,7 +51,7 @@ export const userSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isLoggedIn = false;
-      state.isAnonymous = false; // Add this
+      state.isAnonymous = false;
       state.tokenExpiry = null;
       state.isWebSocketConnected = false;
     
@@ -60,6 +61,7 @@ export const userSlice = createSlice({
       localStorage.removeItem("username");
       localStorage.removeItem("bible_version");
       localStorage.removeItem("isAnonymous");
+      localStorage.removeItem("anonymousExpiry")
     },
     setUserData: (state, action: PayloadAction<UserData>) => {
       state.user = action.payload;
@@ -76,9 +78,7 @@ export const userSlice = createSlice({
       };
       localStorage.setItem("isAnonymous", "true");
       localStorage.setItem("username", "anonymous");
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("token_expiry");
+      localStorage.setItem("anonymousExpiry", (Date.now() + 30 * 60 * 100).toString())
     },
   },
   extraReducers: (builder) => {

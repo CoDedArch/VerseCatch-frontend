@@ -1,7 +1,7 @@
 // hooks/useUserData.ts
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { checkAuthStatus } from '@/store/authThunks';
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { initWebSocketConnection } from "@/store/authThunks";
 
 export const useUserData = () => {
   const dispatch = useAppDispatch();
@@ -11,19 +11,29 @@ export const useUserData = () => {
     isLoggedIn,
     isLoading,
     error,
-    isWebSocketConnected
+    isWebSocketConnected,
+    isAnonymous,
+    tokenExpiry, // Make sure this is included in your Redux state
   } = useAppSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
+    if (token && isLoggedIn) {
+      const promise = dispatch(initWebSocketConnection(token));
+
+      return () => {
+        promise.abort();
+      };
+    }
+  }, [dispatch, token, isLoggedIn]);
 
   return {
     userData: user,
     token,
     isLoggedIn,
+    isAnonymous,
     isLoading,
+    tokenExpiry,
     error,
-    isConnected: isWebSocketConnected
+    isConnected: isWebSocketConnected,
   };
 };

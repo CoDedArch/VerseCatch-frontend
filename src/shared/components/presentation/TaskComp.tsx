@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 
-const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
-  const theme = useSelector((state: RootState) => state.theme.currentTheme);
+const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
 
+  const theme = useSelector((state: RootState) => state.theme.currentTheme);
+  const {user} = useSelector((state: RootState)=> state.user)
   const [taskState, setTaskState] = useState(INITIAL_TASK_STATE);
   const [showLoginTaskComplete, setShowLoginTaskComplete] = useState(true);
   const [showImage, setShowImage] = useState(false);
@@ -60,12 +61,12 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
   }, [tourState.isTourActive]);
 
   useEffect(() => {
-    if (userData?.faith_coins !== undefined) {
+    if (user?.faith_coins !== undefined) {
       setAnimate(true);
       const timer = setTimeout(() => setAnimate(false), 3000);
       return () => clearTimeout(timer);
     }
-  }, [userData?.faith_coins]);
+  }, [user?.faith_coins]);
 
   useEffect(() => {
     if (showLoginTaskComplete) {
@@ -203,7 +204,7 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  (userData?.total_verses_caught / 100) * 100 === 100
+                   (user?.total_verses_caught ?? 0 / 100) * 100 === 100
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -214,14 +215,14 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                     (Verse Catcher) -{" "}
                     <span
                       className={`${
-                        (userData?.total_verses_caught / 100) * 100 === 100
+                        (user?.total_verses_caught ?? 0 / 100) * 100 === 100
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
                       {Math.round(
                         Math.min(
-                          (userData?.total_verses_caught / 100) * 100,
+                          (user?.total_verses_caught ?? 0 / 100) * 100,
                           100
                         )
                       )}
@@ -229,7 +230,7 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                     </span>
                   </span>
                 </div>
-                {(userData?.total_verses_caught / 100) * 100 === 100 && (
+                {(user?.total_verses_caught?? 0 / 100) * 100 === 100 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
@@ -242,10 +243,10 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  userData?.streak === 7 ? "bg-green-400 animate-pulse" : ""
+                  user?.streak === 7 ? "bg-green-400 animate-pulse" : ""
                 }`}
               >
-                {userData?.streak === 7 && (
+                {user?.streak === 7 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
@@ -262,7 +263,7 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-1 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  (userData?.unique_books_caught / 60) * 100 === 100
+                  (user?.unique_books_caught ?? 0  / 60) * 100 === 100
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -273,14 +274,14 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                     (Bible Explorer) -{" "}
                     <span
                       className={`${
-                        (userData?.unique_books_caught / 60) * 100 === 100
+                        (user?.unique_books_caught ?? 0 / 60) * 100 === 100
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
                       {Math.round(
                         Math.min(
-                          (userData?.unique_books_caught / 60) * 100,
+                          (user?.unique_books_caught ?? 0 / 60) * 100,
                           100
                         )
                       )}
@@ -288,7 +289,7 @@ const TaskComp: FC<TaskCompInterface> = ({ userData, tourState }) => {
                     </span>
                   </span>
                 </div>
-                {(userData?.unique_books_caught / 60) * 100 === 100 && (
+                {(user?.unique_books_caught ?? 0 / 60) * 100 === 100 && (
                   <img
                     src="/assets/task.png"
                     alt="task"

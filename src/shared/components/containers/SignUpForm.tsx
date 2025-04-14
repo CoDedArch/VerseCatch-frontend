@@ -128,13 +128,17 @@ const SignUpForm = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || LOGIN_FAIL_PROMPT);
 
+      console.log("Signup userData", data.user)
+      
+      setShowCheckmark(true);
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       dispatch(loginSuccess({
         user: data.user,
         token: data.access_token
       }))
       
-      setShowCheckmark(true);
-      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       const errorMessage =(err as Error).message || ERROR_OCCURRED_PROMPT 
       setError(errorMessage);
@@ -267,7 +271,7 @@ const SignUpForm = () => {
             <button
               type="button"
               onClick={handleNext}
-              className="border-2 w-full h-13 rounded-2xl text-black bg-blue-100 hover:bg-blue-200 transition-colors flex justify-center items-center"
+              className="border-2 w-full h-13 rounded-2xl text-black bg-blue-100 hover:bg-blue-200 transition-colors flex justify-center items-center cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? (
