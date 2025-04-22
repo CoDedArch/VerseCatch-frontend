@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -9,18 +9,16 @@ import {
   book_versions,
 } from "../../constants/varConstants";
 import { UPDATE_BIBLE_VERSION_URL } from "../../constants/urlConstants";
-import { InteractionSectionProps } from "../../constants/interfaceConstants";
 import { tourSteps } from "../../constants/varConstants";
+import { useDispatch } from "react-redux";
+import { setSelectedVersion, setReceivedData } from "@/store/uiSlice";
 
-
-
-const InteractionSection: React.FC<InteractionSectionProps> = ({
-  setReceivedData,
-  version,
-  tourState,
-}) => {
+const InteractionSection = () => {
+  const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
-  const {user, isLoggedIn} = useSelector((state: RootState)=> state.user)
+  const tourState = useSelector((state: RootState) => state.tour);
+  const { user, isLoggedIn } = useSelector((state: RootState) => state.user);
+  const { selectedVersion } = useSelector((state: RootState) => state.ui);
   const [listening, setListening] = useState(false);
   const [icon, setIcon] = useState("/assets/play.png");
   const [buttonText, setButtonText] = useState("Start Listening");
@@ -30,7 +28,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
-    useSpeechRecognitionHook(version.value, user?.email || "anonymous");
+    useSpeechRecognitionHook(selectedVersion, user?.email || "anonymous");
 
   const handleButtonClick = () => {
     if (!listening) {
@@ -72,7 +70,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   const handleVersionChange = async (new_version: string) => {
-    version.onChange(new_version);
+    dispatch(setSelectedVersion(new_version));
     setDropdownVisible(false);
     if (isLoggedIn && user?.email) {
       await updateUserBibleVersion(new_version);
@@ -80,42 +78,58 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target as Node)
+    ) {
       setDropdownVisible(false);
     }
   };
 
   useEffect(() => {
     if (receivedData) {
-      setReceivedData(receivedData);
+      dispatch(setReceivedData(receivedData));
     }
-  }, [receivedData, setReceivedData]);
+  }, [receivedData, dispatch]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Get display name for current version
+  const getCurrentVersionName = () => {
+    const current = book_versions.find((v) => v.value === selectedVersion);
+    return current ? current.label : selectedVersion || "Bible version";
+  };
+
   return (
     <>
       {hasRecognitionSupport ? (
         <section
           style={{
-            background: theme.styles.interactionBackground?.background
+            background: theme.styles.interactionBackground?.background,
+            zIndex:
+              tourState.isTourActive && tourState.currentStep === 3
+                ? 10000
+                : "auto",
           }}
-          className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl">
-          {tourState.isTourActive && tourState.currentStep === 3 && isLoggedIn &&(
-            <div id="interaction-section">
-              <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
-                {tourSteps[3].description}
-                <img
-                  src="/assets/down.png"
-                  alt="hand down"
-                  className="animate-move-up-down"
-                />
+          className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl no-highlight"
+        >
+          {tourState.isTourActive &&
+            tourState.currentStep === 3 &&
+            isLoggedIn && (
+              <div id="interaction-section">
+                <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
+                  {tourSteps[3].description}
+                  <img
+                    src="/assets/down.png"
+                    alt="hand down"
+                    className="animate-move-up-down"
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {!receivedData && (
             <div className="absolute sm:hidden sm:static left-2 sm:ml-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center sm:gap-2">
@@ -125,7 +139,7 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
                 className="w-8 sm:w-14"
               />
               <span className="bg-slate-400/10 p-3">
-                {version.value || "Bible version"}
+                {getCurrentVersionName()}
               </span>
             </div>
           )}
@@ -134,7 +148,12 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             title="Bible Versions"
             src="/assets/dots.png"
             alt="three dots"
-            className="absolute right-0 w-9 cursor-pointer"
+            className={`absolute right-0 w-9 cursor-pointer ${
+              theme.display_name === "Dark Night" ||
+              theme.display_name === "Twilight"
+                ? "bg-slate-100/70 rounded-2xl"
+                : ""
+            }`}
             onClick={toggleDropdown}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -148,22 +167,28 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-48 h-[10em] overflow-y-scroll text-gray-800 bg-white border border-gray-300 rounded shadow-lg z-50"
+                className="absolute right-3 xl:right-0 -top-45 xl:top-15 mt-2 w-56 h-[10em] overflow-y-scroll text-gray-800 bg-white border border-gray-300 rounded shadow-lg z-50"
               >
                 <p className="text-center p-2 font-bold underline">
                   Bible Versions
                 </p>
-                {book_versions.map((version) => (
-                  <motion.li
-                    key={version}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleVersionChange(version)}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {version}
-                  </motion.li>
-                ))}
+                {book_versions
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map((version) => (
+                    <motion.li
+                      key={version.value}
+                      className={`px-4 py-2 cursor-pointer text-sm ${
+                        selectedVersion === version.value
+                          ? "bg-green-200/50 font-bold"
+                          : "hover:bg-gray-200 transition-colors"
+                      }`}
+                      onClick={() => handleVersionChange(version.value)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {version.label}
+                    </motion.li>
+                  ))}
               </motion.ul>
             )}
           </AnimatePresence>
@@ -172,19 +197,28 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
             <motion.li
               className={`span-color p-3 w-fit min-h-[50px] ${
                 listening
-                  ? `pt-4 ${user?.email ? "shadow-gradient listening-glow" : ""}`
+                  ? `pt-4 ${
+                      user?.email ? "shadow-gradient listening-glow" : ""
+                    }`
                   : ""
               } rounded-full`}
               animate={{
                 scale: listening ? 1.05 : 1,
-                transition: { duration: 0.3 }
+                transition: { duration: 0.3 },
               }}
             >
               <span className="">
-                <img src={icon} alt="" />
+                <img src={icon} alt="" className="pointer-events-none" />
               </span>
             </motion.li>
-            <li className="w-[214px] text-center font-semibold">
+            <li
+              className={`${
+                theme.display_name === "Dark Night" ||
+                theme.display_name === "Twilight"
+                  ? "text-white"
+                  : ""
+              } w-[214px] text-center font-semibold`}
+            >
               Transcribing and detecting Bible quotations in real time
             </li>
             <li className="">
@@ -197,18 +231,21 @@ const InteractionSection: React.FC<InteractionSectionProps> = ({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 animate={{
-                  y: buttonText === "Start Listening" || buttonText === "Continue Listening" ? 
-                    [0, -5, 0] : 0,
+                  y:
+                    buttonText === "Start Listening" ||
+                    buttonText === "Continue Listening"
+                      ? [0, -5, 0]
+                      : 0,
                 }}
                 transition={{
                   y: {
                     repeat: Infinity,
                     duration: 1.5,
-                    ease: "easeInOut"
+                    ease: "easeInOut",
                   },
                 }}
               >
-                <img src={buttonIcon} alt="mic" className="w-5 h-5" /> 
+                <img src={buttonIcon} alt="mic" className="w-5 h-5" />
                 <span>{buttonText}</span>
               </motion.button>
             </li>

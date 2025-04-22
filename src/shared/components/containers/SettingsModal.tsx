@@ -174,9 +174,10 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000] no-highlight">
         <div
-          style={{ background: currentTheme.styles.mainBackground?.background }}
+          style={{
+            background: currentTheme.display_name === "Dark Night" || currentTheme.display_name === "Twilight" ? "white" :  currentTheme.styles.mainBackground?.background }}
           className={`${currentTheme.styles.mainBackground?.background} p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto`}
         >
           <div className="flex justify-between items-center mb-4">
@@ -243,7 +244,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <div className="text-white font-bold text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <img src="/assets/coin.png" className="w-5 h-5" />
+                            <img src="/assets/coin.png" className="w-5 h-5 pointer-events-none" />
                             {theme.price}
                           </div>
                           <div className="text-xs">or watch ad</div>
@@ -263,7 +264,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                   {!theme.unlocked && (
                     <div className="flex gap-2 mt-2">
                       <button
-                        className="text-xs bg-green-400 text-white px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
+                        className="text-xs bg-green-400/40 text-black px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleUnlockTheme(theme.id, false);
@@ -278,9 +279,9 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                           backgroundPosition: "center",
                           backgroundBlendMode: "overlay",
                           background:
-                            "linear-gradient(13deg, rgba(20, 130, 260, 1), rgba(36, 10, 545, 0.2))",
+                            "linear-gradient(13deg, rgba(40, 130, 70, 30), rgba(36, 40, 545, 0.2))",
                         }}
-                        className="text-xs bg-purple-500 text-white px-2 py-1 rounded-2xl hover:cursor-pointer"
+                        className="text-xs bg-purple-500 text-black px-2 py-1 rounded-2xl hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedTheme({

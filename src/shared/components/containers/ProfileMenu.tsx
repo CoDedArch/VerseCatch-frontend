@@ -1,15 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PasswordModal from "./PasswordModal";
-import AboutModal from "../presentation/AboutModal";
-import HelpModal from "../presentation/HelpModal";
+import AboutModal from "./AboutModal";
+import HelpModal from "./HelpModal";
 import SettingsModal from "./SettingsModal";
 import { ProfileMenuProps } from "@/shared/constants/interfaceConstants";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
   const [activeModal, setActiveModal] = useState<
     null | "password" | "about" | "help" | "settings"
-  >(null);
+    >(null);
+    const theme = useSelector((state: RootState) => state.theme.currentTheme);
+
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +63,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="bg-slate-500/20 absolute right-1 top-20 w-fit rounded-lg p-2 backdrop-blur-sm z-50 shadow-lg"
+          className={`${theme.display_name === "Dark Night" || theme.display_name === "Twilight"|| theme.display_name === "Royal Purple" ? "bg-slate-100" : "bg-slate-500/20" }  absolute right-1 top-20 w-fit rounded-lg p-2 backdrop-blur-sm z-50 shadow-lg no-highlight`}
         >
           <ul className="space-y-3">
             <motion.li
@@ -71,7 +75,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               <img
                 src="/assets/setting.png"
                 alt="Settings"
-                className="w-5 sm:w-5"
+                className="w-5 sm:w-5 pointer-events-none"
               />
               <span className="bg-slate-400/10 p-1 rounded">Settings</span>
             </motion.li>
@@ -82,7 +86,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
               onClick={() => openModal("about")}
             >
-              <img src="/assets/about.png" alt="About" className="w-5 sm:w-5" />
+              <img
+                src="/assets/about.png"
+                alt="About"
+                className="w-5 sm:w-5 pointer-events-none"
+              />
               <span className="bg-slate-400/10 p-1 rounded">About</span>
             </motion.li>
 
@@ -95,7 +103,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               <img
                 src="/assets/help.png"
                 alt="Get Help"
-                className="w-5 sm:w-5"
+                className="w-5 sm:w-5 pointer-events-none"
               />
               <span className="bg-slate-400/10 p-1 rounded">Get Help</span>
             </motion.li>
@@ -109,7 +117,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               <img
                 src="/assets/setting.png"
                 alt="Change Password"
-                className="w-5 sm:w-5"
+                className="w-5 sm:w-5 pointer-events-none"
               />
               <span className="bg-slate-400/10 p-1 rounded">
                 Change Password
@@ -125,7 +133,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               <img
                 src="/assets/out.png"
                 alt="Sign Out"
-                className="w-5 sm:w-5"
+                className="w-5 sm:w-5 pointer-events-none"
               />
               <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
             </motion.li>

@@ -7,9 +7,9 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000] no-highlight">
       <div
-        style={{ background: theme.styles.mainBackground?.background }}
+        style={{ background: theme.display_name === "Dark Night" || theme.display_name === "Twilight" ? "white" : theme.styles.mainBackground?.background }}
         className={`${theme.styles.mainBackground?.background } bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
       >
         <div className="flex justify-between items-center mb-4">
@@ -27,7 +27,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
             <img
               src="/assets/book.png"
               alt="VerseCatch Logo"
-              className="w-16 h-16"
+              className="w-16 h-16 pointer-events-none"
             />
             <div>
               <h3 className="text-xl font-semibold">Bible Verse Catcher</h3>
@@ -65,7 +65,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
               <img
                 src="/assets/developer.jpg"
                 alt="Developer"
-                className="w-40 h-40 rounded-full"
+                className="w-40 h-40 rounded-full pointer-events-none"
               />
               <div>
                 <p className="font-medium">[CoDed]</p>

@@ -8,15 +8,23 @@ import {
   SIGNUP_AGAIN_PROMPT,
 } from "../../constants/varConstants";
 import { SIGNUP_URL, LOGIN_URL } from "../../constants/urlConstants";
+import { useDispatch } from "react-redux";
+import { hideGreeting } from "@/store/greetingsSlice";
+import { setIntroComplete } from "@/store/uiSlice";
 
 const BibleSelection: FC<BibleSelectionInterface> = ({
   userDetails,
-  authState, 
-  stateHandlers
+  authState,
+  stateHandlers,
 }) => {
-  const [isWaitingForVerification, setIsWaitingForVerification] = useState(false);
-  const [isVersionSelectionLoading, setIsVersionSelectionLoading] = useState(false);
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const dispatch = useDispatch();
+  const [isWaitingForVerification, setIsWaitingForVerification] =
+    useState(false);
+  const [isVersionSelectionLoading, setIsVersionSelectionLoading] =
+    useState(false);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   useEffect(() => {
     return () => {
@@ -75,7 +83,10 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
 
           if (loginResponse.ok) {
             clearInterval(interval);
-            setTimeout(() => window.location.reload(), 1500);
+            dispatch(hideGreeting());
+            dispatch(setIntroComplete(false));
+            console.log("User Login");
+            window.location.reload();
           }
         } catch (err) {
           console.error("Polling error:", err);
@@ -113,27 +124,27 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
           >
             Choose a Bible version:
           </motion.h2>
-          
+
           {isVersionSelectionLoading ? (
             <div className="flex justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-4 justify-center max-w-2xl">
+            <div className="flex flex-wrap gap-4 justify-center  px-4">
               {book_versions
-                .sort((a, b) => a.localeCompare(b))
+                .sort((a, b) => a.label.localeCompare(b.label))
                 .map((version, index) => (
                   <motion.button
-                    key={version}
+                    key={version.value}
                     initial={{ x: -100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white text-blue-500 px-4 py-2 rounded-lg hover:cursor-pointer shadow-lg hover:bg-blue-100 transition-colors"
-                    onClick={() => handleVersionSelect(version)}
+                    className="bg-white text-blue-500 px-4 py-2 rounded-lg hover:cursor-pointer font-bold shadow-lg hover:bg-blue-100 transition-colors text-sm sm:text-lg whitespace-nowrap"
+                    onClick={() => handleVersionSelect(version.value)}
                   >
-                    {version}
+                    {version.label}
                   </motion.button>
                 ))}
             </div>

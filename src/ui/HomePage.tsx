@@ -1,206 +1,191 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import InteractionSection from "@/shared/components/containers/InteractionSection";
 import Introduction from "@/shared/components/containers/Introduction";
-import Header from "@/shared/components/presentation/Header";
+import Header from "@/shared/components/containers/Header";
 import TaskComp from "@/shared/components/containers/TaskComp";
-import VerseSection from "@/shared/components/presentation/VerseSection";
-import { INITIALTOURSTATE } from "@/shared/constants/varConstants";
+import VerseSection from "@/shared/components/containers/VerseSection";
 import { EntireBookDataInterface } from "@/shared/constants/interfaceConstants";
-import { tourSteps } from "@/shared/constants/varConstants";
-import { UPDATE_HAS_TAKEN_TOUR_URL } from "@/shared/constants/urlConstants";
 import { logout } from "@/store/userSlice";
 import { useUserData } from "@/shared/components/Hooks/useUserData";
-import CancelTour from "@/shared/components/presentation/CancelTour";
+import CancelTour from "@/shared/components/containers/CancelTour";
+import {
+  startTour,
+  nextStep,
+  endTour,
+  updateHasTakenTour,
+} from "@/store/tourSlice";
+import { tourSteps } from "@/shared/constants/varConstants";
+import { AppDispatch } from "@/store/store";
+import {
+  setIntroComplete,
+  resetIntroComplete,
+  setHighlightedVerse,
+  setSelectedVersion,
+} from "@/store/uiSlice";
+import { useRef } from "react";
 
 const HomePage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { userData, token, isLoggedIn, isAnonymous, tokenExpiry } =
     useUserData();
-  const [tourState, setTourState] = useState(INITIALTOURSTATE);
-  const [receivedData, setReceivedData] = useState<string | null>(null);
-  const [introComplete, setIntroComplete] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState<string>("KJV_bible");
-  const parsedData = receivedData ? JSON.parse(receivedData)[0] : null;
+  const { introComplete, selectedVersion, receivedData } = useSelector(
+    (state: RootState) => state.ui
+  );
+  const tourState = useSelector((state: RootState) => state.tour);
+  // Memoize parsed data to prevent unnecessary recalculations
+  const parsedData = useMemo(() => {
+    return receivedData ? JSON.parse(receivedData)[0] : null;
+  }, [receivedData]);
+
+  const tourInterval = useRef<NodeJS.Timeout | null>(null);
+  const hasTourStarted = useRef(false);
+
   const [entireBookData, setEntireBookData] = useState<
     EntireBookDataInterface[] | null
   >(null);
-  const [highlightedVerse, setHighlightedVerse] = useState<string | null>(null);
   const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
   const [isCheckingTour, setIsCheckingTour] = useState(false);
 
-  // handler to fetch chapters, verse text from the book in which the verse belong
-  const handleVerseClick = () => {
-    if (parsedData) {
-      fetchEntireBook(parsedData.book);
-    }
-  };
-
-  // handler to set the tour status of the auth user
-  const updateHasTakenTour = async (email: string, hasTakenTour: boolean) => {
-    try {
-      const response = await fetch(UPDATE_HAS_TAKEN_TOUR_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify({ email, has_taken_tour: hasTakenTour }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update has_taken_tour");
-      }
-
-      const data = await response.json();
-      console.log("has_taken_tour updated:", data);
-    } catch (error) {
-      console.error("Error updating has_taken_tour:", error);
-    }
-  };
-
-  // This will fetch the entire books from the bible
-  const fetchEntireBook = async (bookName: string) => {
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/get-book/${bookName}?version_name=${selectedVersion}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch book data");
-      }
-      const data = await response.json();
-      setEntireBookData(data);
-    } catch (error) {
-      console.error("Error fetching book data:", error);
-    }
-  };
-
-  // set the tour status of the user
   useEffect(() => {
-    if (isLoggedIn && isUserDataLoaded && userData) {
+    console.log(
+      '[TOUR STEP] Current step changed:', 
+      tourState.currentStep,
+      'of',
+      tourSteps.length - 1,
+      '| Active:', 
+      tourState.isTourActive
+    );
+    
+    // Optional: Log the step details if needed
+    if (tourState.isTourActive && tourSteps[tourState.currentStep]) {
+      console.log(
+        '[TOUR STEP DETAILS]', 
+        tourSteps[tourState.currentStep]
+      );
+    }
+  }, [tourState.currentStep, tourState.isTourActive]);
+
+  // Memoize the fetch function to prevent unnecessary recreations
+  const fetchEntireBook = useCallback(
+    async (bookName: string) => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/get-book/${bookName}?version_name=${selectedVersion}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch book data");
+        const data = await response.json();
+        setEntireBookData(data);
+      } catch (error) {
+        console.error("Error fetching book data:", error);
+      }
+    },
+    [selectedVersion]
+  );
+
+  // Memoize verse click handler
+  const handleVerseClick = useCallback(() => {
+    if (parsedData) fetchEntireBook(parsedData.book);
+  }, [parsedData, fetchEntireBook]);
+
+  // Scroll to verse effect
+  useEffect(() => {
+    if (entireBookData && receivedData) {
+      const verseId = `${parsedData.chapter}:${parsedData.verse_number}`;
+      dispatch(setHighlightedVerse(verseId));
+      const verseElement = document.getElementById(verseId);
+      verseElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [entireBookData, receivedData, dispatch, parsedData]);
+
+  // Set user's preferred Bible version
+  useEffect(() => {
+    if (userData?.bible_version) {
+      dispatch(setSelectedVersion(userData.bible_version));
+    }
+  }, [userData, dispatch]);
+
+  useEffect(() => {
+    if (isLoggedIn && isUserDataLoaded && userData && !hasTourStarted.current) {
       setIsCheckingTour(true);
 
       const timer = setTimeout(() => {
-        setTourState((prev) => ({
-          ...prev,
-          isTourActive: !userData.has_taken_tour,
-        }));
+        if (!userData.has_taken_tour) {
+          hasTourStarted.current = true; // Mark tour as started
+          dispatch(startTour());
+        }
         setIsCheckingTour(false);
-      }, 150); // Slightly longer delay for more reliability
+      }, 150);
 
       return () => clearTimeout(timer);
     } else {
       setIsCheckingTour(false);
     }
-  }, [isLoggedIn, userData, isUserDataLoaded]);
+  }, [isLoggedIn, userData, isUserDataLoaded, dispatch]);
 
-  // This scrolls to the verse which have been caught when all chapters and verses in the book have been returned
+  // Handle automatic tour progression
   useEffect(() => {
-    if (entireBookData && parsedData) {
-      const verseId = `${parsedData.chapter}:${parsedData.verse_number}`;
-      setHighlightedVerse(verseId);
-      const verseElement = document.getElementById(verseId);
-      if (verseElement) {
-        verseElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!tourState.isTourActive) {
+      // Clear interval if tour is not active
+      if (tourInterval.current) {
+        clearInterval(tourInterval.current);
+        tourInterval.current = null;
       }
+      return;
     }
-  }, [entireBookData, parsedData]);
 
-  // apply z index to the task for 5 seconds
-
-  // Automatically move to the next step every 3 seconds
-  useEffect(() => {
-    // Function to move to the next step
-    const nextStep = async () => {
+    // Start the interval for automatic progression
+    tourInterval.current = setInterval(() => {
       if (tourState.currentStep < tourSteps.length - 1) {
-        setTourState((prev) => ({
-          ...prev,
-          currentStep: prev.currentStep + 1,
-        }));
+        dispatch(nextStep());
       } else {
-        // End of tour
-        setTourState((prev) => ({
-          ...prev,
-          isTourActive: false,
-        }));
-        await updateHasTakenTour(userData?.email || "", true);
+        // Tour completed
+        if (tourInterval.current) {
+          clearInterval(tourInterval.current);
+          tourInterval.current = null;
+        }
+        dispatch(endTour());
+
+        // Update backend that user has completed tour
+        if (userData?.email) {
+          dispatch(
+            updateHasTakenTour({
+              email: userData.email,
+              hasTakenTour: true,
+            })
+          );
+        }
+      }
+    }, 5000); // 5 seconds between steps
+
+    return () => {
+      if (tourInterval.current) {
+        clearInterval(tourInterval.current);
       }
     };
+  }, [tourState.isTourActive, tourState.currentStep, dispatch, userData]);
 
-    if (tourState.isTourActive && !tourState.isCancelled && isLoggedIn) {
-      const timer = setTimeout(() => {
-        nextStep();
-      }, 5000); // 5 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [
-    tourState.currentStep,
-    tourState.isTourActive,
-    tourState.isCancelled,
-    userData,
-    isLoggedIn,
-  ]);
-
-  // Add z-index to the current step and its parent
+  // Handle authentication and session management
   useEffect(() => {
-    if (tourState.isTourActive && !tourState.isCancelled && isLoggedIn) {
-      const currentElement = document.getElementById(
-        tourSteps[tourState.currentStep].id
-      );
-      if (currentElement && currentElement.parentElement) {
-        // Set high z-index for the current step and its parent
-        currentElement.style.zIndex = "10000";
-        currentElement.parentElement.style.zIndex = "10000";
-
-        // Remove z-index after 5 seconds
-        const timer = setTimeout(() => {
-          currentElement.style.zIndex = "";
-          if (currentElement.parentElement) {
-            currentElement.parentElement.style.zIndex = "1";
-          }
-        }, 5000);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [
-    tourState.currentStep,
-    tourState.isTourActive,
-    tourState.isCancelled,
-    isLoggedIn,
-  ]);
-
-  // set the bible version to the preferred version of the user in their database
-  useEffect(() => {
-    if (userData?.bible_version) {
-      setSelectedVersion(userData.bible_version);
-    }
-  }, [userData]);
-
-  useEffect(() => {
-    // Handle anonymous user
-    console.log(isAnonymous);
     if (isAnonymous) {
-      setIntroComplete(true);
+      dispatch(setIntroComplete(true));
       setIsUserDataLoaded(true);
       const cleanupTimer = setTimeout(() => {
         dispatch(logout());
-        setIntroComplete(false);
+        dispatch(resetIntroComplete());
       }, 30 * 60 * 1000);
       return () => clearTimeout(cleanupTimer);
     }
 
-    // Handle regular logged in user
     if (token && isLoggedIn) {
       if (tokenExpiry && Date.now() < tokenExpiry) {
-        setIntroComplete(true);
+        dispatch(setIntroComplete(true));
         setIsUserDataLoaded(true);
         const timeout = setTimeout(() => {
           dispatch(logout());
-          setIntroComplete(false);
+          dispatch(resetIntroComplete());
         }, tokenExpiry - Date.now());
         return () => clearTimeout(timeout);
       } else {
@@ -211,59 +196,59 @@ const HomePage = () => {
     }
   }, [token, isLoggedIn, tokenExpiry, isAnonymous, dispatch]);
 
-  return (
-    <>
-      {isLoggedIn &&
-        !isCheckingTour &&
-        tourState.isTourActive &&
-        introComplete && (
-          <CancelTour
-            setTourState={setTourState}
-            updateHasTakenTour={updateHasTakenTour}
+  // Memoize the conditions for showing CancelTour to prevent unnecessary re-renders
+  const showCancelTour = useMemo(() => {
+    return (
+      isLoggedIn && !isCheckingTour && introComplete && tourState.isTourActive
+    );
+  }, [isLoggedIn, isCheckingTour, introComplete, tourState]);
+
+  // Memoize main content to prevent unnecessary re-renders
+  const mainContent = useMemo(() => {
+    if (!introComplete) return <Introduction />;
+
+    return (
+      <main
+        style={{
+          background: theme.styles.mainBackground.background,
+          backgroundSize: theme.styles.mainBackground.backgroundSize,
+          animation: theme.styles.mainBackground.animation,
+        }}
+        className="min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5 overflow-x-hidden"
+      >
+        {!isAnonymous && <TaskComp />}
+        <Header />
+        {receivedData && (
+          <VerseSection
+            parsedData={parsedData}
+            entireBookData={entireBookData}
+            handleVerseClick={handleVerseClick}
+            setEntireBookData={setEntireBookData}
           />
         )}
+        {userData || isAnonymous ? (
+          <InteractionSection />
+        ) : (
+          <p>Loading user data...</p>
+        )}
+      </main>
+    );
+  }, [
+    introComplete,
+    theme,
+    isAnonymous,
+    receivedData,
+    parsedData,
+    entireBookData,
+    handleVerseClick,
+    userData,
+  ]);
 
-      {!introComplete ? (
-        <Introduction />
-      ) : (
-        <main
-          style={{ background: theme.styles.mainBackground?.background }}
-          className={` 
-            min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5 ${theme.styles.mainBackground?.background}`}
-        >
-          {/* Task Div */}
-          {!isAnonymous && <TaskComp tourState={tourState} />}
-          {/* Show the first version div only if there's no receivedData */}
-          <Header
-            tourState={tourState}
-            selectedVersion={selectedVersion}
-            setIntroComplete={setIntroComplete}
-          />
-
-          {/* Show the section with version2 div only if there's receivedData */}
-          {receivedData && (
-            <VerseSection
-              parsedData={parsedData}
-              entireBookData={entireBookData}
-              selectedVersion={selectedVersion}
-              highlightedVerse={highlightedVerse}
-              handleVerseClick={handleVerseClick}
-              setEntireBookData={setEntireBookData}
-            />
-          )}
-
-          {userData || isAnonymous ? (
-            <InteractionSection
-              setReceivedData={setReceivedData}
-              version={{ value: selectedVersion, onChange: setSelectedVersion }}
-              tourState={tourState}
-            />
-          ) : (
-            <p>Loading user data...</p>
-          )}
-        </main>
-      )}
-    </>
+  return (
+    <section className="overflow-hidden">
+      {showCancelTour && <CancelTour />}
+      {mainContent}
+    </section>
   );
 };
 

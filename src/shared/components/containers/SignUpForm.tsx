@@ -14,7 +14,8 @@ import {
   WEAK_PASSWORD_PROMPT,
 } from "../../constants/varConstants";
 import { LOGIN_URL, CHECK_EMAIL_URL } from "../../constants/urlConstants";
-import { loginStart, loginFailure, loginSuccess} from "@/store/userSlice";
+import { loginStart, loginFailure, loginSuccess } from "@/store/userSlice";
+import { setIntroComplete } from "@/store/uiSlice";
 
 const SignUpForm = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ const SignUpForm = () => {
   const [showCheckmark, setShowCheckmark] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validatePassword = (password: string) => {
     const regex =
@@ -114,7 +117,7 @@ const SignUpForm = () => {
 
     setIsLoading(true);
     setError("");
-    dispatch(loginStart())
+    dispatch(loginStart());
 
     try {
       const response = await fetch(LOGIN_URL, {
@@ -128,21 +131,23 @@ const SignUpForm = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || LOGIN_FAIL_PROMPT);
 
-      console.log("Signup userData", data.user)
-      
+      console.log("Signup userData", data.user);
+
       setShowCheckmark(true);
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      dispatch(loginSuccess({
-        user: data.user,
-        token: data.access_token
-      }))
-      
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      dispatch(setIntroComplete(true));
+
+      dispatch(
+        loginSuccess({
+          user: data.user,
+          token: data.access_token,
+        })
+      );
     } catch (err) {
-      const errorMessage =(err as Error).message || ERROR_OCCURRED_PROMPT 
+      const errorMessage = (err as Error).message || ERROR_OCCURRED_PROMPT;
       setError(errorMessage);
-      dispatch(loginFailure(errorMessage))
+      dispatch(loginFailure(errorMessage));
     } finally {
       setIsLoading(false);
     }
@@ -161,14 +166,14 @@ const SignUpForm = () => {
           <h1 className="text-3xl text-black font-bold text-center">
             {isLogin ? "Login to VerseCatch" : "Create your VerseCatch account"}
           </h1>
-          
+
           <div className="space-y-3">
             <h2 className="text-sm text-center text-black font-bold">
               {isLogin
                 ? "Welcome back! Please log in to continue."
                 : "Start your journey and catch meaningful verses effortlessly."}
             </h2>
-            
+
             <h2 className="text-lg text-center text-blue-500 font-bold">
               {isLogin ? (
                 <>
@@ -189,7 +194,11 @@ const SignUpForm = () => {
                       transition={{ duration: 0.8 }}
                       className="flex justify-center"
                     >
-                      <img src="/assets/check.png" alt="check mark" className="w-20" />
+                      <img
+                        src="/assets/check.png"
+                        alt="check mark"
+                        className="w-20"
+                      />
                     </motion.div>
                   )}
                 </>
@@ -210,7 +219,10 @@ const SignUpForm = () => {
             </h2>
           </div>
 
-          <form onSubmit={(e) => e.preventDefault()} className="mt-10 space-y-2">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="mt-10 space-y-2"
+          >
             {!isLogin && step === "details" && (
               <>
                 <input
@@ -245,23 +257,58 @@ const SignUpForm = () => {
 
             {(isLogin || step === "details") && (
               <>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="border-2 w-full h-13 rounded-2xl p-2"
-                  placeholder="Enter your password"
-                  required
-                />
-                {!isLogin && step === "details" && (
+                <div className="relative">
                   <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="border-2 w-full h-13 rounded-2xl p-2"
-                    placeholder="Confirm Password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="border-2 w-full h-13 rounded-2xl p-2 pr-10"
+                    placeholder="Enter your password"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                  >
+                    <img
+                      src={
+                        showPassword ? "/assets/eye-off.png" : "/assets/eye.png"
+                      }
+                      alt="toggle password visibility"
+                      className="w-5 h-5"
+                    />
+                  </button>
+                </div>
+
+                {!isLogin && step === "details" && (
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="border-2 w-full h-13 rounded-2xl p-2 pr-10"
+                      placeholder="Confirm Password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
+                      <img
+                        src={
+                          showConfirmPassword
+                            ? "/assets/eye-off.png"
+                            : "/assets/eye.png"
+                        }
+                        alt="toggle password visibility"
+                        className="w-5 h-5"
+                      />
+                    </button>
+                  </div>
                 )}
               </>
             )}
@@ -292,10 +339,10 @@ const SignUpForm = () => {
         <BibleSelection
           userDetails={{ firstName, lastName, email, password }}
           authState={{ isLogin, step }}
-          stateHandlers={{ 
-            setError, 
+          stateHandlers={{
+            setError,
             setShowVersions: (value) => !isVerifying && setShowVersions(value),
-            setIsVerifying
+            setIsVerifying,
           }}
         />
       )}

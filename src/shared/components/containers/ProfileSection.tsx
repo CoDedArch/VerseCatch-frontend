@@ -1,14 +1,12 @@
-import { FC } from "react";
-import { ProfileSectionInterface } from "../../constants/interfaceConstants";
 import { tourSteps } from "@/shared/constants/varConstants";
 import ProfileMenu from "./ProfileMenu";
 import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 
-const ProfileSection: FC<ProfileSectionInterface> = ({ tourState }) => {
+const ProfileSection = () => {
   const { user } = useSelector((state: RootState) => state.user);
-
+  const tourState = useSelector((state: RootState) => state.tour);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -17,12 +15,24 @@ const ProfileSection: FC<ProfileSectionInterface> = ({ tourState }) => {
   };
 
   return (
-    <>
+    <section
+      style={{
+        backgroundColor: "inherit",
+        zIndex:
+          tourState.isTourActive && tourState.currentStep === 2
+            ? 10000
+            : "auto",
+      }}
+    >
       <div
         key={user?.id}
-        className={`gap-5 ${
+        className={`gap-5 no-highlight ${
           user ? "flex right-2 top-[55px] sm:top-0" : "hidden"
-        } ${tourState.isTourActive ? "text-white" : ""}`}
+        } ${
+          tourState.isTourActive && tourState.currentStep === 2
+            ? "text-white z-[10000]"
+            : ""
+        }`}
       >
         {tourState.isTourActive && tourState.currentStep === 2 && (
           <div id="profile-section">
@@ -88,7 +98,7 @@ const ProfileSection: FC<ProfileSectionInterface> = ({ tourState }) => {
           triggerRef={profileButtonRef}
         />
       )}
-    </>
+    </section>
   );
 };
 

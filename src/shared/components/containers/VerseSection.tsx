@@ -6,16 +6,18 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { VerseSectionProps } from "@/shared/constants/interfaceConstants";
 
+
 const VerseSection = ({
   parsedData,
   entireBookData,
-  selectedVersion,
-  highlightedVerse,
   handleVerseClick,
   setEntireBookData,
 }: VerseSectionProps) => {
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
-
+  const { 
+    selectedVersion,
+    highlightedVerse,
+  } = useSelector((state: RootState) => state.ui);
   return (
     <AnimatePresence>
       <motion.section

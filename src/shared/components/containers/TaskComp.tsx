@@ -1,15 +1,15 @@
-import { FC, useState, useEffect } from "react";
-import { TaskCompInterface } from "../../constants/interfaceConstants";
+import { useState, useEffect } from "react";
 import { tourSteps } from "@/shared/constants/varConstants";
 import { INITIAL_TASK_STATE } from "@/shared/constants/varConstants";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 
-const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
-
+const TaskComp = () => {
+  const dispatch = useDispatch()
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
-  const {user} = useSelector((state: RootState)=> state.user)
+  const { user } = useSelector((state: RootState) => state.user);
+  const tourState = useSelector((state: RootState) => state.tour);
   const [taskState, setTaskState] = useState(INITIAL_TASK_STATE);
   const [showLoginTaskComplete, setShowLoginTaskComplete] = useState(true);
   const [showImage, setShowImage] = useState(false);
@@ -21,6 +21,14 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
       isTaskVisible: !prev.isTaskVisible,
     }));
   };
+
+  useEffect(() => {
+    console.log("Tour active state changed:", tourState.isTourActive);
+  }, [tourState.isTourActive]);
+  
+  useEffect(() => {
+    console.log("Task highlight state changed:", taskState.isTaskHighlighted);
+  }, [taskState.isTaskHighlighted]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
@@ -42,23 +50,6 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
     return () => mediaQuery.removeEventListener("change", handleMediaChange);
   }, []);
 
-  useEffect(() => {
-    if (tourState.isTourActive) {
-      setTaskState((prev) => ({
-        ...prev,
-        isTaskHighlighted: true,
-      }));
-
-      const timer = setTimeout(() => {
-        setTaskState((prev) => ({
-          ...prev,
-          isTaskHighlighted: false,
-        }));
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [tourState.isTourActive]);
 
   useEffect(() => {
     if (user?.faith_coins !== undefined) {
@@ -78,6 +69,25 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
     }
   }, [showLoginTaskComplete]);
 
+
+  useEffect(() => {
+    if (tourState.isTourActive && tourState.currentStep === 0) {
+      setTaskState(prev => ({
+        ...prev,
+        isTaskHighlighted: true,
+      }));
+
+      const timer = setTimeout(() => {
+        setTaskState(prev => ({
+          ...prev,
+          isTaskHighlighted: false,
+        }));
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [tourState.isTourActive, tourState.currentStep, dispatch]);
+
   return (
     <>
       {/* Show button - rendered outside the panel */}
@@ -90,9 +100,13 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
             transition={{ duration: 0.2 }}
             aria-label="Show task panel"
             onClick={toggleTaskVisibility}
-            className="w-14 fixed z-[100] left-2 top-[140px] bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="w-14 fixed z-[100] left-2 top-[140px] bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/5"
           >
-            <img src="/assets/show.png" alt="show" className="w-full" />
+            <img
+              src="/assets/show.png"
+              alt="show"
+              className="w-full pointer-events-none"
+            />
           </motion.button>
         )}
       </AnimatePresence>
@@ -104,6 +118,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
             style={{
               background: theme.styles?.taskBackground.background,
               color: theme.styles?.taskBackground.color,
+              zIndex: taskState.isTaskHighlighted ? 10000 : 1,
             }}
             initial={{ x: -320, opacity: 0 }}
             animate={{
@@ -118,7 +133,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
             }}
             className={`fixed left-2 sm:top-37 ${
               taskState.isTaskHighlighted ? "sm:z-[10000]" : "z-[1]"
-            } sm:z-1 top-[140px] w-fit h-fit space-y-4 rounded-lg p-2 shadow-lg bg-white/90 backdrop-blur-sm`}
+            } sm:z-1 top-[140px] w-fit h-fit space-y-4 rounded-lg p-2 shadow-lg bg-white/90 backdrop-blur-sm no-highlight`}
           >
             {/* Hide button - rendered inside the panel */}
             <motion.button
@@ -128,10 +143,14 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
               onClick={toggleTaskVisibility}
               className="w-14 absolute -right-5 -top-5 bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
             >
-              <img src="/assets/hide.png" alt="hide" className="w-full" />
+              <img
+                src="/assets/hide.png"
+                alt="hide"
+                className="w-full pointer-events-none"
+              />
             </motion.button>
 
-            {tourState.isTourActive && tourState.currentStep === 0 && (
+            {taskState.isTaskHighlighted &&  (
               <div id="task-section">
                 <div className="absolute text-white -right-[22em] w-[20em] text-xl font-bold p-2 top-1/2 transform -translate-y-1/2">
                   <img
@@ -153,7 +172,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
 
             <ul className="space-y-2 text-xl list-disc px-2 font-bold">
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
@@ -176,7 +195,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
                 </div>
               </li>
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
@@ -200,11 +219,11 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
 
             <ul className="space-y-2 text-md list-disc px-2 font-bold">
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                   (user?.total_verses_caught ?? 0 / 100) * 100 === 100
+                  (user?.total_verses_caught ?? 0 / 100) * 100 === 100
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -230,7 +249,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
                     </span>
                   </span>
                 </div>
-                {(user?.total_verses_caught?? 0 / 100) * 100 === 100 && (
+                {(user?.total_verses_caught ?? 0 / 100) * 100 === 100 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
@@ -239,7 +258,7 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
                 )}
               </li>
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
@@ -259,11 +278,11 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
                 </div>
               </li>
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-1 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  (user?.unique_books_caught ?? 0  / 60) * 100 === 100
+                  (user?.unique_books_caught ?? 0 / 60) * 100 === 100
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -298,10 +317,11 @@ const TaskComp: FC<TaskCompInterface> = ({ tourState }) => {
                 )}
               </li>
               <li
-                 style={{
+                style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
-                className="flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100">
+                className="flex gap-5 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100"
+              >
                 Share 50 verses with friends{" "}
                 <div className="flex items-center gap-1">
                   <span className="text-md font-bold">(Sharing Saint)</span>

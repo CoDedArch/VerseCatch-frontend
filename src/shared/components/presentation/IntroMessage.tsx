@@ -11,7 +11,7 @@ const IntroMessage = () => {
       style={{
         background: "linear-gradient(135deg, #1CB5E0, #000046)",
       }}
-      className="absolute w-full text-center h-full inset-0 z-[100000] flex items-center justify-center text-white text-3xl font-bold"
+      className="absolute w-full text-center h-full inset-0 z-[100000] flex items-center justify-center text-white text-3xl font-bold no-highlight"
     >
       Hello and welcome to VerseCatch!
     </motion.section>

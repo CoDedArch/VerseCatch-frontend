@@ -91,7 +91,7 @@ const PasswordModal = ({ isOpen, onClose }: ModalProps) => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
       <div
-        style={{ background: theme.styles.mainBackground?.background }}
+        style={{ background: theme.display_name === "Dark Night" || theme.display_name === "Twilight" ? "white" : theme.styles.mainBackground?.background }}
         className={`${theme.styles.mainBackground?.background } bg-white p-6 rounded-lg w-96`}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Change Password</h2>

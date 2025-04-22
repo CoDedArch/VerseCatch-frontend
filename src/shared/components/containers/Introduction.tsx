@@ -1,20 +1,26 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 import IntroMessage from "../presentation/IntroMessage";
 import AnonnymousSignUpCard from "./AnonnymousSignupCard";
 import SignUpForm from "./SignUpForm";
+import { RootState } from "@/store/store";
+import { useSelector, useDispatch } from "react-redux";
+import { hideGreeting } from "@/store/greetingsSlice";
 
 const Introduction = () => {
-  const [showGreeting, setShowGreeting] = useState(true);
+  const dispatch = useDispatch();
+  const showGreeting = useSelector(
+    (state: RootState) => state.greetings.showGreeting
+  );
 
   useEffect(() => {
     const greetingTimer = setTimeout(() => {
-      setShowGreeting(false);
+      dispatch(hideGreeting());
     }, 4000);
 
     return () => clearTimeout(greetingTimer);
-  }, []);
+  }, [dispatch]);
 
   return (
     <AnimatePresence>

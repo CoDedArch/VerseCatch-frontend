@@ -7,10 +7,10 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000]">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100000] no-highlight">
       <div
-        style={{ background: theme.styles.mainBackground?.background }}
-        className={`${theme.styles.mainBackground?.background } bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
+        style={{ background: theme.display_name === "Dark Night" || theme.display_name === "Twilight" ? "white" : theme.styles.mainBackground?.background }}
+        className={`bg-white p-6 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto`}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Get Help</h2>
@@ -34,7 +34,7 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
                 </div>
                 <div>
                   <h4 className="font-medium">Speak a Bible Verse</h4>
-                  <p className="text-gray-600 text-sm">
+                  <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                     Say something like "John 3:16"
                   </p>
                 </div>
@@ -46,7 +46,7 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
                 </div>
                 <div>
                   <h4 className="font-medium">View the Verse</h4>
-                  <p className="text-gray-600 text-sm">
+                  <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                     The system will display the verse from your preferred Bible
                     version.
                   </p>
@@ -59,7 +59,7 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
                 </div>
                 <div>
                   <h4 className="font-medium">Explore More</h4>
-                  <p className="text-gray-600 text-sm">
+                  <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                     Click on the verse to see the full chapter or book context.
                   </p>
                 </div>
@@ -76,7 +76,7 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
                 <h4 className="font-medium">
                   How do I change my Bible version?
                 </h4>
-                <p className="text-gray-600 text-sm">
+                <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                   click on the three dots at the bottom of your screen and
                   select your preferred version from the dropdown menu.
                 </p>
@@ -85,14 +85,14 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
                 <h4 className="font-medium">
                   Why isn't the voice recognition working?
                 </h4>
-                <p className="text-gray-600 text-sm">
+                <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                   Make sure you've granted microphone permissions to your
                   browser. Try refreshing the page.
                 </p>
               </div>
               <div className="border-b pb-3">
                 <h4 className="font-medium">How do I earn faith coins?</h4>
-                <p className="text-gray-600 text-sm">
+                <p className={`text-sm ${theme.display_name === "Royal Purple" || theme.display_name === "Fiery Red" || theme.display_name === "Golden Hour" ? "text-white": "text-gray-600 "}`}>
                   You earn coins by completing daily tasks like logging in and
                   catching verses.
                 </p>
@@ -107,11 +107,11 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <img src="/assets/email.png" alt="Email" className="w-5 h-5" />
+                <img src="/assets/email.png" alt="Email" className="w-5 h-5 pointer-events-none" />
                 <span>support@versecatch.com</span>
               </div>
               <div className="flex items-center gap-2">
-                <img src="/assets/phone.png" alt="Phone" className="w-5 h-5" />
+                <img src="/assets/phone.png" alt="Phone" className="w-5 h-5 pointer-events-none" />
                 <span>+233 59 615 7150</span>
               </div>
             </div>

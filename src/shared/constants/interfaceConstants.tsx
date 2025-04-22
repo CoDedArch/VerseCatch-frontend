@@ -14,6 +14,9 @@ export interface TourState {
   isTourActive: boolean;
   currentStep: number;
   isCancelled: boolean;
+  status: string;
+  error: string | null;
+  autoProgressTimer?: NodeJS.Timeout;
 }
 
 export interface TaskState {
@@ -25,6 +28,8 @@ export interface TaskState {
 export interface ThemeStyles {
   mainBackground: {
     background: string;
+    backgroundSize: string;
+    animation: string
   };
   taskBackground: {
     background: string;
@@ -91,8 +96,6 @@ export interface UserData {
 
 export interface HeaderInterface {
   tourState: TourState;
-  selectedVersion: string;
-  setIntroComplete: (value: boolean) => void;
 }
 
 export interface InteractionBackgroundStyles {
@@ -102,14 +105,7 @@ export interface InteractionBackgroundStyles {
 }
 
 export interface CancelTourProps {
-  setTourState: React.Dispatch<React.SetStateAction<TourState>>;
   updateHasTakenTour: (email: string, hasTakenTour: boolean) => Promise<void>;
-}
-
-
-export interface VersionSelection {
-  value: string;
-  onChange: (version: string) => void;
 }
 
 export interface UserInfo {
@@ -118,11 +114,7 @@ export interface UserInfo {
 }
 
 export interface InteractionSectionProps {
-  setReceivedData: (data: string) => void;
-  version: VersionSelection;
   tourState: TourState;
-  // interactionBackground: InteractionBackgroundStyles;
-  // displayThemeName: string | undefined;
 }
 
 export interface ProfileMenuInterface {
@@ -189,8 +181,6 @@ export interface VerseSectionProps {
     text: string;
   } | null;
   entireBookData: EntireBookDataInterface[] | null;
-  selectedVersion: string;
-  highlightedVerse: string | null;
   handleVerseClick: () => void;
   setEntireBookData: (data: EntireBookDataInterface[] | null) => void;
 }
