@@ -22,8 +22,8 @@ const SignUpForm = () => {
   const [step, setStep] = useState<SignUpStep>("email");
   const [showVersions, setShowVersions] = useState(false);
   const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [identifier, setIdentfier] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLogin, setIsLogin] = useState(false);
@@ -71,7 +71,9 @@ const SignUpForm = () => {
     }
 
     if (step === "email") {
-      if (!validateEmail(email)) {
+      console.log("email", email);
+      if (!validateEmail(email.trim())) {
+        console.log("Error Occurred here");
         setError(ENTER_VALID_EMAIL_PROMPT);
         return;
       }
@@ -80,7 +82,7 @@ const SignUpForm = () => {
       setError("");
 
       try {
-        const emailExists = await checkEmailExists(email);
+        const emailExists = await checkEmailExists(email.trim());
         if (emailExists) {
           setError(EMAIL_ALREADY_EXIST_PROMPT);
         } else {
@@ -106,7 +108,7 @@ const SignUpForm = () => {
   };
 
   const handleLoginSubmit = async () => {
-    if (!validateEmail(email)) {
+    if (!identifier) {
       setError(ENTER_VALID_EMAIL_PROMPT);
       return;
     }
@@ -125,17 +127,16 @@ const SignUpForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier: identifier.trim(), password }),
       });
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || LOGIN_FAIL_PROMPT);
 
-      console.log("Signup userData", data.user);
+      console.log("Login userData", data.user);
 
       setShowCheckmark(true);
 
-      // await new Promise(resolve => setTimeout(resolve, 1000));
       dispatch(setIntroComplete(true));
 
       dispatch(
@@ -154,17 +155,17 @@ const SignUpForm = () => {
   };
 
   return (
-    <section className="space-y-10">
+    <section className="space-y-10 mx-10">
       <div className="flex flex-wrap gap-18 justify-center pb-10 p-2">
         <motion.div
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
           whileTap={{ scale: 0.9 }}
-          className="bg-white w-[450px] px-6 py-2 pb-10 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
+          className="bg-white w-[1/2] sm:w-[450px] px-6 py-2 pb-10 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
         >
-          <h1 className="text-3xl text-black font-bold text-center">
-            {isLogin ? "Login to VerseCatch" : "Create your VerseCatch account"}
+          <h1 className="sm:text-3xl text-black font-bold text-center">
+            {isLogin ? "login to VerseCatch" : "create your VerseCatch account"}
           </h1>
 
           <div className="space-y-3">
@@ -174,7 +175,7 @@ const SignUpForm = () => {
                 : "Start your journey and catch meaningful verses effortlessly."}
             </h2>
 
-            <h2 className="text-lg text-center text-blue-500 font-bold">
+            <h2 className="text-sm sm:text-lg text-center text-blue-500 font-bold">
               {isLogin ? (
                 <>
                   Don't have an account?{" "}
@@ -206,7 +207,7 @@ const SignUpForm = () => {
                 <>
                   Already have an account?{" "}
                   <span
-                    className="underline text-black cursor-pointer"
+                    className="underline text-black cursor-pointer block sm:inline"
                     onClick={() => {
                       setIsLogin(true);
                       setStep("email");
@@ -227,18 +228,10 @@ const SignUpForm = () => {
               <>
                 <input
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="border-2 w-full h-13 rounded-2xl p-2"
-                  placeholder="First Name"
-                  required
-                />
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="border-2 w-full h-13 rounded-2xl p-2"
-                  placeholder="Last Name"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="border-2 w-full h-13 placeholder:text-[16px] rounded-2xl p-2"
+                  placeholder="username"
                   required
                 />
               </>
@@ -246,39 +239,49 @@ const SignUpForm = () => {
 
             <div className={step === "details" ? "hidden" : ""}>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border-2 w-full h-13 rounded-2xl p-2"
-                placeholder="Enter your email"
+                type="text"
+                value={!isLogin ? email : identifier}
+                onChange={(e) =>
+                  !isLogin
+                    ? setEmail(e.target.value)
+                    : setIdentfier(e.target.value)
+                }
+                className={`border-2 w-full h-13 rounded-2xl p-2 placeholder:text-[16px]`}
+                placeholder={`Enter your ${
+                  isLogin ? "email/username" : "email"
+                }`}
                 required
               />
             </div>
 
             {(isLogin || step === "details") && (
               <>
-                <div className="relative">
+                <div className={`relative`}>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-2 w-full h-13 rounded-2xl p-2 pr-10"
-                    placeholder="Enter your password"
-                    required
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                    className={`border-2 w-full h-13 placeholder:text-[16px] rounded-2xl p-2`}
+                  placeholder="Enter your password"
+                  required
                   />
+                  {password && (
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
                   >
                     <img
-                      src={
-                        showPassword ? "/assets/eye-off.png" : "/assets/eye.png"
-                      }
-                      alt="toggle password visibility"
-                      className="w-5 h-5"
+                    src={
+                      showPassword
+                      ? "/assets/eye-off.png"
+                      : "/assets/eye.png"
+                    }
+                    alt="toggle password visibility"
+                    className="w-5 h-5"
                     />
                   </button>
+                  )}
                 </div>
 
                 {!isLogin && step === "details" && (
@@ -287,27 +290,29 @@ const SignUpForm = () => {
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="border-2 w-full h-13 rounded-2xl p-2 pr-10"
+                      className="border-2 w-full h-13 rounded-2xl placeholder:text-[16px] p-2 pr-10"
                       placeholder="Confirm Password"
                       required
                     />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    >
-                      <img
-                        src={
-                          showConfirmPassword
-                            ? "/assets/eye-off.png"
-                            : "/assets/eye.png"
+                    {confirmPassword && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
                         }
-                        alt="toggle password visibility"
-                        className="w-5 h-5"
-                      />
-                    </button>
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      >
+                        <img
+                          src={
+                            showConfirmPassword
+                              ? "/assets/eye-off.png"
+                              : "/assets/eye.png"
+                          }
+                          alt="toggle password visibility"
+                          className="w-5 h-5"
+                        />
+                      </button>
+                    )}
                   </div>
                 )}
               </>
@@ -337,7 +342,7 @@ const SignUpForm = () => {
 
       {showVersions && (
         <BibleSelection
-          userDetails={{ firstName, lastName, email, password }}
+          userDetails={{ userName, email, password }}
           authState={{ isLogin, step }}
           stateHandlers={{
             setError,

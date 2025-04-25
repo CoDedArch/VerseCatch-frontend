@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 
 const TaskComp = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { user } = useSelector((state: RootState) => state.user);
   const tourState = useSelector((state: RootState) => state.tour);
@@ -25,7 +25,7 @@ const TaskComp = () => {
   useEffect(() => {
     console.log("Tour active state changed:", tourState.isTourActive);
   }, [tourState.isTourActive]);
-  
+
   useEffect(() => {
     console.log("Task highlight state changed:", taskState.isTaskHighlighted);
   }, [taskState.isTaskHighlighted]);
@@ -50,7 +50,6 @@ const TaskComp = () => {
     return () => mediaQuery.removeEventListener("change", handleMediaChange);
   }, []);
 
-
   useEffect(() => {
     if (user?.faith_coins !== undefined) {
       setAnimate(true);
@@ -69,16 +68,15 @@ const TaskComp = () => {
     }
   }, [showLoginTaskComplete]);
 
-
   useEffect(() => {
     if (tourState.isTourActive && tourState.currentStep === 0) {
-      setTaskState(prev => ({
+      setTaskState((prev) => ({
         ...prev,
         isTaskHighlighted: true,
       }));
 
       const timer = setTimeout(() => {
-        setTaskState(prev => ({
+        setTaskState((prev) => ({
           ...prev,
           isTaskHighlighted: false,
         }));
@@ -100,11 +98,11 @@ const TaskComp = () => {
             transition={{ duration: 0.2 }}
             aria-label="Show task panel"
             onClick={toggleTaskVisibility}
-            className="w-14 fixed z-[100] left-2 top-[140px] bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/5"
+            className="w-10 h-40 sm:w-14 fixed z-[100] -left-6 sm:-left-6 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 sm:rounded-full rounded-2xl cursor-pointer transition-all hover:bg-slate-500/70 focus:outline-none focus:ring-2 focus:ring-white/5"
           >
             <img
-              src="/assets/show.png"
-              alt="show"
+              src="/assets/slide.png"
+              alt="slide"
               className="w-full pointer-events-none"
             />
           </motion.button>
@@ -133,7 +131,7 @@ const TaskComp = () => {
             }}
             className={`fixed left-2 sm:top-37 ${
               taskState.isTaskHighlighted ? "sm:z-[10000]" : "z-[1]"
-            } sm:z-1 top-[140px] w-fit h-fit space-y-4 rounded-lg p-2 shadow-lg bg-white/90 backdrop-blur-sm no-highlight`}
+            } sm:z-1 top-[140px] z-[100000] w-fit h-fit space-y-4 rounded-lg p-2 shadow-lg bg-white/90 backdrop-blur-sm no-highlight`}
           >
             {/* Hide button - rendered inside the panel */}
             <motion.button
@@ -141,7 +139,7 @@ const TaskComp = () => {
               whileTap={{ scale: 0.9 }}
               aria-label="Hide task panel"
               onClick={toggleTaskVisibility}
-              className="w-14 absolute -right-5 -top-5 bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="w-10 sm:w-14 absolute right-0 sm:-right-5 backdrop-blur-sm -top-5 bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
             >
               <img
                 src="/assets/hide.png"
@@ -150,7 +148,7 @@ const TaskComp = () => {
               />
             </motion.button>
 
-            {taskState.isTaskHighlighted &&  (
+            {taskState.isTaskHighlighted && (
               <div id="task-section">
                 <div className="absolute text-white -right-[22em] w-[20em] text-xl font-bold p-2 top-1/2 transform -translate-y-1/2">
                   <img

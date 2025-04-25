@@ -12,6 +12,7 @@ import { UPDATE_BIBLE_VERSION_URL } from "../../constants/urlConstants";
 import { tourSteps } from "../../constants/varConstants";
 import { useDispatch } from "react-redux";
 import { setSelectedVersion, setReceivedData } from "@/store/uiSlice";
+import CreateAccount from "./CreatAccount";
 
 const InteractionSection = () => {
   const dispatch = useDispatch();
@@ -97,14 +98,8 @@ const InteractionSection = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Get display name for current version
-  const getCurrentVersionName = () => {
-    const current = book_versions.find((v) => v.value === selectedVersion);
-    return current ? current.label : selectedVersion || "Bible version";
-  };
-
   return (
-    <>
+    <div className="w-full flex justify-center">
       {hasRecognitionSupport ? (
         <section
           style={{
@@ -112,10 +107,12 @@ const InteractionSection = () => {
             zIndex:
               tourState.isTourActive && tourState.currentStep === 3
                 ? 10000
-                : "auto",
+                : "",
           }}
-          className="sm:mt-0 px-20 py-6 xl:w-1/2 relative w-full rounded-xl no-highlight"
+          className="px-4 sm:px-20 py-6 relative w-full max-w-4xl rounded-xl no-highlight"
         >
+          <div className="absolute sm:hidden right-1 -top-10">{!isLoggedIn && <CreateAccount />}</div>
+
           {tourState.isTourActive &&
             tourState.currentStep === 3 &&
             isLoggedIn && (
@@ -131,16 +128,44 @@ const InteractionSection = () => {
               </div>
             )}
 
-          {!receivedData && (
-            <div className="absolute sm:hidden sm:static left-2 sm:ml-2 sm:left-10 -top-20 sm:top-8 font-bold text-lg flex items-center sm:gap-2">
+          {selectedVersion && (
+            <div
+              className={`font-bold flex absolute -top-1 left-0 sm:hidden items-center text-sm sm:gap-2 no-highlight ${
+                tourState.isTourActive && tourState.currentStep === 1
+                  ? "z-[10000] text-white"
+                  : ""
+              }`}
+            >
               <img
-                src="/assets/version.png"
+                src={`/assets/${
+                  tourState.isTourActive &&
+                  tourState.currentStep === 1 &&
+                  isLoggedIn
+                    ? "version2.png"
+                    : "version.png"
+                }`}
                 alt="Bible Version"
-                className="w-8 sm:w-14"
+                className="w-8 sm:w-14 pointer-events-none"
               />
               <span className="bg-slate-400/10 p-3">
-                {getCurrentVersionName()}
+                {selectedVersion || "Bible version"}
               </span>
+
+              {tourState.isTourActive && tourState.currentStep === 1 && (
+                <div
+                  id="version-section"
+                  className="absolute left-full ml-4 w-[20em]"
+                >
+                  <div className="bg-inherit rounded-lg p-4 text-white text-xl font-bold">
+                    <img
+                      src="/assets/left.png"
+                      alt="hand left"
+                      className="animate-move-left-right pointer-events-none mb-2"
+                    />
+                    {tourSteps[1].description}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -254,7 +279,7 @@ const InteractionSection = () => {
       ) : (
         <div>Your Browser doesn't have recognition support</div>
       )}
-    </>
+    </div>
   );
 };
 

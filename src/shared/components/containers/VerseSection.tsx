@@ -30,7 +30,7 @@ const VerseSection = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="xl:w-1/2 space-y-4 p-10 relative rounded-2xl bg-white/10 backdrop-blur-sm cursor-pointer"
+        className="w-[350px] h-[30em] sm:h-[25em] mt-10 xl:w-1/2 space-y-4 p-10 relative rounded-2xl bg-white/10 backdrop-blur-sm cursor-pointer"
         onClick={!entireBookData ? handleVerseClick : undefined}
       >
         {/* Header with version and back button */}

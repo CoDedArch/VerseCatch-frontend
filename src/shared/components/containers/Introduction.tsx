@@ -35,7 +35,7 @@ const Introduction = () => {
         style={{
           background: "linear-gradient(135deg, #1CB5E0, #000046)",
         }}
-        className="absolute w-full inset-0 z-50 flex flex-col items-center justify-center pt-10 sm:pt-0 space-y-10 sm:space-y-30"
+        className="absolute w-full inset-0 z-50 flex flex-col items-center justify-center pt-0 sm:pt-0 space-y-10 sm:space-y-30"
       >
         <motion.h2
           initial={{ y: -50, opacity: 0 }}
@@ -45,7 +45,7 @@ const Introduction = () => {
         >
           How would you like to proceed?
         </motion.h2>
-        <div className="flex gap-10">
+        <div className="flex flex-col sm:flex-row gap-10 ">
           <SignUpForm />
 
           <AnonnymousSignUpCard />

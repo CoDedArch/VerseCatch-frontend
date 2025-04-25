@@ -75,8 +75,7 @@ interface Achievement {
 
 export interface UserData {
   id?: string;
-  first_name?: string;
-  last_name?: string;
+  user_name?: string;
   username?: string;
   isAnonymous?: boolean;
   email?: string;
@@ -132,8 +131,7 @@ export interface TaskCompInterface {
 export type SignUpStep = "email" | "details" | "version";
 
 interface UserDetails {
-  firstName: string;
-  lastName: string;
+  userName: string;
   email: string;
   password: string;
 }

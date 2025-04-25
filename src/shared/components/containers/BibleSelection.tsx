@@ -46,8 +46,7 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
   const handleSignUpSubmit = async (version: string) => {
     const userData = {
       email: userDetails.email,
-      first_name: userDetails.firstName,
-      last_name: userDetails.lastName,
+      user_name: userDetails.userName,
       password: userDetails.password,
       bible_version: version,
     };
