@@ -33,7 +33,7 @@ main {
 }
 
 .no-highlight {
-  user-select : none;
+  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -81,7 +81,7 @@ main {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
 
@@ -90,6 +90,7 @@ main {
   background-size: 400% 400%;
   animation: gradientAnimation 10s ease infinite;
 } */
+
 
 @keyframes scale {
   0%,
@@ -290,40 +291,85 @@ main {
   transition: opacity 300ms, transform 300ms;
 }
 
-
 @keyframes sunrisePulse {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes oceanWave {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 @keyframes royalGlow {
-  0%, 100% { opacity: 0.8; background-position: 0% 50%; }
-  50% { opacity: 1; background-position: 100% 50%; }
+  0%,
+  100% {
+    opacity: 0.8;
+    background-position: 0% 50%;
+  }
+  50% {
+    opacity: 1;
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes fireFlicker {
-  0%, 100% { background-position: 0% 50%; filter: brightness(1); }
-  50% { background-position: 100% 50%; filter: brightness(1.2); }
+  0%,
+  100% {
+    background-position: 0% 50%;
+    filter: brightness(1);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: brightness(1.2);
+  }
 }
 
 @keyframes goldenPulse {
-  0%, 100% { background-position: 0% 50%; transform: scale(1); }
-  50% { background-position: 100% 50%; transform: scale(1.02); }
+  0%,
+  100% {
+    background-position: 0% 50%;
+    transform: scale(1);
+  }
+  50% {
+    background-position: 100% 50%;
+    transform: scale(1.02);
+  }
 }
 
 @keyframes twilightShimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes mintSwirl {
-  0% { background-position: 0% 50%; border-radius: 0; }
-  50% { background-position: 100% 50%; border-radius: 10px; }
-  100% { background-position: 0% 50%; border-radius: 0; }
+  0% {
+    background-position: 0% 50%;
+    border-radius: 0;
+  }
+  50% {
+    background-position: 100% 50%;
+    border-radius: 10px;
+  }
+  100% {
+    background-position: 0% 50%;
+    border-radius: 0;
+  }
 }

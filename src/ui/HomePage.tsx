@@ -51,20 +51,17 @@ const HomePage = () => {
 
   useEffect(() => {
     console.log(
-      '[TOUR STEP] Current step changed:', 
+      "[TOUR STEP] Current step changed:",
       tourState.currentStep,
-      'of',
+      "of",
       tourSteps.length - 1,
-      '| Active:', 
+      "| Active:",
       tourState.isTourActive
     );
-    
+
     // Optional: Log the step details if needed
     if (tourState.isTourActive && tourSteps[tourState.currentStep]) {
-      console.log(
-        '[TOUR STEP DETAILS]', 
-        tourSteps[tourState.currentStep]
-      );
+      console.log("[TOUR STEP DETAILS]", tourSteps[tourState.currentStep]);
     }
   }, [tourState.currentStep, tourState.isTourActive]);
 
@@ -208,30 +205,44 @@ const HomePage = () => {
     if (!introComplete) return <Introduction />;
 
     return (
-      <main
+      <div
         style={{
           background: theme.styles.mainBackground.background,
           backgroundSize: theme.styles.mainBackground.backgroundSize,
           animation: theme.styles.mainBackground.animation,
         }}
-        className="min-h-screen xl:gap-0 gap-20 flex flex-col items-center justify-between xl:py-10 pt-5 overflow-x-hidden"
+        className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 "
       >
-        {!isAnonymous && <TaskComp />}
         <Header />
-        {receivedData && (
-          <VerseSection
-            parsedData={parsedData}
-            entireBookData={entireBookData}
-            handleVerseClick={handleVerseClick}
-            setEntireBookData={setEntireBookData}
-          />
-        )}
+        <main style={{ background: "inherit" }} className="flex-1 overflow-y-auto">
+            <div
+              style={{
+              transition: "opacity 0.3s ease, visibility 0.3s ease",
+              opacity: !isAnonymous && (window.innerWidth >= 640 || !receivedData) ? 1 : 0,
+              visibility: !isAnonymous && (window.innerWidth >= 640 || !receivedData) ? "visible" : "hidden",
+              }}
+            >
+              <TaskComp />
+            </div>
+          <div className={`w-full flex justify-center ${!receivedData ? "min-h-[50vh]":""}`}>
+            {receivedData && (
+              <VerseSection
+                parsedData={parsedData}
+                entireBookData={entireBookData}
+                handleVerseClick={handleVerseClick}
+                setEntireBookData={setEntireBookData}
+              />
+            )}
+          </div>
+        </main>
+        {/* InteractionSection now at the bottom */}
+
         {userData || isAnonymous ? (
           <InteractionSection />
         ) : (
           <p>Loading user data...</p>
         )}
-      </main>
+      </div>
     );
   }, [
     introComplete,
@@ -245,7 +256,7 @@ const HomePage = () => {
   ]);
 
   return (
-    <section className="overflow-hidden">
+    <section className="min-h-[100dvh]">
       {showCancelTour && <CancelTour />}
       {mainContent}
     </section>
