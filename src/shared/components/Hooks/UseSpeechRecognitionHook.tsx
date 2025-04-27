@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { useUserData } from "./useUserData";
 
 const useSpeechRecognitionHook = (
   selectedVersion: string,
   userEmail: string
 ) => {
+  const { isLoggedIn } = useUserData();
   const [isListening, setIsListening] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const [receivedData, setReceivedData] = useState(null);
@@ -11,7 +13,7 @@ const useSpeechRecognitionHook = (
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const API_KEY = import.meta.env.VITE_API_KEY
+    const API_KEY = import.meta.env.VITE_API_KEY;
     const ws = new WebSocket(
       `ws://127.0.0.1:8000/ws/detect-quotes?api_key=${API_KEY}&version=${selectedVersion}&user_email=${userEmail}`
     );
@@ -21,9 +23,35 @@ const useSpeechRecognitionHook = (
       socketRef.current = ws;
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       console.log("Message from server:", event.data);
       setReceivedData(event.data);
+
+      if (isLoggedIn) {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/api/track-verse-catch/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                book_name: event.data.book,
+                email: userEmail,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            console.error("Failed to track verse catch:", response.statusText);
+          } else {
+            console.log("Successfully tracked verse catch");
+          }
+        } catch (error) {
+          console.error("Error while tracking verse catch:", error);
+        }
+      }
     };
 
     ws.onerror = (error) => {
@@ -39,12 +67,11 @@ const useSpeechRecognitionHook = (
         ws.close();
       }
     };
-  }, [selectedVersion]); // Reconnect WebSocket when selectedVersion changes
+  }, [isLoggedIn, selectedVersion, userEmail]);
 
   const startListening = async () => {
     try {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)({
+      const audioContext = new (window.AudioContext || window.AudioContext)({
         sampleRate: 48000, // Set sample rate to 48 kHz
       });
       audioContextRef.current = audioContext;

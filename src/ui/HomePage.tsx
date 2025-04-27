@@ -224,7 +224,7 @@ const HomePage = () => {
             >
               <TaskComp />
             </div>
-          <div className={`w-full flex justify-center ${!receivedData ? "min-h-[50vh]":""}`}>
+          <div className={`w-full flex justify-center ${!receivedData ? "min-h-[50vh]":"h-fit"}`}>
             {receivedData && (
               <VerseSection
                 parsedData={parsedData}
@@ -256,7 +256,7 @@ const HomePage = () => {
   ]);
 
   return (
-    <section className="min-h-[100dvh]">
+    <section className="min-h-[100dvh] overflow-hidden">
       {showCancelTour && <CancelTour />}
       {mainContent}
     </section>

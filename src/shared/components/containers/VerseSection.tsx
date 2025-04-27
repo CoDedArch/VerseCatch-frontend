@@ -1,11 +1,9 @@
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Verse,
-} from "@/shared/constants/interfaceConstants";
+import { Verse } from "@/shared/constants/interfaceConstants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { VerseSectionProps } from "@/shared/constants/interfaceConstants";
-
 
 const VerseSection = ({
   parsedData,
@@ -14,10 +12,40 @@ const VerseSection = ({
   setEntireBookData,
 }: VerseSectionProps) => {
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
-  const { 
-    selectedVersion,
-    highlightedVerse,
-  } = useSelector((state: RootState) => state.ui);
+  const { selectedVersion, highlightedVerse } = useSelector(
+    (state: RootState) => state.ui
+  );
+  
+  // Effect that runs only when selectedVersion changes
+  const prevVersionRef = React.useRef(selectedVersion);
+  React.useEffect(() => {
+    if (selectedVersion && selectedVersion !== prevVersionRef.current) {
+      handleVerseClick();
+      prevVersionRef.current = selectedVersion;
+    }
+  }, [selectedVersion, handleVerseClick]);
+  
+  // Effect that handles verse updates
+  React.useEffect(() => {
+    if (selectedVersion && parsedData && entireBookData && highlightedVerse) {
+      const [chapter, verse] = highlightedVerse.split(":").map(Number);
+      const chapterData = entireBookData.find(
+        (ch) => Number(ch.chapter) === chapter
+      );
+      if (chapterData) {
+        const verseData = chapterData.verses.find(
+          (v) => Number(v.verse_number) === verse
+        );
+        if (verseData) {
+          parsedData.text = verseData.text;
+          console.log(
+            `Verse ${verseData.verse_number} text: ${verseData.text}`
+          );
+        }
+      }
+    }
+  }, [highlightedVerse, parsedData, entireBookData, selectedVersion]);
+
   return (
     <AnimatePresence>
       <motion.section
@@ -30,8 +58,12 @@ const VerseSection = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.5 }}
-        className="w-[350px] h-[30em] sm:h-[25em] mt-10 xl:w-1/2 space-y-4 p-10 relative rounded-2xl bg-white/10 backdrop-blur-sm cursor-pointer"
-        onClick={!entireBookData ? handleVerseClick : undefined}
+        className="w-[350px] h-fit sm:h-fit mt-10 xl:w-1/2 space-y-4 p-10 relative rounded-2xl bg-white/10 backdrop-blur-sm cursor-pointer"
+        onClick={() => {
+          if (!entireBookData || (entireBookData && highlightedVerse)) {
+            handleVerseClick();
+          }
+        }}
       >
         {/* Header with version and back button */}
         <div className="flex justify-between items-center mb-6">
@@ -83,13 +115,26 @@ const VerseSection = ({
                 {parsedData.text}
               </motion.p>
               <motion.div
-                className="text-center mt-6 text-sm text-gray-400"
-                initial={{ opacity: 0 }}
+                className="text-center mt-6 text-sm"
+                initial={{ opacity: 0, color: "white" }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                transition={{
+                  opacity: { delay: 0.6 },
+                }}
+                style={{
+                  animation: "colorChange 5s linear infinite",
+                }}
               >
                 Click anywhere to view full chapter
               </motion.div>
+              <style>
+                {`
+        @keyframes colorChange {
+          0% { color: white; }
+          100% { color: gray; }
+        }
+          `}
+              </style>
             </>
           ) : (
             entireBookData && (
@@ -102,11 +147,19 @@ const VerseSection = ({
                     <div className="space-y-3">
                       {chapter.verses.map((verse: Verse) => (
                         <motion.p
-                          style={highlightedVerse === `${chapter.chapter}:${verse.verse_number}` ? 
-                            {color: theme.styles.verseBackground?.verseHighlight} : undefined}
+                          style={
+                            highlightedVerse ===
+                            `${chapter.chapter}:${verse.verse_number}`
+                              ? {
+                                  color:
+                                    theme.styles.verseBackground
+                                      ?.verseHighlight,
+                                }
+                              : undefined
+                          }
                           key={`${chapter.chapter}:${verse.verse_number}`}
                           id={`${chapter.chapter}:${verse.verse_number}`}
-                          className={`text-center xl:text-xl text-lg px-4 py-2 rounded-lg ${
+                          className={`xl:text-xl text-lg px-4 py-2 flex gap-10 rounded-lg ${
                             highlightedVerse ===
                             `${chapter.chapter}:${verse.verse_number}`
                               ? `bg-green-500/20 text-green-200`
@@ -119,7 +172,7 @@ const VerseSection = ({
                           <span className="font-bold">
                             {verse.verse_number}.
                           </span>{" "}
-                          {verse.text}
+                          <span>{verse.text}</span>
                         </motion.p>
                       ))}
                     </div>

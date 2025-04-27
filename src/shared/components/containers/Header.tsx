@@ -21,7 +21,7 @@ const Header = () => {
         : ""
       } font-bold text-2xl relative flex items-center justify-center sm:justify-between w-full`}
     >
-      {selectedVersion && (
+      {selectedVersion && !receivedData && (
       <div
         className={`font-bold text-lg hidden sm:flex items-center sm:gap-2 lg:w-1/2 no-highlight  ${
         tourState.isTourActive && tourState.currentStep === 1
@@ -62,17 +62,17 @@ const Header = () => {
       </div>
       )}
       {/* App Title */}
-      <div className="flex items-center no-highlight justify-center sm:w-1/2">
+      <div className={`flex items-center no-highlight ${receivedData ? "justify-center sm:flex-1" : "justify-center sm:w-1/2"} `}>
       <img
         src="/assets/book.png"
         alt="Bible"
-        className="w-14 pointer-events-none"
+        className={`w-14 pointer-events-none ${receivedData ? "sm:ml-60" : "ml-0"}`}
       />{" "}
       VerseCatch
       </div>
 
       {isAnonymous && (
-      <div className="hidden sm:block">
+      <div className={`hidden sm:flex ${receivedData ? "w-fit" : "w-1/2"} justify-end`}>
         <CreateAccount />
       </div>
       )}
