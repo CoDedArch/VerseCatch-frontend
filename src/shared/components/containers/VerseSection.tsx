@@ -15,7 +15,7 @@ const VerseSection = ({
   const { selectedVersion, highlightedVerse } = useSelector(
     (state: RootState) => state.ui
   );
-  
+
   // Effect that runs only when selectedVersion changes
   const prevVersionRef = React.useRef(selectedVersion);
   React.useEffect(() => {
@@ -24,7 +24,7 @@ const VerseSection = ({
       prevVersionRef.current = selectedVersion;
     }
   }, [selectedVersion, handleVerseClick]);
-  
+
   // Effect that handles verse updates
   React.useEffect(() => {
     if (selectedVersion && parsedData && entireBookData && highlightedVerse) {
@@ -46,6 +46,7 @@ const VerseSection = ({
     }
   }, [highlightedVerse, parsedData, entireBookData, selectedVersion]);
 
+ 
   return (
     <AnimatePresence>
       <motion.section

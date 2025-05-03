@@ -183,6 +183,16 @@ export interface VerseSectionProps {
   setEntireBookData: (data: EntireBookDataInterface[] | null) => void;
 }
 
+export interface InspirationalProps {
+  parsedData: {
+    book: string;
+    chapter: string;
+    verse: string;
+    text: string;
+  } | null;
+  remaining_time: number; // remaining time in seconds
+}
+
 export interface ThemeState {
   currentTheme: Theme;
 }

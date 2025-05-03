@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import InteractionSection from "@/shared/components/containers/InteractionSection";
+import InspirationalCard from "@/shared/components/presentation/InspirationalCard";
 import Introduction from "@/shared/components/containers/Introduction";
 import Header from "@/shared/components/containers/Header";
 import TaskComp from "@/shared/components/containers/TaskComp";
@@ -36,6 +37,9 @@ const HomePage = () => {
   );
   const tourState = useSelector((state: RootState) => state.tour);
   // Memoize parsed data to prevent unnecessary recalculations
+  const [selectedInspirational, setSelectedInspirational] = useState();
+  const [remaining_time, setRemainingTime] = useState();
+
   const parsedData = useMemo(() => {
     return receivedData ? JSON.parse(receivedData)[0] : null;
   }, [receivedData]);
@@ -81,6 +85,50 @@ const HomePage = () => {
     },
     [selectedVersion]
   );
+
+  const fetchInspirationalQuote = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      console.log("Using token:", token);  // Debug log
+      
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/inspirational-verses`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token || ""}`,
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to fetch book data", {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log("Inspirational quote data:", data);
+      setSelectedInspirational(data.verse);
+      setRemainingTime(data.remaining_time);
+    } catch (error) {
+      console.error("Error in fetching Inspirational quote", error);
+    }
+}, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const timer = setTimeout(() => {
+        fetchInspirationalQuote();
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoggedIn, fetchInspirationalQuote]);
 
   // Memoize verse click handler
   const handleVerseClick = useCallback(() => {
@@ -214,17 +262,18 @@ const HomePage = () => {
         className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 "
       >
         <Header />
-        <main style={{ background: "inherit" }} className="flex-1 overflow-y-auto">
-            <div
-              style={{
-              transition: "opacity 0.3s ease, visibility 0.3s ease",
-              opacity: !isAnonymous && (window.innerWidth >= 640 || !receivedData) ? 1 : 0,
-              visibility: !isAnonymous && (window.innerWidth >= 640 || !receivedData) ? "visible" : "hidden",
-              }}
-            >
-              <TaskComp />
-            </div>
-          <div className={`w-full flex justify-center ${!receivedData ? "min-h-[50vh]":"h-fit"}`}>
+        <main
+          style={{ background: "inherit" }}
+          className="flex-1 overflow-y-auto"
+        >
+          <div>
+            <TaskComp />
+          </div>
+          <div
+            className={`w-full flex justify-center ${
+              !receivedData ? "min-h-[50vh]" : "h-fit"
+            }`}
+          >
             {receivedData && (
               <VerseSection
                 parsedData={parsedData}
@@ -233,6 +282,12 @@ const HomePage = () => {
                 setEntireBookData={setEntireBookData}
               />
             )}
+
+            {!receivedData && selectedInspirational && ( 
+              <InspirationalCard parsedData={selectedInspirational} remaining_time={remaining_time ?? 0} />
+
+            )
+}
           </div>
         </main>
         {/* InteractionSection now at the bottom */}
@@ -253,6 +308,8 @@ const HomePage = () => {
     entireBookData,
     handleVerseClick,
     userData,
+    selectedInspirational,
+    remaining_time
   ]);
 
   return (

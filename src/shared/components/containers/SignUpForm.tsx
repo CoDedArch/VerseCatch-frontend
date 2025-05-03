@@ -182,6 +182,7 @@ const SignUpForm = () => {
                   <span
                     className="underline text-black cursor-pointer"
                     onClick={() => {
+                      setError("");
                       setIsLogin(false);
                       setStep("email");
                     }}
@@ -208,7 +209,8 @@ const SignUpForm = () => {
                   Already have an account?{" "}
                   <span
                     className="underline text-black cursor-pointer block sm:inline"
-                    onClick={() => {
+                      onClick={() => {
+                      setError("");
                       setIsLogin(true);
                       setStep("email");
                     }}
@@ -221,7 +223,10 @@ const SignUpForm = () => {
           </div>
 
           <form
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!isLoading) handleNext();
+            }}
             className="mt-10 space-y-2"
           >
             {!isLogin && step === "details" && (
@@ -230,6 +235,12 @@ const SignUpForm = () => {
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      document.getElementById("emailInput")?.focus();
+                    }
+                  }}
                   className="border-2 w-full h-13 placeholder:text-[16px] rounded-2xl p-2"
                   placeholder="username"
                   required
@@ -239,6 +250,7 @@ const SignUpForm = () => {
 
             <div className={step === "details" ? "hidden" : ""}>
               <input
+                id="emailInput"
                 type="text"
                 value={!isLogin ? email : identifier}
                 onChange={(e) =>
@@ -246,6 +258,12 @@ const SignUpForm = () => {
                     ? setEmail(e.target.value)
                     : setIdentfier(e.target.value)
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    document.getElementById("passwordInput")?.focus();
+                  }
+                }}
                 className={`border-2 w-full h-13 rounded-2xl p-2 placeholder:text-[16px]`}
                 placeholder={`Enter your ${
                   isLogin ? "email/username" : "email"
@@ -258,38 +276,63 @@ const SignUpForm = () => {
               <>
                 <div className={`relative`}>
                   <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                    id="passwordInput"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        document
+                          .getElementById("confirmPasswordInput")
+                          ?.focus();
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        document.getElementById("emailInput")?.focus();
+                      } else if (e.key === "Enter" && isLogin) {
+                        e.preventDefault();
+                        if (!isLoading) handleNext();
+                      }
+                    }}
                     className={`border-2 w-full h-13 placeholder:text-[16px] rounded-2xl p-2`}
-                  placeholder="Enter your password"
-                  required
+                    placeholder="Enter your password"
+                    required
                   />
                   {password && (
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  >
-                    <img
-                    src={
-                      showPassword
-                      ? "/assets/eye-off.png"
-                      : "/assets/eye.png"
-                    }
-                    alt="toggle password visibility"
-                    className="w-5 h-5"
-                    />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    >
+                      <img
+                        src={
+                          showPassword
+                            ? "/assets/eye-off.png"
+                            : "/assets/eye.png"
+                        }
+                        alt="toggle password visibility"
+                        className="w-5 h-5"
+                      />
+                    </button>
                   )}
                 </div>
 
                 {!isLogin && step === "details" && (
                   <div className="relative">
                     <input
+                      id="confirmPasswordInput"
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          document.getElementById("passwordInput")?.focus();
+                        } else if (e.key === "Enter" && isLogin) {
+                          e.preventDefault();
+                          if (!isLoading) handleNext();
+                        }
+                      }}
                       className="border-2 w-full h-13 rounded-2xl placeholder:text-[16px] p-2 pr-10"
                       placeholder="Confirm Password"
                       required
@@ -321,8 +364,7 @@ const SignUpForm = () => {
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <button
-              type="button"
-              onClick={handleNext}
+              type="submit"
               className="border-2 w-full h-13 rounded-2xl text-black bg-blue-100 hover:bg-blue-200 transition-colors flex justify-center items-center cursor-pointer"
               disabled={isLoading}
             >

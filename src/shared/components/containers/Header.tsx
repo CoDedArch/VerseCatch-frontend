@@ -79,8 +79,8 @@ const Header = () => {
 
       {isLoggedIn && (
       <div
-        className={`transition-opacity duration-300 sm:w-1/2 flex justify-end ${
-        receivedData ? "opacity-0 sm:opacity-100" : "opacity-100"
+        className={`transition-opacity duration-300  flex justify-end ${
+        receivedData ? "sm:opacity-100 w-fit z-[1000]" : "opacity-100 sm:w-1/2 z-[1000]"
         }`}
       >
         <ProfileSection />

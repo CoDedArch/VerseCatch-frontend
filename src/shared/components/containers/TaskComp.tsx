@@ -221,7 +221,7 @@ const TaskComp = () => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  (user?.total_verses_caught ?? 0 / 100) * 100 === 100
+                  user?.total_verses_caught === 100  
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -232,18 +232,14 @@ const TaskComp = () => {
                     (Verse Catcher) -{" "}
                     <span
                       className={`${
-                        (user?.total_verses_caught ?? 0 / 100) * 100 === 100
+                        user?.total_verses_caught === 100 
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {Math.round(
-                        Math.min(
-                          (user?.total_verses_caught ?? 0 / 100) * 100,
-                          100
-                        )
-                      )}
-                      %
+                      {
+                         user?.total_verses_caught + " / " + 100   
+                      }
                     </span>
                   </span>
                 </div>
@@ -280,29 +276,25 @@ const TaskComp = () => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-1 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  (user?.unique_books_caught ?? 0 / 60) * 100 === 100
+                  user?.unique_books_caught === 60 
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
               >
-                Catch from 60 different books{" "}
+                Catch 60 different books{" "}
                 <div className="flex items-center gap-1">
                   <span className="text-md font-bold">
                     (Bible Explorer) -{" "}
                     <span
                       className={`${
-                        (user?.unique_books_caught ?? 0 / 60) * 100 === 100
+                        user?.unique_books_caught === 60 
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {Math.round(
-                        Math.min(
-                          (user?.unique_books_caught ?? 0 / 60) * 100,
-                          100
-                        )
-                      )}
-                      %
+                      {
+                        user?.unique_books_caught + " / " + 60
+                      }
                     </span>
                   </span>
                 </div>

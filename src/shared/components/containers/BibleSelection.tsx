@@ -75,8 +75,8 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              email: userData.email,
-              password: userData.password,
+              identifier: userData.email?.trim() || userData.user_name?.trim(),
+              password: userData.password?.trim(),
             }),
           });
 
@@ -133,7 +133,7 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
               {book_versions
                 .sort((a, b) => a.label.localeCompare(b.label))
                 .map((version, index) => (
-                  <motion.button
+                    <motion.button
                     key={version.value}
                     initial={{ x: -100, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
@@ -142,9 +142,10 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
                     whileTap={{ scale: 0.95 }}
                     className="bg-white text-blue-500 px-4 py-2 rounded-lg hover:cursor-pointer font-bold shadow-lg hover:bg-blue-100 transition-colors text-sm sm:text-lg whitespace-nowrap"
                     onClick={() => handleVersionSelect(version.value)}
-                  >
-                    {version.label}
-                  </motion.button>
+                    >
+                    <span className="sm:hidden">{version.value}</span>
+                    <span className="hidden sm:inline">{version.label}</span>
+                    </motion.button>
                 ))}
             </div>
           )}
