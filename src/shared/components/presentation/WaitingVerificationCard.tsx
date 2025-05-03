@@ -7,7 +7,7 @@ const WaitingVerificationCard = () => {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="text-white text-2xl sm:text-4xl font-extrabold mb-6"
+        className="text-white text-2xl sm:text-4xl font-extrabold mb-6 px-2"
       >
         🎉 One last step! Verify your email to unlock the full VerseCatch experience. 🎉
       </motion.h2>
