@@ -24,34 +24,46 @@ const useSpeechRecognitionHook = (
     };
 
     ws.onmessage = async (event) => {
-      console.log("Message from server:", event.data);
       setReceivedData(event.data);
-
-      if (isLoggedIn) {
-        try {
-          const response = await fetch(
-            `http://127.0.0.1:8000/api/track-verse-catch/`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                book_name: event.data.book,
-                email: userEmail,
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            console.error("Failed to track verse catch:", response.statusText);
-          } else {
-            console.log("Successfully tracked verse catch");
-          }
-        } catch (error) {
-          console.error("Error while tracking verse catch:", error);
+      console.log("Received data:", event.data);
+      try {
+        const parsedData = JSON.parse(event.data);
+        console.log("Parsed data:", parsedData);
+        console.log("this is not beeing called");
+        if (parsedData && parsedData[0]?.book) {
+          console.log("Book name:", parsedData[0].book);
+        } else {
+          console.log("Book data is not available in the received data.");
         }
+        if (isLoggedIn && parsedData[0]?.book) {
+          try {
+            const response = await fetch(
+              `http://127.0.0.1:8000/api/track-verse-catch/`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  book_name: parsedData[0].book,
+                  email: userEmail,
+                }),
+              }
+            );
+  
+            if (!response.ok) {
+              console.error("Failed to track verse catch:", response.statusText);
+            } else {
+              console.log("Successfully tracked verse catch");
+            }
+          } catch (error) {
+            console.error("Error while tracking verse catch:", error);
+          }
+        }
+      } catch (error) {
+        console.error("Error parsing JSON data:", error);
       }
+      
     };
 
     ws.onerror = (error) => {
