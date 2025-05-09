@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 import { InspirationalProps } from "@/shared/constants/interfaceConstants";
 
 const InspirationalCard = ({
   parsedData,
   remaining_time,
 }: InspirationalProps) => {
-  const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const [timeLeft, setTimeLeft] = useState(remaining_time);
 
   useEffect(() => {
