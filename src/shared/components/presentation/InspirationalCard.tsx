@@ -43,7 +43,7 @@ const InspirationalCard = ({
       <motion.section
         style={{
           background: `url('/assets/inspirational.jpg') no-repeat center / cover`,
-          color: theme.styles.verseBackground?.color,
+          color: "white",
           position: "relative",
         }}
         key="verse-section"
@@ -110,14 +110,15 @@ const InspirationalCard = ({
               >
                 {`${parsedData.book} ${parsedData.chapter}:${parsedData?.verse}`}
               </motion.h1>
-              <motion.p
-                className="xl:text-2xl text-xl px-0 xl:px-20 mt-4"
+                <motion.p
+                className="xl:text-2xl text-xl px-0 xl:px-20 mt-4 text-center"
+                style={{ whiteSpace: "pre-wrap" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-              >
+                >
                 {parsedData.text}
-              </motion.p>
+                </motion.p>
             </>
           )}
         </div>
