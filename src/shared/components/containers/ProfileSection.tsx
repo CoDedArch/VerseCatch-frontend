@@ -134,26 +134,26 @@ const ProfileSection = () => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundBlendMode: "overlay",
-                background: user?.payment_status.is_supporter
+                background: user?.payment_status?.is_supporter
                   ? "linear-gradient(135deg, rgba(106, 44, 112, 0.9), rgba(168, 50, 121, 0.7))"
                   : "linear-gradient(135deg, rgba(20, 30, 48, 1), rgba(36, 59, 85, 0.2))",
                 boxShadow: "0 10px 20px rgba(0, 0, 0, 0.3)",
               }}
               className={`self-center p-1 rounded-2xl relative transition-all duration-300 ${
-                user?.payment_status.is_supporter
+                user?.payment_status?.is_supporter
                   ? "border border-purple-300"
                   : ""
               }`}
             >
               <span
                 className={`p-2 rounded-2xl text-sm relative -top-3 shadow-lg transition-all duration-300 ${
-                  user?.payment_status.is_supporter
+                  user?.payment_status?.is_supporter
                     ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold"
                     : "bg-white text-black"
                 }`}
               >
                 {user?.current_tag || "Newbie"}
-                {user?.payment_status.is_supporter && (
+                {user?.payment_status?.is_supporter && (
                   <span className="ml-1">✨</span> // Added sparkle emoji for supporters
                 )}
               </span>
