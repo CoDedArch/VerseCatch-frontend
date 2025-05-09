@@ -209,7 +209,7 @@ const SignUpForm = () => {
                   Already have an account?{" "}
                   <span
                     className="underline text-black cursor-pointer block sm:inline"
-                      onClick={() => {
+                    onClick={() => {
                       setError("");
                       setIsLogin(true);
                       setStep("email");
@@ -232,13 +232,14 @@ const SignUpForm = () => {
             {!isLogin && step === "details" && (
               <>
                 <input
+                  id="userName"
                   type="text"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === "ArrowDown") {
                       e.preventDefault();
-                      document.getElementById("emailInput")?.focus();
+                      document.getElementById("passwordInput")?.focus();
                     }
                   }}
                   className="border-2 w-full h-13 placeholder:text-[16px] rounded-2xl p-2"
@@ -262,6 +263,9 @@ const SignUpForm = () => {
                   if (e.key === "ArrowDown") {
                     e.preventDefault();
                     document.getElementById("passwordInput")?.focus();
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    document.getElementById("userName")?.focus();
                   }
                 }}
                 className={`border-2 w-full h-13 rounded-2xl p-2 placeholder:text-[16px]`}
@@ -288,7 +292,8 @@ const SignUpForm = () => {
                           ?.focus();
                       } else if (e.key === "ArrowUp") {
                         e.preventDefault();
-                        document.getElementById("emailInput")?.focus();
+                        const elementId = step === "email" ? "emailInput" : "userName";
+                        document.getElementById(elementId)?.focus();
                       } else if (e.key === "Enter" && isLogin) {
                         e.preventDefault();
                         if (!isLoading) handleNext();

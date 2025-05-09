@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import BlurImage from "./ImageBlur";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -14,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setSelectedVersion, setReceivedData } from "@/store/uiSlice";
 import CreateAccount from "./CreatAccount";
 
+
 const InteractionSection = () => {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
@@ -26,6 +28,7 @@ const InteractionSection = () => {
   const [buttonIcon, setButtonIcon] = useState("/assets/mic.png");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const dropdownRef = useRef<HTMLUListElement | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
@@ -98,6 +101,20 @@ const InteractionSection = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <div className="w-full flex justify-center">
       {hasRecognitionSupport ? (
@@ -111,15 +128,17 @@ const InteractionSection = () => {
           }}
           className="px-4 sm:px-20 py-6 relative w-full max-w-4xl rounded-xl no-highlight"
         >
-          <div className="absolute sm:hidden right-1 -top-10">{!isLoggedIn && <CreateAccount />}</div>
+          <div className="absolute sm:hidden right-1 -top-10">
+            {!isLoggedIn && <CreateAccount />}
+          </div>
 
           {tourState.isTourActive &&
             tourState.currentStep === 3 &&
             isLoggedIn && (
               <div id="interaction-section">
-                <div className="absolute -right-[17.5em] w-[20em] p-2 -top-[7em] text-white text-xl font-bold">
+                <div className="absolute right-1 sm:-right-[17.5em] w-[20em] p-2 -top-[9em] sm:-top-[7em] text-white text-sm sm:text-xl font-bold">
                   {tourSteps[3].description}
-                  <img
+                  <BlurImage
                     src="/assets/down.png"
                     alt="hand down"
                     className="animate-move-up-down"
@@ -136,18 +155,19 @@ const InteractionSection = () => {
                   : ""
               }`}
             >
-              <img
+              <BlurImage
                 src={`/assets/${
                   tourState.isTourActive &&
                   tourState.currentStep === 1 &&
-                  isLoggedIn
+                  isLoggedIn ||  theme.display_name === "Dark Night" && isMobile
                     ? "version2.png"
                     : "version.png"
                 }`}
                 alt="Bible Version"
                 className="w-8 sm:w-14 pointer-events-none"
               />
-              <span className="bg-slate-400/10 p-3">
+
+              <span className={`bg-slate-400/10 p-3 ${theme.display_name === "Dark Night" && isMobile ? "text-white":""}`}>
                 {selectedVersion || "Bible version"}
               </span>
 
@@ -157,7 +177,7 @@ const InteractionSection = () => {
                   className="absolute left-full ml-4 w-[20em]"
                 >
                   <div className="bg-inherit rounded-lg p-4 text-white text-xl font-bold">
-                    <img
+                    <BlurImage
                       src="/assets/left.png"
                       alt="hand left"
                       className="animate-move-left-right pointer-events-none mb-2"
@@ -270,7 +290,7 @@ const InteractionSection = () => {
                   },
                 }}
               >
-                <img src={buttonIcon} alt="mic" className="w-5 h-5" />
+                <BlurImage src={buttonIcon} alt="mic" className="w-5 h-5" priority={true }/>
                 <span>{buttonText}</span>
               </motion.button>
             </li>

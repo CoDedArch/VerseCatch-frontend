@@ -4,6 +4,7 @@ import { INITIAL_TASK_STATE } from "@/shared/constants/varConstants";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
+import BlurImage from "./ImageBlur";
 
 const TaskComp = () => {
   const dispatch = useDispatch();
@@ -23,20 +24,15 @@ const TaskComp = () => {
   };
 
   useEffect(() => {
-    console.log("Tour active state changed:", tourState.isTourActive);
-  }, [tourState.isTourActive]);
-
-  useEffect(() => {
-    console.log("Task highlight state changed:", taskState.isTaskHighlighted);
-  }, [taskState.isTaskHighlighted]);
-
-  useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 640px)");
 
     const updateVisibility = (matches: boolean) => {
+      // Force visible during tour step 0, otherwise follow normal behavior
+      const shouldBeVisible =
+        !matches || (tourState.isTourActive && tourState.currentStep === 0);
       setTaskState((prev) => ({
         ...prev,
-        isTaskVisible: !matches,
+        isTaskVisible: shouldBeVisible,
       }));
     };
 
@@ -48,7 +44,7 @@ const TaskComp = () => {
 
     mediaQuery.addEventListener("change", handleMediaChange);
     return () => mediaQuery.removeEventListener("change", handleMediaChange);
-  }, []);
+  }, [tourState.isTourActive, tourState.currentStep]);
 
   useEffect(() => {
     if (user?.faith_coins !== undefined) {
@@ -72,6 +68,7 @@ const TaskComp = () => {
     if (tourState.isTourActive && tourState.currentStep === 0) {
       setTaskState((prev) => ({
         ...prev,
+        isTaskVisible: true, // Force visible during tour
         isTaskHighlighted: true,
       }));
 
@@ -79,6 +76,8 @@ const TaskComp = () => {
         setTaskState((prev) => ({
           ...prev,
           isTaskHighlighted: false,
+          // Only set back to hidden if not on mobile
+          isTaskVisible: window.matchMedia("(min-width: 641px)").matches,
         }));
       }, 5000);
 
@@ -100,7 +99,7 @@ const TaskComp = () => {
             onClick={toggleTaskVisibility}
             className="w-10 h-40 sm:w-14 fixed z-[100] -left-6 sm:-left-6 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 sm:rounded-full rounded-2xl cursor-pointer transition-all hover:bg-slate-500/70 focus:outline-none focus:ring-2 focus:ring-white/5"
           >
-            <img
+            <BlurImage
               src="/assets/slide.png"
               alt="slide"
               className="w-full pointer-events-none"
@@ -141,17 +140,17 @@ const TaskComp = () => {
               onClick={toggleTaskVisibility}
               className="w-10 sm:w-14 absolute right-0 sm:-right-5 backdrop-blur-sm -top-5 bg-black/50 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50"
             >
-              <img
+              <BlurImage
                 src="/assets/hide.png"
                 alt="hide"
                 className="w-full pointer-events-none"
               />
             </motion.button>
 
-            {taskState.isTaskHighlighted && (
+            {taskState.isTaskHighlighted && tourState.isTourActive && (
               <div id="task-section">
                 <div className="absolute text-white -right-[22em] w-[20em] text-xl font-bold p-2 top-1/2 transform -translate-y-1/2">
-                  <img
+                  <BlurImage
                     src="/assets/left.png"
                     alt="hand left"
                     className="animate-move-left-right"
@@ -164,7 +163,12 @@ const TaskComp = () => {
             <div className="flex justify-center">
               <h1 className="font-bold text-center text-2xl flex">
                 Daily Task{" "}
-                <img src="/assets/trophy.png" alt="trophy" className="w-6" />
+                <BlurImage
+                  src="/assets/trophy.png"
+                  alt="trophy"
+                  className="w-6 pointer-events-none"
+                  priority={true}
+                />
               </h1>
             </div>
 
@@ -173,24 +177,30 @@ const TaskComp = () => {
                 style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
-                className={`relative flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                className={`relative flex justify-between items-center gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                   showLoginTaskComplete
                     ? "bg-green-400 animate-pulse"
                     : "bg-green-200"
                 }`}
               >
-                {showImage && (
-                  <img
-                    src="/assets/task.png"
-                    alt="task"
-                    className="w-10 absolute right-0 top-0 animate-fade-in"
-                  />
-                )}
                 Login Daily{" "}
                 <div className="flex items-center gap-1">
-                  <img src="/assets/fire.png" alt="fire" className="w-5" />{" "}
+                  <BlurImage
+                    src="/assets/fire.png"
+                    alt="fire"
+                    className="w-5 pointer-events-none"
+                    priority={true}
+                  />
                   <span className="text-md">+1</span>
                 </div>
+                {showImage && (
+                  <BlurImage
+                    src="/assets/task.png"
+                    alt="task"
+                    className="w-10 absolute right-0 top-0 animate-fade-in pointer-events-none"
+                    priority={true}
+                  />
+                )}
               </li>
               <li
                 style={{
@@ -202,7 +212,12 @@ const TaskComp = () => {
               >
                 Catching 1 bible verse{" "}
                 <div className="flex items-center gap-1">
-                  <img src="/assets/coin.png" alt="coin" className="w-5" />{" "}
+                  <BlurImage
+                    src="/assets/coin.png"
+                    alt="coin"
+                    className="w-5 pointer-events-none"
+                    priority={true}
+                  />
                   <span className="text-md">+2</span>
                 </div>
               </li>
@@ -211,7 +226,12 @@ const TaskComp = () => {
             <div className="flex justify-center">
               <h1 className="font-bold text-center text-2xl flex">
                 Keep Going{" "}
-                <img src="/assets/trophy.png" alt="trophy" className="w-6" />
+                <BlurImage
+                  src="/assets/trophy.png"
+                  alt="trophy"
+                  className="w-6 pointer-events-none"
+                  priority={true}
+                />
               </h1>
             </div>
 
@@ -221,7 +241,7 @@ const TaskComp = () => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-5 bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  user?.total_verses_caught === 100  
+                  user?.total_verses_caught === 100
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -232,14 +252,12 @@ const TaskComp = () => {
                     (Verse Catcher) -{" "}
                     <span
                       className={`${
-                        user?.total_verses_caught === 100 
+                        user?.total_verses_caught === 100
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {
-                         user?.total_verses_caught + " / " + 100   
-                      }
+                      {user?.total_verses_caught + " / " + 100}
                     </span>
                   </span>
                 </div>
@@ -276,7 +294,7 @@ const TaskComp = () => {
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
                 className={`relative flex gap-1 text-sm bg-white p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-gray-100 ${
-                  user?.unique_books_caught === 60 
+                  user?.unique_books_caught === 60
                     ? "bg-green-400 animate-pulse"
                     : ""
                 }`}
@@ -287,14 +305,12 @@ const TaskComp = () => {
                     (Bible Explorer) -{" "}
                     <span
                       className={`${
-                        user?.unique_books_caught === 60 
+                        user?.unique_books_caught === 60
                           ? "bg-green-400 text-black"
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {
-                        user?.unique_books_caught + " / " + 60
-                      }
+                      {user?.unique_books_caught + " / " + 60}
                     </span>
                   </span>
                 </div>

@@ -119,9 +119,9 @@ const BibleSelection: FC<BibleSelectionInterface> = ({
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}
-            className="text-white text-2xl sm:text-4xl font-extrabold mb-10"
+            className="text-white  ml-10 sm:ml-0 text-2xl sm:text-4xl font-extrabold mb-10"
           >
-            Choose a Bible version:
+            Select your preferred Bible version(choose one):
           </motion.h2>
 
           {isVersionSelectionLoading ? (
