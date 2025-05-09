@@ -101,7 +101,7 @@ export interface UserData {
   total_verses_caught?: number;
   unique_books_caught?: number;
   achievements?: Achievement[];
-  payment_status: PaymentStatus;
+  payment_status?: PaymentStatus;
 }
 
 export interface HeaderInterface {
