@@ -26,6 +26,7 @@ import {
   setSelectedVersion,
 } from "@/store/uiSlice";
 import { useRef } from "react";
+import DonationOverlay from "@/shared/components/containers/DonationOverlay";
 
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,6 +53,7 @@ const HomePage = () => {
   >(null);
   const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
   const [isCheckingTour, setIsCheckingTour] = useState(false);
+  const [showDonationOverlay, setShowDonationOverlay] = useState(false);
 
   useEffect(() => {
     console.log(
@@ -89,8 +91,8 @@ const HomePage = () => {
   const fetchInspirationalQuote = useCallback(async () => {
     try {
       const token = localStorage.getItem("access_token");
-      console.log("Using token:", token);  // Debug log
-      
+      console.log("Using token:", token); // Debug log
+
       const response = await fetch(
         `http://127.0.0.1:8000/api/inspirational-verses`,
         {
@@ -100,17 +102,19 @@ const HomePage = () => {
           },
         }
       );
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("Failed to fetch book data", {
           status: response.status,
           statusText: response.statusText,
-          errorData
+          errorData,
         });
-        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch: ${response.status} ${response.statusText}`
+        );
       }
-      
+
       const data = await response.json();
       console.log("Inspirational quote data:", data);
       setSelectedInspirational(data.verse);
@@ -118,17 +122,29 @@ const HomePage = () => {
     } catch (error) {
       console.error("Error in fetching Inspirational quote", error);
     }
-}, []);
+  }, []);
+
+  // Determine when to show the Donation Overlay
+  useEffect(() => {
+    if (
+      !userData?.payment_status?.has_paid &&
+      (userData?.total_verses_caught ?? 0) >= 6
+    ) {
+      setShowDonationOverlay(true);
+    } else {
+      setShowDonationOverlay(false);
+    }
+  }, [userData?.payment_status?.has_paid, userData?.total_verses_caught]);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !showDonationOverlay) {
       const timer = setTimeout(() => {
         fetchInspirationalQuote();
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [isLoggedIn, fetchInspirationalQuote]);
+  }, [isLoggedIn, fetchInspirationalQuote, showDonationOverlay]);
 
   // Memoize verse click handler
   const handleVerseClick = useCallback(() => {
@@ -158,7 +174,7 @@ const HomePage = () => {
 
       const timer = setTimeout(() => {
         if (!userData.has_taken_tour) {
-          hasTourStarted.current = true; // Mark tour as started
+          hasTourStarted.current = true;
           dispatch(startTour());
         }
         setIsCheckingTour(false);
@@ -170,10 +186,10 @@ const HomePage = () => {
     }
   }, [isLoggedIn, userData, isUserDataLoaded, dispatch]);
 
-  // Handle automatic tour progression
+  // Handle tour progression
   useEffect(() => {
     if (!tourState.isTourActive) {
-      // Clear interval if tour is not active
+      console.log("Tour inactive - clearing interval");
       if (tourInterval.current) {
         clearInterval(tourInterval.current);
         tourInterval.current = null;
@@ -181,19 +197,20 @@ const HomePage = () => {
       return;
     }
 
-    // Start the interval for automatic progression
+    console.log(`Starting tour progression from step ${tourState.currentStep}`);
+
     tourInterval.current = setInterval(() => {
+      console.log(`Interval fired at step ${tourState.currentStep}`);
+
       if (tourState.currentStep < tourSteps.length - 1) {
+        console.log(`Proceeding to next step from ${tourState.currentStep}`);
         dispatch(nextStep());
       } else {
-        // Tour completed
-        if (tourInterval.current) {
-          clearInterval(tourInterval.current);
-          tourInterval.current = null;
-        }
+        console.log("Tour completed - ending tour");
+        clearInterval(tourInterval.current!);
+        tourInterval.current = null;
         dispatch(endTour());
 
-        // Update backend that user has completed tour
         if (userData?.email) {
           dispatch(
             updateHasTakenTour({
@@ -203,14 +220,15 @@ const HomePage = () => {
           );
         }
       }
-    }, 5000); // 5 seconds between steps
+    }, 5000);
 
     return () => {
+      console.log("Cleaning up interval");
       if (tourInterval.current) {
         clearInterval(tourInterval.current);
       }
     };
-  }, [tourState.isTourActive, tourState.currentStep, dispatch, userData]);
+  }, [tourState, dispatch, userData?.email]);
 
   // Handle authentication and session management
   useEffect(() => {
@@ -266,9 +284,11 @@ const HomePage = () => {
           style={{ background: "inherit" }}
           className="flex-1 overflow-y-auto"
         >
-          <div>
-            <TaskComp />
-          </div>
+          {!isAnonymous && (
+            <div>
+              <TaskComp />
+            </div>
+          )}
           <div
             className={`w-full flex justify-center ${
               !receivedData ? "min-h-[50vh]" : "h-fit"
@@ -283,11 +303,15 @@ const HomePage = () => {
               />
             )}
 
-            {!receivedData && selectedInspirational && ( 
-              <InspirationalCard parsedData={selectedInspirational} remaining_time={remaining_time ?? 0} />
-
-            )
-}
+            {!receivedData &&
+              selectedInspirational &&
+              !tourState.isTourActive &&
+              !showDonationOverlay && (
+                <InspirationalCard
+                  parsedData={selectedInspirational}
+                  remaining_time={remaining_time ?? 0}
+                />
+              )}
           </div>
         </main>
         {/* InteractionSection now at the bottom */}
@@ -309,12 +333,15 @@ const HomePage = () => {
     handleVerseClick,
     userData,
     selectedInspirational,
-    remaining_time
+    remaining_time,
+    tourState,
+    showDonationOverlay,
   ]);
 
   return (
     <section className="min-h-[100dvh] overflow-hidden">
       {showCancelTour && <CancelTour />}
+      {showDonationOverlay && <DonationOverlay />}
       {mainContent}
     </section>
   );

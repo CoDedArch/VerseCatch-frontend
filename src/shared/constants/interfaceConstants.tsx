@@ -29,7 +29,7 @@ export interface ThemeStyles {
   mainBackground: {
     background: string;
     backgroundSize: string;
-    animation: string
+    animation: string;
   };
   taskBackground: {
     background: string;
@@ -73,6 +73,16 @@ interface Achievement {
   achieved_at: string;
 }
 
+export interface PaymentStatus {
+  has_paid: boolean;
+  last_payment_date?: string;
+  last_payment_amount?: number;
+  last_payment_currency?: string;
+  is_supporter: boolean;
+  total_payments: number;
+  total_donated: number;
+}
+
 export interface UserData {
   id?: string;
   user_name?: string;
@@ -91,6 +101,7 @@ export interface UserData {
   total_verses_caught?: number;
   unique_books_caught?: number;
   achievements?: Achievement[];
+  payment_status: PaymentStatus;
 }
 
 export interface HeaderInterface {
