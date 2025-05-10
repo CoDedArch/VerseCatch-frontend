@@ -104,6 +104,11 @@ export interface UserData {
   payment_status?: PaymentStatus;
 }
 
+export interface AdBannerProps {
+  onClose: () => void;
+  progress: number;
+}
+
 export interface HeaderInterface {
   tourState: TourState;
 }

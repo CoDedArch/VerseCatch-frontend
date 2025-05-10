@@ -27,6 +27,7 @@ import {
 } from "@/store/uiSlice";
 import { useRef } from "react";
 import DonationOverlay from "@/shared/components/containers/DonationOverlay";
+import AdBanner from "@/shared/components/containers/AdBanner";
 
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -54,6 +55,14 @@ const HomePage = () => {
   const [isUserDataLoaded, setIsUserDataLoaded] = useState(false);
   const [isCheckingTour, setIsCheckingTour] = useState(false);
   const [showDonationOverlay, setShowDonationOverlay] = useState(false);
+
+  // ad state
+  const [showAdBanner, setShowAdBanner] = useState(false);
+  const [adClosed, setAdClosed] = useState(false);
+  const [adProgress, setAdProgress] = useState(0);
+  const adTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const adReappearTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     console.log(
@@ -124,17 +133,57 @@ const HomePage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Listen for resize events
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Determine when to show the Donation Overlay
   useEffect(() => {
-    if (
-      !userData?.payment_status?.has_paid &&
-      (userData?.total_verses_caught ?? 0) >= 6 || isAnonymous
-    ) {
-      setShowDonationOverlay(true);
-    } else {
-      setShowDonationOverlay(false);
+    const shouldShowDonationOverlay = () => {
+      // For logged-in users who haven't paid and caught enough verses
+      if (
+        !userData?.payment_status?.has_paid &&
+        (userData?.total_verses_caught ?? 0) >= 6
+      ) {
+        return true;
+      }
+
+      // For anonymous users
+      if (isAnonymous) {
+        // On larger screens (>768px), always show for anonymous users
+        if (!isMobile) return true;
+
+        // On mobile (≤768px), only show when there's no ad banner
+        if (isMobile && !showAdBanner) return true;
+      }
+
+      return false;
+    };
+
+    setShowDonationOverlay(shouldShowDonationOverlay());
+  }, [
+    userData?.payment_status?.has_paid,
+    userData?.total_verses_caught,
+    isAnonymous,
+    showAdBanner,
+    isMobile, // Add this dependency
+  ]);
+
+  // Show ad immediately for anonymous users
+  useEffect(() => {
+    if (isAnonymous && !adClosed && !showDonationOverlay) {
+      setShowAdBanner(true);
     }
-  }, [userData?.payment_status?.has_paid, userData?.total_verses_caught, isAnonymous]);
+  }, [isAnonymous, adClosed, showDonationOverlay]);
 
   useEffect(() => {
     if (isLoggedIn && !showDonationOverlay) {
@@ -259,6 +308,55 @@ const HomePage = () => {
     }
   }, [token, isLoggedIn, tokenExpiry, isAnonymous, dispatch]);
 
+  // Handle ad progress and auto-close
+  useEffect(() => {
+    if (showAdBanner) {
+      const duration = 5000; // 5 seconds
+      const startTime = Date.now();
+      let animationFrameId: number;
+
+      const updateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const newProgress = Math.min((elapsed / duration) * 100, 100);
+        setAdProgress(newProgress);
+
+        if (newProgress < 100) {
+          animationFrameId = requestAnimationFrame(updateProgress);
+        }
+      };
+
+      animationFrameId = requestAnimationFrame(updateProgress);
+
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+      };
+    }
+  }, [showAdBanner]);
+
+  // Handle ad closing
+  const handleCloseAd = () => {
+    if (adProgress >= 100) {
+      setShowAdBanner(false);
+      setAdClosed(true);
+
+      // Set timer to show ad again after 3 minutes
+      adReappearTimerRef.current = setTimeout(() => {
+        setAdClosed(false);
+      }, 3 * 60 * 1000); // 3 minutes
+    }
+  };
+
+  // Clean up timers
+  useEffect(() => {
+    const currentAdTimer = adTimerRef.current;
+    const currentReappearTimer = adReappearTimerRef.current;
+
+    return () => {
+      if (currentAdTimer) clearTimeout(currentAdTimer);
+      if (currentReappearTimer) clearTimeout(currentReappearTimer);
+    };
+  }, []);
+
   // Memoize the conditions for showing CancelTour to prevent unnecessary re-renders
   const showCancelTour = useMemo(() => {
     return (
@@ -343,6 +441,9 @@ const HomePage = () => {
       {showCancelTour && <CancelTour />}
       {showDonationOverlay && <DonationOverlay />}
       {mainContent}
+      {isAnonymous && showAdBanner && (
+        <AdBanner onClose={handleCloseAd} progress={adProgress} />
+      )}
     </section>
   );
 };
