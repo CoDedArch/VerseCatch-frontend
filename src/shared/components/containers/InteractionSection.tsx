@@ -136,12 +136,12 @@ const InteractionSection = () => {
             tourState.currentStep === 3 &&
             isLoggedIn && (
               <div id="interaction-section">
-                <div className="absolute right-1 sm:-right-[17.5em] w-[20em] p-2 -top-[9em] sm:-top-[7em] text-white text-sm sm:text-xl font-bold">
+                <div className="absolute right-1 sm:-right-[17.5em] w-[20em] p-2 -top-[9em] sm:-top-[8.5em] text-white text-sm sm:text-xl font-bold">
                   {tourSteps[3].description}
                   <BlurImage
                     src="/assets/down.png"
                     alt="hand down"
-                    className="animate-move-up-down"
+                    className="animate-move-up-down w-10 sm:w-20"
                   />
                 </div>
               </div>

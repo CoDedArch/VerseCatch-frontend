@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUserData } from "../Hooks/useUserData";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadPaystackScript } from "@/app/lib/paystack";
+import CreateAccount from "./CreatAccount";
 
 interface PaystackSetupOptions {
   key: string;
@@ -27,8 +28,8 @@ const DonationOverlay = () => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(12); // Default rate (1 USD = 12 GHS)
-  const { isLoggedIn, userData } = useUserData();
-  const [ lastReference, setLastReference ] = useState("");
+  const { isLoggedIn, userData, isAnonymous } = useUserData();
+  const [lastReference, setLastReference] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ const DonationOverlay = () => {
 
     const hasSeenOverlay = localStorage.getItem("hasSeenDonationOverlay");
 
-    if (!hasSeenOverlay && isLoggedIn) {
+    if ((!hasSeenOverlay && isLoggedIn) || isAnonymous) {
       const timer = setTimeout(() => {
         setShowOverlay(true);
         localStorage.setItem("hasSeenDonationOverlay", "true");
@@ -59,7 +60,7 @@ const DonationOverlay = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, isAnonymous]);
 
   const convertToCedis = (usd: number) => {
     return Math.round(usd * exchangeRate);
@@ -311,6 +312,9 @@ const DonationOverlay = () => {
                     </p>
                   </div>
 
+                  {
+                    isLoggedIn ? (
+
                   <div className="flex flex-col space-y-3">
                     <button
                       onClick={() => initializePayment(2)}
@@ -345,6 +349,13 @@ const DonationOverlay = () => {
                       </button>
                     </div>
                   </div>
+                    ) : (
+                        <div className="flex justify-center text-lime-300/70">
+
+                          <CreateAccount/>
+                        </div>
+                    )
+                  }
                 </>
               ) : (
                 <div className="py-8">

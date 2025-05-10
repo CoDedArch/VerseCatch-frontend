@@ -118,7 +118,7 @@ const ProfileSection = () => {
                   <BlurImage
                     src="/assets/pointer.png"
                     alt="hand up"
-                    className={`animate-move-up-down ${
+                    className={`animate-move-up-down w-10 sm:w-20 ${
                       window.innerWidth < 640 ? "rotate-90" : ""
                     }`}
                   />

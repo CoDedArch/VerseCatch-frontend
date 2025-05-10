@@ -50,13 +50,13 @@ const Header = () => {
           {tourState.isTourActive && tourState.currentStep === 1 && (
             <div
               id="version-section"
-              className="absolute -right-15 text-sm sm:text-base sm:-right-10 top-10 sm:top-2 ml-4 w-[20em] z-[10001] rounded-lg p-4"
+              className="absolute -right-15 text-sm sm:text-base sm:right-10 top-10 sm:-top-6 ml-4 w-[20em] z-[10001] rounded-lg p-4"
             >
               <div className="text-white text-xl font-bold">
                 <BlurImage
                   src="/assets/left.png"
                   alt="hand left"
-                  className="animate-move-left-right pointer-events-none mb-2"
+                  className="animate-move-left-right pointer-events-none mb-2 w-10 sm:w-20"
                 />
                 {tourSteps[1].description}
               </div>

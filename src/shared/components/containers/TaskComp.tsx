@@ -153,7 +153,7 @@ const TaskComp = () => {
                   <BlurImage
                     src="/assets/left.png"
                     alt="hand left"
-                    className="animate-move-left-right"
+                    className="animate-move-left-right w-10 sm:w-20"
                   />
                   {tourSteps[0].description}
                 </div>
