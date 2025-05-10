@@ -108,7 +108,7 @@ const HelpModal = ({ isOpen, onClose }: ModalProps) => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <img src="/assets/email.png" alt="Email" className="w-5 h-5 pointer-events-none" />
-                <span>support@versecatch.com</span>
+                <span>support@versecatch.pro</span>
               </div>
               <div className="flex items-center gap-2">
                 <img src="/assets/phone.png" alt="Phone" className="w-5 h-5 pointer-events-none" />
