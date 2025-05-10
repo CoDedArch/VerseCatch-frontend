@@ -128,13 +128,13 @@ const HomePage = () => {
   useEffect(() => {
     if (
       !userData?.payment_status?.has_paid &&
-      (userData?.total_verses_caught ?? 0) >= 6
+      (userData?.total_verses_caught ?? 0) >= 6 || isAnonymous
     ) {
       setShowDonationOverlay(true);
     } else {
       setShowDonationOverlay(false);
     }
-  }, [userData?.payment_status?.has_paid, userData?.total_verses_caught]);
+  }, [userData?.payment_status?.has_paid, userData?.total_verses_caught, isAnonymous]);
 
   useEffect(() => {
     if (isLoggedIn && !showDonationOverlay) {
