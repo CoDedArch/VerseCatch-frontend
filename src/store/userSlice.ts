@@ -63,6 +63,8 @@ export const userSlice = createSlice({
       localStorage.removeItem("isAnonymous");
       localStorage.removeItem("anonymousExpiry")
       localStorage.removeItem("greetingState")
+      localStorage.removeItem("hasSeenDonationOverlay");
+
     },
     setUserData: (state, action: PayloadAction<UserData>) => {
       state.user = action.payload;
