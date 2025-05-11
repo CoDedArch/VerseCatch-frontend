@@ -261,7 +261,7 @@ const TaskComp = () => {
                     </span>
                   </span>
                 </div>
-                {(user?.total_verses_caught ?? 0 / 100) * 100 === 100 && (
+                {user?.total_verses_caught === 100 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
@@ -314,7 +314,7 @@ const TaskComp = () => {
                     </span>
                   </span>
                 </div>
-                {(user?.unique_books_caught ?? 0 / 60) * 100 === 100 && (
+                {user?.unique_books_caught  === 60 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
