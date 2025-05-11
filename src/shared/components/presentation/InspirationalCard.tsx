@@ -5,17 +5,18 @@ import { InspirationalProps } from "@/shared/constants/interfaceConstants";
 const InspirationalCard = ({
   parsedData,
   remaining_time,
-}: InspirationalProps) => {
+  onTimerComplete,
+}: InspirationalProps & { onTimerComplete: () => void }) => {
   const [timeLeft, setTimeLeft] = useState(remaining_time);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      window.location.reload();
+      onTimerComplete();
       return;
     }
 
     const timer = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         const newTime = prev - 1;
         if (newTime <= 0) {
           clearInterval(timer);
@@ -26,13 +27,15 @@ const InspirationalCard = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [remaining_time, timeLeft]);
+  }, [remaining_time, timeLeft, onTimerComplete]);
 
   // Format time as MM:SS (minutes:seconds)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   return (
@@ -107,15 +110,15 @@ const InspirationalCard = ({
               >
                 {`${parsedData.book} ${parsedData.chapter}:${parsedData?.verse}`}
               </motion.h1>
-                <motion.p
+              <motion.p
                 className="xl:text-2xl text-xl px-0 xl:px-20 mt-4 text-center"
                 style={{ whiteSpace: "pre-wrap" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                >
+              >
                 {parsedData.text}
-                </motion.p>
+              </motion.p>
             </>
           )}
         </div>
