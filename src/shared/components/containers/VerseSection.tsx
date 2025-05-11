@@ -1,9 +1,11 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Verse } from "@/shared/constants/interfaceConstants";
-import { useSelector } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { VerseSectionProps } from "@/shared/constants/interfaceConstants";
+import { setReceivedData } from "@/store/uiSlice";
+
 
 const VerseSection = ({
   parsedData,
@@ -11,6 +13,7 @@ const VerseSection = ({
   handleVerseClick,
   setEntireBookData,
 }: VerseSectionProps) => {
+  const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { selectedVersion, highlightedVerse } = useSelector(
     (state: RootState) => state.ui
@@ -46,7 +49,12 @@ const VerseSection = ({
     }
   }, [highlightedVerse, parsedData, entireBookData, selectedVersion]);
 
- 
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Clear the recieved Data
+    dispatch(setReceivedData(null));
+  };
+
   return (
     <AnimatePresence>
       <motion.section
@@ -66,6 +74,32 @@ const VerseSection = ({
           }
         }}
       >
+        {/* Close button when there's no entireBookData */}
+        {!entireBookData && (
+          <motion.button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            title="Close verse"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </motion.button>
+        )}
+
         {/* Header with version and back button */}
         <div className="flex justify-between items-center mb-6">
           <div className="font-bold text-lg flex items-center gap-2">
@@ -130,11 +164,11 @@ const VerseSection = ({
               </motion.div>
               <style>
                 {`
-        @keyframes colorChange {
-          0% { color: white; }
-          100% { color: gray; }
-        }
-          `}
+                  @keyframes colorChange {
+                    0% { color: white; }
+                    100% { color: gray; }
+                  }
+                `}
               </style>
             </>
           ) : (
