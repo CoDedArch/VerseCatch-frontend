@@ -3,6 +3,7 @@ import { useUserData } from "../Hooks/useUserData";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadPaystackScript } from "@/app/lib/paystack";
 import CreateAccount from "./CreatAccount";
+import { CREATE_PAYMENT_URL, VERIFY_PAYMENT_URL } from "@/shared/constants/urlConstants";
 
 interface PaystackSetupOptions {
   key: string;
@@ -28,7 +29,7 @@ const DonationOverlay = () => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(12); // Default rate (1 USD = 12 GHS)
-  const { isLoggedIn, userData, isAnonymous } = useUserData();
+  const { isLoggedIn, userData, isAnonymous, token } = useUserData();
   const [lastReference, setLastReference] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -75,12 +76,12 @@ const DonationOverlay = () => {
 
       // First create payment record in backend
       const createPaymentResponse = await fetch(
-        "http://127.0.0.1:8000/api/create-payment",
+        CREATE_PAYMENT_URL,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             amount: amountInCedis,
@@ -134,11 +135,11 @@ const DonationOverlay = () => {
     amountInUsd: number
   ) => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/verify-payment", {
+      const response = await fetch(VERIFY_PAYMENT_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ reference }),
       });
@@ -153,7 +154,7 @@ const DonationOverlay = () => {
       }
 
       const data = await response.json();
-      console.log("Verification response:", data); // Debug log
+      console.log("Verification response:", data);
 
       if (data.status === "success") {
         // Payment was successful
@@ -166,7 +167,7 @@ const DonationOverlay = () => {
         }
 
         setShowOverlay(false);
-        setError(null); // Clear any previous errors
+        setError(null); 
       } else {
         throw new Error(data.message || "Payment verification failed");
       }

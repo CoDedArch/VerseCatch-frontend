@@ -221,7 +221,7 @@ export interface InspirationalProps {
     verse: string;
     text: string;
   } | null;
-  remaining_time: number; // remaining time in seconds
+  remaining_time: number;
 }
 
 export interface ThemeState {

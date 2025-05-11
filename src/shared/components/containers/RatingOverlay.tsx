@@ -1,7 +1,7 @@
-// components/RatingOverlay.tsx
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserData } from "../Hooks/useUserData";
+import { SUBMIT_RATING_URL } from "@/shared/constants/urlConstants";
 
 const RatingOverlay = () => {
   const { userData, isLoggedIn } = useUserData();
@@ -32,7 +32,7 @@ const RatingOverlay = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/submit-rating", {
+      const response = await fetch(SUBMIT_RATING_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +47,6 @@ const RatingOverlay = () => {
       if (response.ok) {
         setSubmissionSuccess(true);
         localStorage.setItem("hasRatedApp", "true");
-        // Close overlay after 2 seconds
         setTimeout(() => setShowOverlay(false), 2000);
       } else {
         throw new Error("Failed to submit rating");

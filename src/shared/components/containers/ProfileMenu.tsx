@@ -20,7 +20,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        !activeModal && // Only close if no modal is active
+        !activeModal &&
         profileMenuRef.current &&
         !profileMenuRef.current.contains(event.target as Node) &&
         triggerRef?.current &&

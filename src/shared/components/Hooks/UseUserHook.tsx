@@ -46,16 +46,15 @@ const useUserDataHook = (): {
       console.log("WebSocket disconnected from /auth/me");
     };
 
-    // Cleanup on unmount
     return () => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
     };
-  }, []); // Empty dependency array to run only once
+  }, []);
 
   return {
-    userData, // Return the user data
+    userData,
     isConnected: socketRef.current?.readyState === WebSocket.OPEN,
   };
 };

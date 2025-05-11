@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useUserData } from "./useUserData";
+import { TRACK_VERSE_CATCH_URL } from "@/shared/constants/urlConstants";
 
 const useSpeechRecognitionHook = (
   selectedVersion: string,
@@ -38,7 +39,7 @@ const useSpeechRecognitionHook = (
         if (isLoggedIn && parsedData[0]?.book) {
           try {
             const response = await fetch(
-              `http://127.0.0.1:8000/api/track-verse-catch/`,
+              TRACK_VERSE_CATCH_URL,
               {
                 method: "POST",
                 headers: {

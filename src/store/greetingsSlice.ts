@@ -12,7 +12,7 @@ const loadGreetingState = (): boolean => {
     return savedState ? JSON.parse(savedState) : true;
   } catch (error) {
     console.warn('Failed to load greeting state from localStorage', error);
-    return true; // Default value if error occurs
+    return true;
   }
 };
 

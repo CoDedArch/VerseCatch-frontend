@@ -3,10 +3,10 @@ import { RootState } from "@/store/store";
 import { cancelTour } from "@/store/tourSlice";
 import { useDispatch } from "react-redux";
 import { updateHasTakenTour } from "@/store/tourSlice";
-import { AppDispatch } from "@/store/store"; // Make sure you have this type exported from your store
+import { AppDispatch } from "@/store/store";
 
 const CancelTour = () => {
-  const dispatch = useDispatch<AppDispatch>(); // Add type to dispatch
+  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.user);
   const { status } = useSelector((state: RootState) => state.tour);
 
@@ -16,7 +16,6 @@ const CancelTour = () => {
       dispatch(cancelTour());
       
       if (user?.email) {
-        // Type the error explicitly
         await dispatch(updateHasTakenTour({ 
           email: user.email, 
           hasTakenTour: true 
@@ -24,13 +23,12 @@ const CancelTour = () => {
           .then((result) => {
             console.log("Update successful:", result);
           })
-          .catch((error: { message: string }) => { // Type the error
+          .catch((error: { message: string }) => {
             console.error("Update failed:", error.message);
-            // You could show a toast notification here
           });
       }
     } catch (error) {
-      const err = error as Error; // Type assertion
+      const err = error as Error;
       console.error("Tour cancellation failed:", err.message);
     }
   };

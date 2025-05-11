@@ -9,3 +9,7 @@ export const UPDATE_HAS_TAKEN_TOUR_URL =  "http://127.0.0.1:8000/api/update-has-
 export const UPDATE_BIBLE_VERSION_URL = "http://127.0.0.1:8000/api/update-bible-version";
 export const INSPIRATIONAL_VERSES = "http://127.0.0.1:8000/api/inspirational-verses"
 export const RATING_URL = "http://127.0.0.1:8000/admin/user-ratings"
+export const TRACK_VERSE_CATCH_URL = "http://127.0.0.1:8000/api/track-verse-catch/"
+export const SUBMIT_RATING_URL = "http://127.0.0.1:8000/api/submit-rating"
+export const CREATE_PAYMENT_URL = "http://127.0.0.1:8000/api/create-payment"
+export const VERIFY_PAYMENT_URL = "http://127.0.0.1:8000/api/verify-payment"

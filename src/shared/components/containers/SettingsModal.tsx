@@ -60,11 +60,11 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
       }
 
       setThemes(parsedThemes);
-      setHasFetched(true); // Mark as fetched
+      setHasFetched(true); 
     } catch (error) {
       console.error("Error fetching themes:", error);
       setSelectedTheme(defaultTheme);
-      setHasFetched(true); // Mark as fetched even if error
+      setHasFetched(true);
     }
   };
 
@@ -90,8 +90,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
       // Refresh themes list
       await fetchThemes();
-      // Refresh user data to update faith coins
-      // You'll need to implement this based on your user data hook
     } catch (error) {
       console.error("Error unlocking theme:", error);
       alert((error as Error).message);
@@ -171,7 +169,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         setAdLoaded(true);
 
         // Start progress tracking
-        const duration = 5000; // 5 seconds
+        const duration = 5000;
         const startTime = Date.now();
         let animationFrameId: number;
 
@@ -193,7 +191,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         return () => {
           cancelAnimationFrame(animationFrameId);
         };
-      }, 1000); // Simulate 1 second ad load time
+      }, 1000);
 
       return () => {
         clearTimeout(loadTimer);

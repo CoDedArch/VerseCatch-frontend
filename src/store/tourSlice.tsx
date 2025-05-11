@@ -8,7 +8,7 @@ const initialState: TourState = {
   isTourActive: false,
   currentStep: 0,
   isCancelled: false,
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
   error: null
 };
 

@@ -68,7 +68,7 @@ const TaskComp = () => {
     if (tourState.isTourActive && tourState.currentStep === 0) {
       setTaskState((prev) => ({
         ...prev,
-        isTaskVisible: true, // Force visible during tour
+        isTaskVisible: true,
         isTaskHighlighted: true,
       }));
 
