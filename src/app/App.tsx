@@ -3,6 +3,7 @@ import { store } from "../store/store";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "../ui/HomePage";
 import RatingDashboard from "@/ui/DashboardPage";
+import { GoogleAnalytics } from "@/shared/components/containers/googleAnalytics";
 
 function App() {
   if (
@@ -24,6 +25,7 @@ function App() {
   }
   return (
     <Provider store={store}>
+      <GoogleAnalytics />
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
