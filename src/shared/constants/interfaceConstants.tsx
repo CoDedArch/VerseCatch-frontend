@@ -83,6 +83,20 @@ export interface PaymentStatus {
   total_donated: number;
 }
 
+// types/userRating.ts
+export interface UserRating {
+  id: string;
+  user_name: string;
+  email: string;
+  rating: number;
+  rating_description: string;
+  feedback: string | null;
+  rated_at: string;
+  is_supporter: boolean;
+  total_verses_caught: number;
+}
+
+
 export interface UserData {
   id?: string;
   user_name?: string;

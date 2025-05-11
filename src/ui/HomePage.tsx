@@ -30,6 +30,7 @@ import DonationOverlay from "@/shared/components/containers/DonationOverlay";
 import AdBanner from "@/shared/components/containers/AdBanner";
 import LoadingSpinner from "@/shared/components/presentation/LoadingSpinner";
 import RatingOverlay from "@/shared/components/containers/RatingOverlay";
+import { INSPIRATIONAL_VERSES } from "@/shared/constants/urlConstants";
 
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -103,7 +104,6 @@ const HomePage = () => {
     [selectedVersion]
   );
 
-  
 
   const fetchInspirationalQuote = useCallback(async () => {
     try {
@@ -111,7 +111,7 @@ const HomePage = () => {
       console.log("Using token:", token);
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/inspirational-verses`,
+        INSPIRATIONAL_VERSES,
         {
           headers: {
             "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import { Provider } from "react-redux";
 import { store } from "../store/store";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "../ui/HomePage";
+import RatingDashboard from "@/ui/DashboardPage";
 
 function App() {
   if (
@@ -26,6 +27,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<RatingDashboard />} />
         </Routes>
       </Router>
     </Provider>

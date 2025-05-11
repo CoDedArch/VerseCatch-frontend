@@ -6,5 +6,6 @@ export const THEMES_URL = "http://127.0.0.1:8000/api/themes";
 export const UNLOCK_THEME_URL = "http://127.0.0.1:8000/api/unlock-theme";
 export const SET_THEME_URL = "http://127.0.0.1:8000/api/set-theme";
 export const UPDATE_HAS_TAKEN_TOUR_URL =  "http://127.0.0.1:8000/api/update-has-taken-tour";
-export const UPDATE_BIBLE_VERSION_URL =
-  "http://127.0.0.1:8000/api/update-bible-version";
+export const UPDATE_BIBLE_VERSION_URL = "http://127.0.0.1:8000/api/update-bible-version";
+export const INSPIRATIONAL_VERSES = "http://127.0.0.1:8000/api/inspirational-verses"
+export const RATING_URL = "http://127.0.0.1:8000/admin/user-ratings"
