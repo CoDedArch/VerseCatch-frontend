@@ -25,8 +25,8 @@ function App() {
   }
   return (
     <Provider store={store}>
-      <GoogleAnalytics />
       <Router>
+      <GoogleAnalytics />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dashboard" element={<RatingDashboard />} />
