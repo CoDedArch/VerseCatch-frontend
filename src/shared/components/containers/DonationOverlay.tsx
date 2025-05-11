@@ -3,7 +3,10 @@ import { useUserData } from "../Hooks/useUserData";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadPaystackScript } from "@/app/lib/paystack";
 import CreateAccount from "./CreatAccount";
-import { CREATE_PAYMENT_URL, VERIFY_PAYMENT_URL } from "@/shared/constants/urlConstants";
+import {
+  CREATE_PAYMENT_URL,
+  VERIFY_PAYMENT_URL,
+} from "@/shared/constants/urlConstants";
 
 interface PaystackSetupOptions {
   key: string;
@@ -75,24 +78,21 @@ const DonationOverlay = () => {
       const amountInCedis = convertToCedis(amountInUsd);
 
       // First create payment record in backend
-      const createPaymentResponse = await fetch(
-        CREATE_PAYMENT_URL,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+      const createPaymentResponse = await fetch(CREATE_PAYMENT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: amountInCedis,
+          currency: "GHS",
+          metadata: {
+            originalUsdAmount: amountInUsd,
+            donationType: amountInUsd >= 5 ? "supporter" : "standard",
           },
-          body: JSON.stringify({
-            amount: amountInCedis,
-            currency: "GHS",
-            metadata: {
-              originalUsdAmount: amountInUsd,
-              donationType: amountInUsd >= 5 ? "supporter" : "standard",
-            },
-          }),
-        }
-      );
+        }),
+      });
 
       if (!createPaymentResponse.ok) {
         setError("Failed to create payment record");
@@ -167,7 +167,7 @@ const DonationOverlay = () => {
         }
 
         setShowOverlay(false);
-        setError(null); 
+        setError(null);
       } else {
         throw new Error(data.message || "Payment verification failed");
       }
@@ -313,50 +313,46 @@ const DonationOverlay = () => {
                     </p>
                   </div>
 
-                  {
-                    isLoggedIn ? (
-
-                  <div className="flex flex-col space-y-3">
-                    <button
-                      onClick={() => initializePayment(2)}
-                      disabled={isProcessing}
-                      className="w-full rounded-lg bg-[#D97706] px-4 py-3 font-medium text-white hover:bg-[#B45309] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
-                    >
-                      Donate $2
-                    </button>
-
-                    <button
-                      onClick={() => initializePayment(5)}
-                      disabled={isProcessing}
-                      className="w-full rounded-lg bg-[#059669] px-4 py-3 font-medium text-white hover:bg-[#047857] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
-                    >
-                      Donate $5 - Become a Supporter
-                    </button>
-
-                    <div className="flex space-x-3">
+                  {isLoggedIn ? (
+                    <div className="flex flex-col space-y-3">
                       <button
-                        onClick={() => handleClose("later")}
+                        onClick={() => initializePayment(2)}
                         disabled={isProcessing}
-                        className="flex-1 rounded-lg px-4 py-3 font-medium text-gray-300 hover:text-white transition-colors text-sm border border-gray-600 disabled:opacity-70"
+                        className="w-full rounded-lg bg-[#D97706] px-4 py-3 font-medium text-white hover:bg-[#B45309] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
                       >
-                        Remind me later
+                        Donate $2
                       </button>
+
                       <button
-                        onClick={() => handleClose("dismissed")}
+                        onClick={() => initializePayment(5)}
                         disabled={isProcessing}
-                        className="flex-1 rounded-lg px-4 py-3 font-medium text-gray-300 hover:text-white transition-colors text-sm disabled:opacity-70"
+                        className="w-full rounded-lg bg-[#059669] px-4 py-3 font-medium text-white hover:bg-[#047857] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
                       >
-                        No thanks
+                        Donate $5 - Become a Supporter
                       </button>
+
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleClose("later")}
+                          disabled={isProcessing}
+                          className="flex-1 rounded-lg px-4 py-3 font-medium text-gray-300 hover:text-white transition-colors text-sm border border-gray-600 disabled:opacity-70"
+                        >
+                          Remind me later
+                        </button>
+                        <button
+                          onClick={() => handleClose("dismissed")}
+                          disabled={isProcessing}
+                          className="flex-1 rounded-lg px-4 py-3 font-medium text-gray-300 hover:text-white transition-colors text-sm disabled:opacity-70"
+                        >
+                          No thanks
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                    ) : (
-                        <div className="flex justify-center text-lime-300/70">
-
-                          <CreateAccount/>
-                        </div>
-                    )
-                  }
+                  ) : (
+                    <div className="flex justify-center text-lime-300/70">
+                      <CreateAccount />
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="py-8">

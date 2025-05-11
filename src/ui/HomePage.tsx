@@ -68,7 +68,6 @@ const HomePage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isRefreshingQuote, setIsRefreshingQuote] = useState(false);
 
-  
   useEffect(() => {
     console.log(
       "[TOUR STEP] Current step changed:",
@@ -79,13 +78,11 @@ const HomePage = () => {
       tourState.isTourActive
     );
 
-
     // Optional: Log the step details if needed
     if (tourState.isTourActive && tourSteps[tourState.currentStep]) {
       console.log("[TOUR STEP DETAILS]", tourSteps[tourState.currentStep]);
     }
   }, [tourState.currentStep, tourState.isTourActive]);
-
 
   // Memoize the fetch function to prevent unnecessary recreations
   const fetchEntireBook = useCallback(
@@ -104,21 +101,17 @@ const HomePage = () => {
     [selectedVersion]
   );
 
-
   const fetchInspirationalQuote = useCallback(async () => {
     try {
       const token = localStorage.getItem("access_token");
       console.log("Using token:", token);
 
-      const response = await fetch(
-        INSPIRATIONAL_VERSES,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token || ""}`,
-          },
-        }
-      );
+      const response = await fetch(INSPIRATIONAL_VERSES, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || ""}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -152,7 +145,6 @@ const HomePage = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-
   // Determine when to show the Donation Overlay
   useEffect(() => {
     const shouldShowDonationOverlay = () => {
@@ -184,14 +176,12 @@ const HomePage = () => {
     isMobile,
   ]);
 
-
   // Show ad immediately for anonymous users
   useEffect(() => {
     if (isAnonymous && !adClosed && !showDonationOverlay) {
       setShowAdBanner(true);
     }
   }, [isAnonymous, adClosed, showDonationOverlay]);
-
 
   // fetch the Inspirational Quote for user
   useEffect(() => {
@@ -200,7 +190,6 @@ const HomePage = () => {
     const fetchData = async () => {
       if (
         isLoggedIn &&
-        !showDonationOverlay &&
         (userData?.has_taken_tour || !tourState.isTourActive)
       ) {
         try {
@@ -226,12 +215,10 @@ const HomePage = () => {
   }, [
     isLoggedIn,
     fetchInspirationalQuote,
-    showDonationOverlay,
     tourState.isTourActive,
     userData?.has_taken_tour,
   ]);
-  
-  
+
   // Handle when timer completes for inspirational quotes
   const handleInspirationalTimerComplete = useCallback(async () => {
     setIsRefreshingQuote(true);
@@ -242,12 +229,10 @@ const HomePage = () => {
     }
   }, [fetchInspirationalQuote]);
 
-
   // Memoize verse click handler
   const handleVerseClick = useCallback(() => {
     if (parsedData) fetchEntireBook(parsedData.book);
   }, [parsedData, fetchEntireBook]);
-
 
   // Scroll to verse effect
   useEffect(() => {
@@ -258,7 +243,6 @@ const HomePage = () => {
       verseElement?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [entireBookData, receivedData, dispatch, parsedData]);
-
 
   // Set user's preferred Bible version
   useEffect(() => {
@@ -284,7 +268,6 @@ const HomePage = () => {
       setIsCheckingTour(false);
     }
   }, [isLoggedIn, userData, isUserDataLoaded, dispatch]);
-
 
   // Handle tour progression
   useEffect(() => {
@@ -330,7 +313,6 @@ const HomePage = () => {
     };
   }, [tourState, dispatch, userData?.email]);
 
-
   // Handle authentication and session management
   useEffect(() => {
     if (isAnonymous) {
@@ -360,7 +342,6 @@ const HomePage = () => {
     }
   }, [token, isLoggedIn, tokenExpiry, isAnonymous, dispatch]);
 
-
   // Handle ad progress and auto-close
   useEffect(() => {
     if (showAdBanner) {
@@ -386,7 +367,6 @@ const HomePage = () => {
     }
   }, [showAdBanner]);
 
-
   // Handle ad closing
   const handleCloseAd = () => {
     if (adProgress >= 100) {
@@ -410,14 +390,12 @@ const HomePage = () => {
     };
   }, []);
 
-
   // Memoize the conditions for showing CancelTour to prevent unnecessary re-renders
   const showCancelTour = useMemo(() => {
     return (
       isLoggedIn && !isCheckingTour && introComplete && tourState.isTourActive
     );
   }, [isLoggedIn, isCheckingTour, introComplete, tourState]);
-
 
   // Memoize main content to prevent unnecessary re-renders
   const mainContent = useMemo(() => {
@@ -464,7 +442,7 @@ const HomePage = () => {
               !receivedData &&
               selectedInspirational &&
               !tourState.isTourActive &&
-              !showDonationOverlay && (
+              (
                 <InspirationalCard
                   parsedData={selectedInspirational}
                   remaining_time={remaining_time ?? 0}
@@ -495,7 +473,6 @@ const HomePage = () => {
     selectedInspirational,
     remaining_time,
     tourState,
-    showDonationOverlay,
     handleInspirationalTimerComplete,
     isRefreshingQuote,
   ]);
@@ -505,6 +482,7 @@ const HomePage = () => {
       {showCancelTour && <CancelTour />}
       {showDonationOverlay && <DonationOverlay />}
       <RatingOverlay />
+
       {mainContent}
       {isAnonymous && showAdBanner && (
         <AdBanner onClose={handleCloseAd} progress={adProgress} />

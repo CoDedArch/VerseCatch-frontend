@@ -9,28 +9,43 @@ const RatingOverlay = () => {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [hasShown, setHasShown] = useState(false);
 
   // Check if rating should be shown
   useEffect(() => {
-    if (isLoggedIn && userData) {
-      const hasRated = userData.has_rated;
-      const verseCount = userData.total_verses_caught || 0;
-      
-      if (!hasRated && verseCount >= 2) {
-        const timer = setTimeout(() => {
-          setShowOverlay(true);
-        }, 5000);
-        
-        return () => clearTimeout(timer);
-      }
+    // Only proceed if we haven't shown it yet and conditions are met
+    if (
+      !hasShown &&
+      isLoggedIn &&
+      userData &&
+      !userData.has_rated &&
+      (userData.total_verses_caught ?? 0) >= 2
+    ) {
+      console.log("User qualifies for rating - showing overlay after delay");
+
+      const timer = setTimeout(() => {
+        console.log("Showing rating overlay");
+        setShowOverlay(true);
+        setHasShown(true); // Mark as shown
+      }, 5000);
+
+      return () => {
+        console.log("Cleaning up timer");
+        clearTimeout(timer);
+      };
     }
-  }, [isLoggedIn, userData]);
+  }, [
+    isLoggedIn,
+    userData?.has_rated,
+    userData?.total_verses_caught,
+    hasShown,
+  ]);
 
   const handleRatingSubmit = async () => {
     if (selectedRating === null) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch(SUBMIT_RATING_URL, {
         method: "POST",
@@ -59,13 +74,19 @@ const RatingOverlay = () => {
   };
 
   const getRatingDescription = (rating: number) => {
-    switch(rating) {
-      case 5: return "Excellent - Perfect experience!";
-      case 4: return "Best - Really enjoying it";
-      case 3: return "Better - Good but could improve";
-      case 2: return "Good - Has potential";
-      case 1: return "Worse - Needs work";
-      default: return "";
+    switch (rating) {
+      case 5:
+        return "Excellent - Perfect experience!";
+      case 4:
+        return "Best - Really enjoying it";
+      case 3:
+        return "Better - Good but could improve";
+      case 2:
+        return "Good - Has potential";
+      case 1:
+        return "Worse - Needs work";
+      default:
+        return "";
     }
   };
 
@@ -106,7 +127,8 @@ const RatingOverlay = () => {
                   Thank You!
                 </h3>
                 <p className="text-gray-300">
-                  We appreciate your feedback and will use it to improve VerseCatch.
+                  We appreciate your feedback and will use it to improve
+                  VerseCatch.
                 </p>
               </div>
             ) : (
@@ -131,7 +153,8 @@ const RatingOverlay = () => {
                   How's Your VerseCatch Experience?
                 </h3>
                 <p className="text-gray-300 mb-6">
-                  You've caught {userData?.total_verses_caught} verses! Help us improve by rating your experience.
+                  You've caught {userData?.total_verses_caught} verses! Help us
+                  improve by rating your experience.
                 </p>
 
                 <div className="flex justify-center space-x-2 mb-6">
