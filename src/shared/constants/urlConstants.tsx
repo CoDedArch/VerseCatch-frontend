@@ -13,3 +13,4 @@ export const TRACK_VERSE_CATCH_URL = "http://127.0.0.1:8000/api/track-verse-catc
 export const SUBMIT_RATING_URL = "http://127.0.0.1:8000/api/submit-rating"
 export const CREATE_PAYMENT_URL = "http://127.0.0.1:8000/api/create-payment"
 export const VERIFY_PAYMENT_URL = "http://127.0.0.1:8000/api/verify-payment"
+export const USER_STATS_URL = "http://127.0.0.1:8000/admin/user-stats"

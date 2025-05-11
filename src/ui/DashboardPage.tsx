@@ -22,7 +22,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useUserData } from "@/shared/components/Hooks/useUserData";
-import { RATING_URL } from "@/shared/constants/urlConstants";
+import { RATING_URL, USER_STATS_URL } from "@/shared/constants/urlConstants";
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 type RatingKey = 1 | 2 | 3 | 4 | 5;
 type RatingFilter = "all" | "supporter" | "nonsupporter" | RatingKey;
@@ -30,6 +34,13 @@ type RatingFilter = "all" | "supporter" | "nonsupporter" | RatingKey;
 type RatingDistribution = {
   [K in RatingKey]: number;
 };
+
+interface UserStats {
+  total_users: number;
+  users_with_ratings: number;
+  rating_percentage: number;
+  supporters_count: number;
+}
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
@@ -42,6 +53,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const RatingDashboard = () => {
   const [users, setUsers] = useState<UserRating[]>([]);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,34 +61,36 @@ const RatingDashboard = () => {
   const { token } = useUserData();
 
   useEffect(() => {
-    const fetchUserRatings = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(
-          RATING_URL,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        
+        const [ratingsResponse, statsResponse] = await Promise.all([
+          fetch(RATING_URL, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(USER_STATS_URL, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (!ratingsResponse.ok || !statsResponse.ok) {
+          throw new Error(`HTTP error! status: ${ratingsResponse.status}, ${statsResponse.status}`);
         }
 
-        const data = await response.json();
-        setUsers(data.users);
+        const [ratingsData, statsData] = await Promise.all([
+          ratingsResponse.json(),
+          statsResponse.json()
+        ]);
+
+        setUsers(ratingsData.users);
+        setUserStats(statsData);
       } catch (err) {
-        console.error("Error fetching ratings:", err);
-        setError("Failed to load ratings. Please try again later.");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserRatings();
+    fetchData();
   }, [token]);
 
   const ratingDistribution = useMemo(() => {
@@ -118,15 +132,36 @@ const RatingDashboard = () => {
   }, [users, searchTerm, ratingFilter]);
 
   const handleRatingFilterChange = (value: string | number) => {
-  if (value === "all" || value === "supporter" || value === "nonsupporter") {
-    setRatingFilter(value);
-  } else {
-    const numValue = typeof value === "number" ? value : parseInt(value, 10);
-    if ([1, 2, 3, 4, 5].includes(numValue)) {
-      setRatingFilter(numValue as RatingKey);  // Properly typed as RatingFilter
+    if (value === "all" || value === "supporter" || value === "nonsupporter") {
+      setRatingFilter(value);
+    } else {
+      const numValue = typeof value === "number" ? value : parseInt(value, 10);
+      if ([1, 2, 3, 4, 5].includes(numValue)) {
+        setRatingFilter(numValue as RatingKey);
+      }
     }
-  }
-};
+  };
+
+  const chartData = {
+    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+    datasets: [{
+      data: [
+        ratingDistribution[1],
+        ratingDistribution[2],
+        ratingDistribution[3],
+        ratingDistribution[4],
+        ratingDistribution[5]
+      ],
+      backgroundColor: [
+        '#ff6384',
+        '#ff9f40',
+        '#ffcd56',
+        '#4bc0c0',
+        '#36a2eb'
+      ],
+      borderWidth: 1,
+    }],
+  };
 
   if (loading) {
     return (
@@ -147,14 +182,25 @@ const RatingDashboard = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        User Ratings Dashboard
+        User Analytics Dashboard
       </Typography>
 
       {/* Summary Cards */}
       <Box display="flex" gap={2} mb={3} flexWrap="wrap">
         <Paper sx={{ p: 2, minWidth: 180 }}>
-          <Typography variant="subtitle2">Total Ratings</Typography>
-          <Typography variant="h4">{users.length}</Typography>
+          <Typography variant="subtitle2">Total Users</Typography>
+          <Typography variant="h4">{userStats?.total_users || 0}</Typography>
+        </Paper>
+        <Paper sx={{ p: 2, minWidth: 180 }}>
+          <Typography variant="subtitle2">Users Rated</Typography>
+          <Typography variant="h4">{userStats?.users_with_ratings || 0}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            ({userStats?.rating_percentage || 0}%)
+          </Typography>
+        </Paper>
+        <Paper sx={{ p: 2, minWidth: 180 }}>
+          <Typography variant="subtitle2">Supporters</Typography>
+          <Typography variant="h4">{userStats?.supporters_count || 0}</Typography>
         </Paper>
         {([1, 2, 3, 4, 5] as RatingKey[]).map((rating) => (
           <Paper key={rating} sx={{ p: 2, minWidth: 180 }}>
@@ -162,6 +208,16 @@ const RatingDashboard = () => {
             <Typography variant="h4">{ratingDistribution[rating]}</Typography>
           </Paper>
         ))}
+      </Box>
+
+      {/* Visualization Section */}
+      <Box display="flex" gap={3} mb={4} flexWrap="wrap">
+        <Paper sx={{ p: 2, flex: 1, minWidth: 300 }}>
+          <Typography variant="h6" gutterBottom>Rating Distribution</Typography>
+          <Box height={300}>
+            <Pie data={chartData} options={{ maintainAspectRatio: false }} />
+          </Box>
+        </Paper>
       </Box>
 
       {/* Filters */}
@@ -217,11 +273,7 @@ const RatingDashboard = () => {
                   </Typography>
                 </TableCell>
                 <TableCell align="center">
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                  >
+                  <Box display="flex" flexDirection="column" alignItems="center">
                     <Rating value={user.rating} readOnly precision={0.5} />
                     <Typography variant="caption" color="text.secondary">
                       {user.rating_description}
