@@ -102,6 +102,7 @@ export interface UserData {
   unique_books_caught?: number;
   achievements?: Achievement[];
   payment_status?: PaymentStatus;
+  has_rated?: boolean 
 }
 
 export interface AdBannerProps {
