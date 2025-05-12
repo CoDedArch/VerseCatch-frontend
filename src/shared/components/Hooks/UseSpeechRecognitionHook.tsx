@@ -15,8 +15,9 @@ const useSpeechRecognitionHook = (
 
   useEffect(() => {
     const API_KEY = import.meta.env.VITE_API_KEY;
+    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL!;
     const ws = new WebSocket(
-      `ws://127.0.0.1:8000/ws/detect-quotes?api_key=${API_KEY}&version=${selectedVersion}&user_email=${userEmail}`
+      `${WS_BASE_URL}/ws/detect-quotes?api_key=${API_KEY}&version=${selectedVersion}&user_email=${userEmail}`
     );
 
     ws.onopen = () => {
@@ -38,22 +39,22 @@ const useSpeechRecognitionHook = (
         }
         if (isLoggedIn && parsedData[0]?.book) {
           try {
-            const response = await fetch(
-              TRACK_VERSE_CATCH_URL,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  book_name: parsedData[0].book,
-                  email: userEmail,
-                }),
-              }
-            );
-  
+            const response = await fetch(TRACK_VERSE_CATCH_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                book_name: parsedData[0].book,
+                email: userEmail,
+              }),
+            });
+
             if (!response.ok) {
-              console.error("Failed to track verse catch:", response.statusText);
+              console.error(
+                "Failed to track verse catch:",
+                response.statusText
+              );
             } else {
               console.log("Successfully tracked verse catch");
             }
@@ -64,7 +65,6 @@ const useSpeechRecognitionHook = (
       } catch (error) {
         console.error("Error parsing JSON data:", error);
       }
-      
     };
 
     ws.onerror = (error) => {

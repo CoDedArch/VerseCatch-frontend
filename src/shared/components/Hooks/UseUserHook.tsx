@@ -16,10 +16,12 @@ const useUserDataHook = (): {
       console.error("No access token found. Please log in.");
       return;
     }
-    const API_KEY = import.meta.env.VITE_API_KEY
+    const API_KEY = import.meta.env.VITE_API_KEY;
+    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL!;
+
     // Establish WebSocket connection
     const ws = new WebSocket(
-      `ws://127.0.0.1:8000/ws/auth/me?api_key=${API_KEY}`
+      `${WS_BASE_URL}/ws/auth/me?api_key=${API_KEY}`
     );
 
     ws.onopen = () => {

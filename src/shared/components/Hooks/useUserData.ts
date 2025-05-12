@@ -13,7 +13,7 @@ export const useUserData = () => {
     error,
     isWebSocketConnected,
     isAnonymous,
-    tokenExpiry, // Make sure this is included in your Redux state
+    tokenExpiry,
   } = useAppSelector((state) => state.user);
 
   useEffect(() => {

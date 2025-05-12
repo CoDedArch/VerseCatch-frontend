@@ -59,10 +59,12 @@ export const initWebSocketConnection = createAsyncThunk(
   "user/initWebSocket",
   async (token: string, { dispatch }) => {
     const API_KEY = import.meta.env.VITE_API_KEY;
+    const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL!;
+
 
     return new Promise<UserData>((resolve, reject) => {
       const ws = new WebSocket(
-        `ws://127.0.0.1:8000/ws/auth/me?api_key=${API_KEY}`
+        `${WS_BASE_URL}/ws/auth/me?api_key=${API_KEY}`
       );
 
       ws.onopen = () => {

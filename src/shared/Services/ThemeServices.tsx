@@ -1,5 +1,6 @@
 import getThemeStyles from "../components/Hooks/GetThemeHook";
 import { ThemeStyles, Theme } from "../constants/interfaceConstants";
+import { GET_CURRENT_THEME } from "../constants/urlConstants";
 
 export const parseThemeStyles = (styles: string | ThemeStyles): ThemeStyles => {
   if (typeof styles === "string") {
@@ -40,7 +41,7 @@ export const getCurrentTheme = async (
 
     // If logged in, fetch from server
     if (accessToken) {
-      const response = await fetch("http://127.0.0.1:8000/api/themes/current", {
+      const response = await fetch(GET_CURRENT_THEME, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

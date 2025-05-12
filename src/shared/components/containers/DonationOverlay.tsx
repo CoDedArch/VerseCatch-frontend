@@ -105,7 +105,7 @@ const DonationOverlay = () => {
       const handler = window.PaystackPop.setup({
         key: import.meta.env.VITE_PUBLIC_PAYSTACK_PUBLIC_KEY!,
         email: userData?.email || "user@example.com",
-        amount: amountInCedis * 100, // Convert to pesewas
+        amount: amountInCedis * 100,
         currency: "GHS",
         reference,
         channels: ["card", "mobile_money"],

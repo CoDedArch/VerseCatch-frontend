@@ -88,8 +88,10 @@ const HomePage = () => {
   const fetchEntireBook = useCallback(
     async (bookName: string) => {
       try {
+        const BASE_URL = import.meta.env.VITE_APP_API_BASE_URL!;
+
         const response = await fetch(
-          `http://127.0.0.1:8000/api/get-book/${bookName}?version_name=${selectedVersion}`
+          `${BASE_URL}/api/get-book/${bookName}?version_name=${selectedVersion}`
         );
         if (!response.ok) throw new Error("Failed to fetch book data");
         const data = await response.json();
@@ -188,10 +190,7 @@ const HomePage = () => {
     let isMounted = true;
 
     const fetchData = async () => {
-      if (
-        isLoggedIn &&
-        (userData?.has_taken_tour || !tourState.isTourActive)
-      ) {
+      if (isLoggedIn && (userData?.has_taken_tour || !tourState.isTourActive)) {
         try {
           if (isMounted) setIsRefreshingQuote(true);
           await fetchInspirationalQuote();
@@ -441,8 +440,7 @@ const HomePage = () => {
             ) : (
               !receivedData &&
               selectedInspirational &&
-              !tourState.isTourActive &&
-              (
+              !tourState.isTourActive && (
                 <InspirationalCard
                   parsedData={selectedInspirational}
                   remaining_time={remaining_time ?? 0}
