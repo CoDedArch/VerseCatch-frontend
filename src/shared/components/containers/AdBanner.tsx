@@ -20,7 +20,7 @@ const AdBanner = ({ onClose, progress }: AdBannerProps) => {
           {/* Mock Ad Content */}
           <div className="text-center p-4">
             <p className="font-medium mb-1">Sponsored Content</p>
-            <p className="text-sm text-gray-600">Your ad would appear here</p>
+            <p className="text-sm text-gray-600">ad would appear here</p>
           </div>
           
           {/* Progress Bar */}

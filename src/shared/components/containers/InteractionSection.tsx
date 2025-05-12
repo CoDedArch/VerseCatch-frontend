@@ -128,7 +128,7 @@ const InteractionSection = () => {
           }}
           className="px-4 sm:px-20 py-6 relative w-full max-w-4xl rounded-xl no-highlight"
         >
-          <div className="absolute sm:hidden right-1 -top-10">
+          <div className="absolute sm:hidden -right-8 -top-13">
             {!isLoggedIn && <CreateAccount />}
           </div>
 
