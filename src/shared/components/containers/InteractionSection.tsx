@@ -136,12 +136,12 @@ const InteractionSection = () => {
             tourState.currentStep === 3 &&
             isLoggedIn && (
               <div id="interaction-section">
-                <div className="absolute right-1 sm:-right-[17.5em] w-[20em] p-2 -top-[9em] sm:-top-[8.5em] text-white text-sm sm:text-xl font-bold">
+                <div className="absolute -right-10 sm:-right-[17.5em] w-[20em] p-2 -top-[7.2em] sm:-top-[8.5em] text-white text-sm sm:text-xl font-bold">
                   {tourSteps[3].description}
                   <BlurImage
                     src="/assets/down.png"
                     alt="hand down"
-                    className="animate-move-up-down w-10 sm:w-20"
+                    className="animate-move-up-down w-10 sm:w-20 ml-[70%] sm:ml-0"
                   />
                 </div>
               </div>
@@ -171,21 +171,21 @@ const InteractionSection = () => {
                 {selectedVersion || "Bible version"}
               </span>
 
-              {tourState.isTourActive && tourState.currentStep === 1 && (
+              {/* {tourState.isTourActive && tourState.currentStep === 1 && ( */}
                 <div
                   id="version-section"
-                  className="absolute left-full ml-4 w-[20em]"
+                  className="absolute left-full ml-4 w-[20em] top-1 text-sm"
                 >
                   <div className="bg-inherit rounded-lg p-4 text-white text-xl font-bold">
                     <BlurImage
                       src="/assets/left.png"
                       alt="hand left"
-                      className="animate-move-left-right pointer-events-none mb-2"
+                      className="animate-move-left-right pointer-events-none mb-2 w-10 sm:w-20"
                     />
                     {tourSteps[1].description}
                   </div>
                 </div>
-              )}
+              {/* )} */}
             </div>
           )}
 

@@ -257,7 +257,7 @@ const TaskComp = () => {
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {user?.total_verses_caught + " / " + 100}
+                      {Math.max(0, user?.total_verses_caught ?? 0)} / 100
                     </span>
                   </span>
                 </div>
@@ -314,7 +314,7 @@ const TaskComp = () => {
                     </span>
                   </span>
                 </div>
-                {user?.unique_books_caught  === 60 && (
+                {user?.unique_books_caught === 60 && (
                   <img
                     src="/assets/task.png"
                     alt="task"
