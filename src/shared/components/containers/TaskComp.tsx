@@ -309,7 +309,7 @@ const TaskComp = () => {
                           : "bg-black text-white"
                       } absolute top-0 -right-4 p-2 rounded-full font-bold`}
                     >
-                      {user?.unique_books_caught + " / " + 60}
+                      {Math.max(0, user?.unique_books_caught ?? 0)} / 60
                     </span>
                   </span>
                 </div>
