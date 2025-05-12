@@ -149,17 +149,16 @@ const TaskComp = () => {
 
             {taskState.isTaskHighlighted && tourState.isTourActive && (
               <div id="task-section">
-                <div className="absolute text-white -right-[22em] w-[20em] text-xl font-bold p-2 top-1/2 transform -translate-y-1/2">
+                <div className="absolute text-white sm:-right-[22em] -bottom-[9em] w-[20em] text-xl font-bold p-2 sm:top-1/2 transform -translate-y-1/2">
                   <BlurImage
                     src="/assets/left.png"
                     alt="hand left"
-                    className="animate-move-left-right w-10 sm:w-20"
+                    className="animate-move-left-right w-10 sm:w-20 rotate-90"
                   />
                   {tourSteps[0].description}
                 </div>
               </div>
             )}
-
             <div className="flex justify-center">
               <h1 className="font-bold text-center text-2xl flex">
                 Daily Task{" "}
