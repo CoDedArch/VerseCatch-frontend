@@ -8,6 +8,7 @@ import { ProfileMenuProps } from "@/shared/constants/interfaceConstants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import BlurImage from "./ImageBlur";
+import DeleteAccount from "./DeleteAccount";
 
 const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
   const [activeModal, setActiveModal] = useState<
@@ -137,7 +138,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
             <motion.li
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer text-red-500"
+              className="bg-white/50 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer text-blue-500/90"
               onClick={handleSignOut}
             >
               <BlurImage
@@ -148,6 +149,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               />
               <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
             </motion.li>
+            <DeleteAccount/>
           </ul>
         </motion.div>
       </AnimatePresence>

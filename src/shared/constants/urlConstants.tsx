@@ -16,4 +16,5 @@ export const SUBMIT_RATING_URL = `${BASE_URL}/api/submit-rating`
 export const CREATE_PAYMENT_URL = `${BASE_URL}/api/create-payment`
 export const VERIFY_PAYMENT_URL = `${BASE_URL}/api/verify-payment`
 export const USER_STATS_URL = `${BASE_URL}/admin/user-stats`
-export const GET_CURRENT_THEME = `${BASE_URL}/api/themes/current"`
+export const GET_CURRENT_THEME = `${BASE_URL}/api/themes/current`
+export const DELETE_ACCOUNT_URL = `${BASE_URL}/auth/delete-account`
