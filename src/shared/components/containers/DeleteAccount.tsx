@@ -211,7 +211,7 @@ const DeleteAccount = () => {
                 type="text"
                 value={confirmationText}
                 onChange={(e) => setConfirmationText(e.target.value)}
-                className="w-full p-2 border rounded dark:bg-gray-800 dark:placeholder:text-white dark:border-gray-700"
+                className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white dark:placeholder:text-white dark:border-gray-700"
                 placeholder="Enter the code above"
                 autoFocus
               />
