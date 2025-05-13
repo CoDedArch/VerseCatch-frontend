@@ -45,7 +45,7 @@ const BlurImage = ({
         className={className}
         width={width}
         height={height}
-        loading={loading}
+        loading="eager"
         decoding={decoding}
       />
     );
