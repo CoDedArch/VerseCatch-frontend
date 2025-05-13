@@ -83,7 +83,7 @@ const DeleteAccount = () => {
     <>
       {/* Warning Modal */}
       {showWarning && (
-        <div className="fixed -right-5 top-0  z-[1001] flex items-center justify-center p-4">
+        <div className="fixed -right-6 top-0  z-[1001] flex items-center justify-center p-4">
           <div 
             className="fixed inset-0 bg-black/50" 
             onClick={handleCancelDelete}
@@ -171,7 +171,7 @@ const DeleteAccount = () => {
             <div className="flex justify-center gap-3">
               <button
                 onClick={handleCancelDelete}
-                className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                className="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                 disabled={isDeleting}
               >
                 Cancel
@@ -190,7 +190,7 @@ const DeleteAccount = () => {
 
       {/* Confirmation Modal */}
       {isConfirming && (
-        <div className="fixed text-sm inset-0 z-[1001] flex items-center justify-center p-4">
+        <div className="fixed bg-white text-sm inset-0 z-[1001] flex items-center justify-center p-4">
           <div 
             className="fixed inset-0 bg-black/50" 
             onClick={handleCancelDelete}
@@ -204,14 +204,14 @@ const DeleteAccount = () => {
               <p className="font-bold text-red-700 dark:text-red-400 mb-2">
                 Type the following code to confirm account deletion:
               </p>
-              <div className="bg-white dark:bg-gray-700 p-3 rounded font-mono text-lg text-center mb-3 border border-red-200 dark:border-red-700">
+              <div className="bg-white dark:bg-gray-700 dark:text-white p-3 rounded font-mono text-lg text-center mb-3 border border-red-200 dark:border-red-700">
                 {randomCode}
               </div>
               <input
                 type="text"
                 value={confirmationText}
                 onChange={(e) => setConfirmationText(e.target.value)}
-                className="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-700"
+                className="w-full p-2 border rounded dark:bg-gray-800 dark:placeholder:text-white dark:border-gray-700"
                 placeholder="Enter the code above"
                 autoFocus
               />
@@ -224,7 +224,7 @@ const DeleteAccount = () => {
             <div className="flex justify-center gap-2">
               <button
                 onClick={handleCancelDelete}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                 disabled={isDeleting}
               >
                 Cancel

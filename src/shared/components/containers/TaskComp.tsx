@@ -128,7 +128,7 @@ const TaskComp = () => {
               opacity: 0,
               transition: { duration: 0.2 },
             }}
-            className={`fixed left-2 sm:top-37 ${
+            className={`fixed left-1 sm:top-25 ${
               taskState.isTaskHighlighted ? "sm:z-[10000]" : "z-[1]"
             } sm:z-1 top-[140px] z-[100000] w-fit h-fit space-y-4 rounded-lg p-2 shadow-lg bg-white/90 backdrop-blur-sm no-highlight`}
           >
@@ -195,6 +195,8 @@ const TaskComp = () => {
                   />
                   <span className="text-md">+1</span>
                 </div>
+                <div>
+
                 {showImage && (
                   <BlurImage
                     src="/assets/task.png"
@@ -204,12 +206,13 @@ const TaskComp = () => {
                     isIcon={true}
                   />
                 )}
+                </div>
               </li>
               <li
                 style={{
                   background: theme.styles?.taskBackground.contentBackground,
                 }}
-                className={`flex gap-5 p-2 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                className={`flex gap-5 p-2 justify-between rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                   animate ? "bg-green-400 animate-pulse" : "bg-green-200"
                 }`}
               >

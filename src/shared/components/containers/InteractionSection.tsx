@@ -114,7 +114,7 @@ const InteractionSection = () => {
   }, []);
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center -mb-5">
       {hasRecognitionSupport ? (
         <section
           style={{
