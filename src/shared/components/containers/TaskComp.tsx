@@ -154,6 +154,7 @@ const TaskComp = () => {
                     src="/assets/left.png"
                     alt="hand left"
                     className="animate-move-left-right w-10 sm:w-20 rotate-90"
+                    isIcon={true}
                   />
                   {tourSteps[0].description}
                 </div>
@@ -167,6 +168,7 @@ const TaskComp = () => {
                   alt="trophy"
                   className="w-6 pointer-events-none"
                   priority={true}
+                  isIcon={true}
                 />
               </h1>
             </div>
@@ -189,6 +191,7 @@ const TaskComp = () => {
                     alt="fire"
                     className="w-5 pointer-events-none"
                     priority={true}
+                    isIcon={true}
                   />
                   <span className="text-md">+1</span>
                 </div>
@@ -198,6 +201,7 @@ const TaskComp = () => {
                     alt="task"
                     className="w-10 absolute right-0 top-0 animate-fade-in pointer-events-none"
                     priority={true}
+                    isIcon={true}
                   />
                 )}
               </li>
@@ -216,6 +220,7 @@ const TaskComp = () => {
                     alt="coin"
                     className="w-5 pointer-events-none"
                     priority={true}
+                    isIcon={true}
                   />
                   <span className="text-md">+2</span>
                 </div>
@@ -230,6 +235,7 @@ const TaskComp = () => {
                   alt="trophy"
                   className="w-6 pointer-events-none"
                   priority={true}
+                  isIcon={true}
                 />
               </h1>
             </div>

@@ -7,6 +7,7 @@ import SettingsModal from "./SettingsModal";
 import { ProfileMenuProps } from "@/shared/constants/interfaceConstants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import BlurImage from "./ImageBlur";
 
 const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
   const [activeModal, setActiveModal] = useState<
@@ -77,10 +78,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
               onClick={() => openModal("settings")}
             >
-              <img
+              <BlurImage
                 src="/assets/setting.png"
                 alt="Settings"
                 className="w-5 sm:w-5 pointer-events-none"
+                isIcon={true}
               />
               <span className="bg-slate-400/10 p-1 rounded">Settings</span>
             </motion.li>
@@ -91,10 +93,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
               onClick={() => openModal("about")}
             >
-              <img
+              <BlurImage
                 src="/assets/about.png"
                 alt="About"
                 className="w-5 sm:w-5 pointer-events-none"
+                isIcon={true}
               />
               <span className="bg-slate-400/10 p-1 rounded">About</span>
             </motion.li>
@@ -105,10 +108,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
               onClick={() => openModal("help")}
             >
-              <img
+              <BlurImage
                 src="/assets/help.png"
                 alt="Get Help"
                 className="w-5 sm:w-5 pointer-events-none"
+                isIcon={true}
               />
               <span className="bg-slate-400/10 p-1 rounded">Get Help</span>
             </motion.li>
@@ -119,10 +123,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer"
               onClick={() => openModal("password")}
             >
-              <img
+              <BlurImage
                 src="/assets/key.png"
                 alt="Change Password"
                 className="w-5 sm:w-5 pointer-events-none"
+                isIcon={true}
               />
               <span className="bg-slate-400/10 p-1 rounded">
                 Change Password
@@ -135,10 +140,11 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer text-red-500"
               onClick={handleSignOut}
             >
-              <img
+              <BlurImage
                 src="/assets/out.png"
                 alt="Sign Out"
                 className="w-5 sm:w-5 pointer-events-none"
+                isIcon={true}
               />
               <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
             </motion.li>

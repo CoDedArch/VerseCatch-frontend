@@ -48,6 +48,7 @@ const ProfileSection = () => {
             src="/assets/swipe-left.png"
             alt="slide left"
             className="w-full pointer-events-none sm:hidden"
+            isIcon={true}
           />
         </motion.button>
       )}
@@ -88,6 +89,7 @@ const ProfileSection = () => {
               src="/assets/slide.png"
               alt="hide"
               className="w-full pointer-events-none"
+              isIcon={true}
             />
           </motion.button>
 
@@ -116,6 +118,7 @@ const ProfileSection = () => {
                   className="fixed right-20 sm:right-4 top-24 w-[20em] text-sm sm:text-base p-4 flex flex-col items-center text-white text-center rounded-lg z-[10002]"
                 >
                   <BlurImage
+                    isIcon={true}
                     src="/assets/pointer.png"
                     alt="hand up"
                     className={`animate-move-up-down w-10 sm:w-20 ${
@@ -154,7 +157,7 @@ const ProfileSection = () => {
               >
                 {user?.current_tag || "Newbie"}
                 {user?.payment_status?.is_supporter && (
-                  <span className="ml-1">✨</span> // Added sparkle emoji for supporters
+                  <span className="ml-1">✨</span>
                 )}
               </span>
             </p>
@@ -165,6 +168,7 @@ const ProfileSection = () => {
                 src="/assets/coin.png"
                 alt="coin"
                 className={`w-8 ${"animate-coin"}`}
+                isIcon={true}
               />
               <span className="text-sm">{user?.faith_coins}</span>
             </div>
@@ -176,6 +180,7 @@ const ProfileSection = () => {
                 alt="fire"
                 className="w-8"
                 priority={true}
+                isIcon={true}
               />
               <span className="text-sm">{user?.streak}</span>
             </div>
@@ -196,6 +201,7 @@ const ProfileSection = () => {
                 src="/assets/profile.png"
                 alt="Profile"
                 className="w-8 sm:w-14 p-1 sm:p-3 bg-white/30 rounded-full ml-1 sm:-ml-2"
+                isIcon={true}
               />
 
               <span className="p-3 font-bold">

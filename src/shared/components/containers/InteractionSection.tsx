@@ -140,6 +140,7 @@ const InteractionSection = () => {
                     src="/assets/down.png"
                     alt="hand down"
                     className="animate-move-up-down w-10 sm:w-20 ml-[70%] sm:ml-0"
+                    isIcon={true}
                   />
                 </div>
               </div>
@@ -164,6 +165,7 @@ const InteractionSection = () => {
                 }`}
                 alt="Bible Version"
                 className="w-8 sm:w-14 pointer-events-none"
+                isIcon={true}
               />
 
               <span
@@ -186,6 +188,7 @@ const InteractionSection = () => {
                       src="/assets/left.png"
                       alt="hand left"
                       className="animate-move-left-right pointer-events-none mb-2 w-10 sm:w-20"
+                      isIcon={true}
                     />
                     {tourSteps[1].description}
                   </div>
@@ -258,7 +261,12 @@ const InteractionSection = () => {
               }}
             >
               <span className="">
-                <img src={icon} alt="" className="pointer-events-none" />
+                <BlurImage
+                  src={icon}
+                  alt="transcribe icon"
+                  className="pointer-events-none"
+                  isIcon={true}
+                />
               </span>
             </motion.li>
             <li
@@ -300,6 +308,7 @@ const InteractionSection = () => {
                   alt="mic"
                   className="w-5 h-5"
                   priority={true}
+                  isIcon={true}
                 />
                 <span>{buttonText}</span>
               </motion.button>

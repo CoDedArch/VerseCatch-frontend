@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import { logout } from "@/store/userSlice";
 import { useDispatch } from "react-redux";
 import { setIntroComplete } from "@/store/uiSlice";
+import BlurImage from "./ImageBlur";
 
 const CreateAccount = () => {
   const dispatch = useDispatch();
-  
 
   const handleCreateAccount = () => {
     dispatch(setIntroComplete(false));
@@ -19,7 +19,12 @@ const CreateAccount = () => {
       className="hover:bg-white/20 pl-2 rounded-lg font-bold text-lg flex items-center sm:gap-2 transition-all cursor-pointer no-highlight p-2 mr-10"
       onClick={handleCreateAccount}
     >
-      <img src="/assets/user.png" alt="Upgrade" className="w-5 sm:w-5" />
+      <BlurImage
+        src="/assets/user.png"
+        alt="Upgrade"
+        className="w-5 sm:w-5"
+        isIcon={true}
+      />
       <span className="bg-slate-400/10 p-1 rounded">Create Account</span>
     </motion.div>
   );

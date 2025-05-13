@@ -22,7 +22,6 @@ export const ERROR_OCCURRED_PROMPT = "An error occurred. Please try again.";
 export const UPDATE_BIBLE_VERSION_FAIL = "Failed to update Bible version";
 export const UPDATE_BIBLE_VERSION_SUCCESS =
   "Bible version updated successfully";
-
   export const book_versions = [
     { value: "AKJV_bible", label: "American King James Version (AKJV)" },
     { value: "ASV_bible", label: "American Standard Version (ASV)" },

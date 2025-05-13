@@ -42,6 +42,7 @@ const Header = () => {
             alt="Bible Version"
             className="w-8 sm:w-14 pointer-events-none"
             priority={true}
+            isIcon={true}
           />
           <span className="bg-slate-400/10 p-3">
             {selectedVersion || "Bible version"}
@@ -57,6 +58,7 @@ const Header = () => {
                   src="/assets/left.png"
                   alt="hand left"
                   className="animate-move-left-right pointer-events-none mb-2 w-10 sm:w-20"
+                  isIcon={true}
                 />
                 {tourSteps[1].description}
               </div>
@@ -77,6 +79,7 @@ const Header = () => {
             receivedData ? "sm:ml-60" : "ml-0"
           }`}
           priority={true}
+          isIcon={true}
         />
         VerseCatch
       </div>

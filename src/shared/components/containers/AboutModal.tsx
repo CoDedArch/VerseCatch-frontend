@@ -31,10 +31,11 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
 
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <img
+            <BlurImage
               src="/assets/book.png"
               alt="VerseCatch Logo"
               className="w-16 h-16 pointer-events-none"
+              isIcon={true}
             />
             <div>
               <h3 className="text-xl font-semibold">Bible Verse Catcher</h3>
@@ -127,7 +128,6 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
               <div className="bg-white p-3 rounded-lg border">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="ml-1">✨</span>
-
                   <h4 className="font-medium">Exclusive tag Badge</h4>
                 </div>
                 <p className="text-sm text-gray-700">
@@ -152,6 +152,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
                     src="/assets/thunder.png"
                     alt="thunder"
                     className="w-10"
+                    isIcon={true}
                   />
                   <h4 className="font-medium">Priority Inspiration</h4>
                 </div>
@@ -169,10 +170,11 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
             <div className="flex items-start gap-3">
               <div className="bg-white p-2 rounded-full">
                 <BlurImage
-                    src="/assets/fire.png"
-                    alt="fire"
-                    className="w-10"
-                  />
+                  src="/assets/fire.png"
+                  alt="fire"
+                  className="w-10"
+                  isIcon={true}
+                />
               </div>
               <div>
                 <p className="text-sm text-gray-700">
@@ -189,6 +191,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
                     src="/assets/slide.png"
                     alt="arrow right"
                     className="w-10"
+                    isIcon={true}
                   />
                   <div className="text-center">
                     <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto">
@@ -217,7 +220,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-2">About the Developer</h3>
             <div className="flex items-center gap-4">
-              <img
+              <BlurImage
                 src="/assets/developer.jpg"
                 alt="Developer"
                 className="w-40 h-40 rounded-full pointer-events-none"

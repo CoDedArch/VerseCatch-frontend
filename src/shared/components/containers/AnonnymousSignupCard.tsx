@@ -64,11 +64,10 @@ const AnonnymousSignUpCard = () => {
         >
           <li>Your activity will not be saved or synced across devices.</li>
           <li>
-            You won't have access to personalized features like saved verses or
-            reading plans.
+            You will not get a feel of the VerseCatch Experience
           </li>
           <li>
-            You can still explore the app and catch Bible verses in real-time.
+            You can still explore the app and catch Bible verses, go for it.
           </li>
           <li>
             You can always create an account later to unlock full features.

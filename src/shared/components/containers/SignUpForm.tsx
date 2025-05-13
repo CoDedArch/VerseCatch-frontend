@@ -167,7 +167,6 @@ const SignUpForm = () => {
           <h1 className="sm:text-3xl text-black font-bold text-center">
             {isLogin ? "login to VerseCatch" : "create your VerseCatch account"}
           </h1>
-
           <div className="space-y-3">
             <h2 className="text-sm text-center text-black font-bold">
               {isLogin

@@ -7,6 +7,7 @@ import {
   CREATE_PAYMENT_URL,
   VERIFY_PAYMENT_URL,
 } from "@/shared/constants/urlConstants";
+import BlurImage from "./ImageBlur";
 
 interface PaystackSetupOptions {
   key: string;
@@ -297,15 +298,17 @@ const DonationOverlay = () => {
                       <span>Supporter recognition</span>
                     </div>
                     <div className="flex justify-center gap-2 mt-2">
-                      <img
+                      <BlurImage
                         src="/assets/mtn-momo-logo.png"
                         className="h-10"
                         alt="MTN MoMo"
+                        isIcon={true}
                       />
-                      <img
+                      <BlurImage
                         src="/assets/visa-logo.png"
                         className="h-10"
                         alt="Visa"
+                        isIcon={true}
                       />
                     </div>
                     <p className="text-gray-400 mt-2">

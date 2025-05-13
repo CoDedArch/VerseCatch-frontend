@@ -10,6 +10,7 @@ interface BlurImageProps {
   loading?: "eager" | "lazy";
   decoding?: "async" | "auto" | "sync";
   priority?: boolean;
+  isIcon?: boolean;
 }
 
 const defaultBlurSrc =
@@ -25,6 +26,7 @@ const BlurImage = ({
   loading = "lazy",
   decoding = "async",
   priority = false,
+  isIcon = false,
 }: BlurImageProps) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -34,6 +36,20 @@ const BlurImage = ({
     if (!width) return undefined;
     return `${src}?w=${width}&q=75 1x, ${src}?w=${width * 2}&q=50 2x`;
   }, [src, width]);
+
+  if (isIcon) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        width={width}
+        height={height}
+        loading={loading}
+        decoding={decoding}
+      />
+    );
+  }
 
   return (
     <div
