@@ -220,7 +220,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-2">About the Developer</h3>
             <div className="flex items-center gap-4">
-              <BlurImage
+              <img
                 src="/assets/developer.jpg"
                 alt="Developer"
                 className="w-40 h-40 rounded-full pointer-events-none"
