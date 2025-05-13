@@ -15,7 +15,6 @@ import { useDispatch } from "react-redux";
 import { setSelectedVersion, setReceivedData } from "@/store/uiSlice";
 import CreateAccount from "./CreatAccount";
 
-
 const InteractionSection = () => {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
@@ -101,18 +100,17 @@ const InteractionSection = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
     };
 
     // Initial check
     checkMobile();
 
     // Listen for resize events
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   return (
@@ -157,9 +155,10 @@ const InteractionSection = () => {
             >
               <BlurImage
                 src={`/assets/${
-                  tourState.isTourActive &&
-                  tourState.currentStep === 1 &&
-                  isLoggedIn ||  theme.display_name === "Dark Night" && isMobile
+                  (tourState.isTourActive &&
+                    tourState.currentStep === 1 &&
+                    isLoggedIn) ||
+                  (theme.display_name === "Dark Night" && isMobile)
                     ? "version2.png"
                     : "version.png"
                 }`}
@@ -167,11 +166,17 @@ const InteractionSection = () => {
                 className="w-8 sm:w-14 pointer-events-none"
               />
 
-              <span className={`bg-slate-400/10 p-3 ${theme.display_name === "Dark Night" && isMobile ? "text-white":""}`}>
+              <span
+                className={`bg-slate-400/10 p-3 ${
+                  theme.display_name === "Dark Night" && isMobile
+                    ? "text-white"
+                    : ""
+                }`}
+              >
                 {selectedVersion || "Bible version"}
               </span>
 
-              {/* {tourState.isTourActive && tourState.currentStep === 1 && ( */}
+              {tourState.isTourActive && tourState.currentStep === 1 && (
                 <div
                   id="version-section"
                   className="absolute left-full ml-4 w-[20em] top-1 text-sm"
@@ -185,7 +190,7 @@ const InteractionSection = () => {
                     {tourSteps[1].description}
                   </div>
                 </div>
-              {/* )} */}
+              )}
             </div>
           )}
 
@@ -290,7 +295,12 @@ const InteractionSection = () => {
                   },
                 }}
               >
-                <BlurImage src={buttonIcon} alt="mic" className="w-5 h-5" priority={true }/>
+                <BlurImage
+                  src={buttonIcon}
+                  alt="mic"
+                  className="w-5 h-5"
+                  priority={true}
+                />
                 <span>{buttonText}</span>
               </motion.button>
             </li>
