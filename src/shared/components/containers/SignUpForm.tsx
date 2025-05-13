@@ -16,6 +16,7 @@ import {
 import { LOGIN_URL, CHECK_EMAIL_URL } from "../../constants/urlConstants";
 import { loginStart, loginFailure, loginSuccess } from "@/store/userSlice";
 import { setIntroComplete } from "@/store/uiSlice";
+import BlurImage from "./ImageBlur";
 
 const SignUpForm = () => {
   const dispatch = useDispatch();
@@ -291,7 +292,8 @@ const SignUpForm = () => {
                           ?.focus();
                       } else if (e.key === "ArrowUp") {
                         e.preventDefault();
-                        const elementId = step === "email" ? "emailInput" : "userName";
+                        const elementId =
+                          step === "email" ? "emailInput" : "userName";
                         document.getElementById(elementId)?.focus();
                       } else if (e.key === "Enter" && isLogin) {
                         e.preventDefault();
@@ -308,7 +310,7 @@ const SignUpForm = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2"
                     >
-                      <img
+                      <BlurImage
                         src={
                           showPassword
                             ? "/assets/eye-off.png"
@@ -316,6 +318,7 @@ const SignUpForm = () => {
                         }
                         alt="toggle password visibility"
                         className="w-5 h-5"
+                        isIcon={true}
                       />
                     </button>
                   )}
@@ -349,7 +352,7 @@ const SignUpForm = () => {
                         }
                         className="absolute right-3 top-1/2 transform -translate-y-1/2"
                       >
-                        <img
+                        <BlurImage
                           src={
                             showConfirmPassword
                               ? "/assets/eye-off.png"
@@ -357,6 +360,7 @@ const SignUpForm = () => {
                           }
                           alt="toggle password visibility"
                           className="w-5 h-5"
+                          isIcon={true}
                         />
                       </button>
                     )}
