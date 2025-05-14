@@ -72,27 +72,28 @@ const ProfileSection = () => {
           style={{ backgroundColor: "inherit" }}
         >
           {/* Hide Menu Button */}
-          <motion.button
-            onClick={toggleMenuVisibility}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            animate={{ x: [0, 10, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            aria-label="Hide menu panel"
-            className={`w-10 sm:w-14 bg-slate-200/50 block sm:hidden absolute top-1/2 -left-20 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-              tourState.isTourActive && tourState.currentStep === 2
-                ? "z-[10001] "
-                : ""
-            }`}
-          >
-            <BlurImage
-              src="/assets/slide.png"
-              alt="hide"
-              className="w-full pointer-events-none"
-              isIcon={true}
-            />
-          </motion.button>
-
+          {isMenuVisible && (
+            <motion.button
+              onClick={toggleMenuVisibility}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              animate={{ x: [0, 10, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              aria-label="Hide menu panel"
+              className={`w-10 sm:w-14 bg-slate-200/50 block sm:hidden absolute top-1/2 -left-20 p-1 rounded-full cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                tourState.isTourActive && tourState.currentStep === 2
+                  ? "z-[10001] "
+                  : ""
+              }`}
+            >
+              <BlurImage
+                src="/assets/slide.png"
+                alt="hide"
+                className="w-full pointer-events-none"
+                isIcon={true}
+              />
+            </motion.button>
+          )}
           {/* Profile Content */}
           <div
             key={user?.id}
