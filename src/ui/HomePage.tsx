@@ -400,13 +400,9 @@ const HomePage = () => {
   const mainContent = useMemo(() => {
     if (!introComplete) return <Introduction />;
 
-    return (
+    if (userData) return (
       <div
-        style={{
-          background: theme.styles.mainBackground.background,
-          backgroundSize: theme.styles.mainBackground.backgroundSize,
-          animation: theme.styles.mainBackground.animation,
-        }}
+        
         className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 "
       >
         <Header />
@@ -457,7 +453,6 @@ const HomePage = () => {
     );
   }, [
     introComplete,
-    theme,
     isAnonymous,
     receivedData,
     parsedData,
@@ -468,10 +463,17 @@ const HomePage = () => {
     tourState,
     handleInspirationalTimerComplete,
     isRefreshingQuote,
+    userData
   ]);
 
   return (
-    <section className="min-h-[100dvh] overflow-hidden">
+    <section
+      style={{
+          background: theme.styles.mainBackground.background,
+          backgroundSize: theme.styles.mainBackground.backgroundSize,
+          animation: theme.styles.mainBackground.animation,
+        }}
+      className="min-h-[100dvh] overflow-hidden">
       {showCancelTour && <CancelTour />}
       {showDonationOverlay && <DonationOverlay />}
       {isLoggedIn && <RatingOverlay />}
