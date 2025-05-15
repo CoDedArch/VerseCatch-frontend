@@ -27,8 +27,10 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [hasFetched, setHasFetched] = useState(false);
   const [adLoaded, setAdLoaded] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
+    setIsLoadingThemes(true);
     try {
       const response = await fetch(THEMES_URL, {
         headers: {
@@ -60,11 +62,13 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
       }
 
       setThemes(parsedThemes);
-      setHasFetched(true); 
+      setHasFetched(true);
     } catch (error) {
       console.error("Error fetching themes:", error);
       setSelectedTheme(defaultTheme);
       setHasFetched(true);
+    } finally {
+      setIsLoadingThemes(false);
     }
   };
 
@@ -225,116 +229,128 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {themes.map((theme) => {
-              // Handle both string and object styles safely
-              const themeStyles = parseThemeStyles(theme.styles);
-
-              console.log("Theme styles:", themeStyles);
-
-              return (
-                <div
-                  key={theme.id}
-                  className={`border bg-white rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
-                    theme.is_current ? "ring-2 ring-blue-500" : ""
-                  } ${theme.unlocked ? "hover:shadow-md" : "opacity-70"}`}
-                  onClick={() => {
-                    if (theme.unlocked) {
-                      setSelectedTheme({
-                        ...theme,
-                        styles: themeStyles,
-                      });
-                      setShowThemePreview(true);
-                    }
-                  }}
-                >
-                  {/* Theme thumbnail with actual style preview */}
+            {isLoadingThemes
+              ?
+                Array.from({ length: 5 }).map((_, index) => (
                   <div
-                    className="w-full h-24 mb-2 rounded-md relative overflow-hidden"
-                    style={
-                      themeStyles.taskBackground || {
-                        backgroundColor: "#f3f4f6",
-                      }
-                    }
+                    key={`loading-${index}`}
+                    className="border bg-white rounded-lg p-3 flex flex-col items-center justify-between h-40"
                   >
-                    <div className="absolute inset-0 flex flex-col p-2">
-                      <div
-                        className="h-2 w-3/4 rounded-full mb-1"
-                        style={{
-                          backgroundColor:
-                            themeStyles.taskBackground.contentBackground ||
-                            "#ffffff",
-                        }}
-                      ></div>
-                      <div
-                        className="h-2 w-1/2 rounded-full"
-                        style={{
-                          backgroundColor:
-                            themeStyles.taskBackground.contentBackground ||
-                            "#ffffff",
-                        }}
-                      ></div>
-                    </div>
-                    {!theme.unlocked && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="text-white font-bold text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <img
-                              src="/assets/coin.png"
-                              className="w-5 h-5 pointer-events-none"
-                            />
-                            {theme.price}
-                          </div>
-                          <div className="text-xs">or watch ad</div>
-                        </div>
-                      </div>
-                    )}
+                    <div className="w-full h-24 mb-2 rounded-md bg-gray-200 animate-pulse"></div>
+                    <div className="h-4 w-3/4 rounded-full bg-gray-200 animate-pulse"></div>
+                    <div className="h-4 w-1/2 rounded-full bg-gray-200 animate-pulse mt-2"></div>
                   </div>
+                ))
+              : themes.map((theme) => {
+                  // Handle both string and object styles safely
+                  const themeStyles = parseThemeStyles(theme.styles);
 
-                  <h3 className="font-medium text-center">
-                    {theme.display_name}
-                  </h3>
+                  console.log("Theme styles:", themeStyles);
 
-                  {theme.unlocked && theme.is_current && (
-                    <div className="text-xs text-green-500">Active</div>
-                  )}
-
-                  {!theme.unlocked && (
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        className="text-xs bg-green-400/40 text-black px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUnlockTheme(theme.id, false);
-                        }}
-                      >
-                        Unlock
-                      </button>
-                      <button
-                        style={{
-                          backgroundImage: "url('/assets/fr.jpg')",
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          backgroundBlendMode: "overlay",
-                          background:
-                            "linear-gradient(13deg, rgba(40, 130, 70, 30), rgba(36, 40, 545, 0.2))",
-                        }}
-                        className="text-xs bg-purple-500 text-black px-2 py-1 rounded-2xl hover:cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
+                  return (
+                    <div
+                      key={theme.id}
+                      className={`border bg-white rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
+                        theme.is_current ? "ring-2 ring-blue-500" : ""
+                      } ${theme.unlocked ? "hover:shadow-md" : "opacity-70"}`}
+                      onClick={() => {
+                        if (theme.unlocked) {
                           setSelectedTheme({
                             ...theme,
                             styles: themeStyles,
                           });
-                          setShowAdModal(true);
-                        }}
+                          setShowThemePreview(true);
+                        }
+                      }}
+                    >
+                      {/* Theme thumbnail with actual style preview */}
+                      <div
+                        className="w-full h-24 mb-2 rounded-md relative overflow-hidden"
+                        style={
+                          themeStyles.taskBackground || {
+                            backgroundColor: "#f3f4f6",
+                          }
+                        }
                       >
-                        Watch Ad
-                      </button>
+                        <div className="absolute inset-0 flex flex-col p-2">
+                          <div
+                            className="h-2 w-3/4 rounded-full mb-1"
+                            style={{
+                              backgroundColor:
+                                themeStyles.taskBackground.contentBackground ||
+                                "#ffffff",
+                            }}
+                          ></div>
+                          <div
+                            className="h-2 w-1/2 rounded-full"
+                            style={{
+                              backgroundColor:
+                                themeStyles.taskBackground.contentBackground ||
+                                "#ffffff",
+                            }}
+                          ></div>
+                        </div>
+                        {!theme.unlocked && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <div className="text-white font-bold text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <img
+                                  src="/assets/coin.png"
+                                  className="w-5 h-5 pointer-events-none"
+                                />
+                                {theme.price}
+                              </div>
+                              <div className="text-xs">or watch ad</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <h3 className="font-medium text-center">
+                        {theme.display_name}
+                      </h3>
+
+                      {theme.unlocked && theme.is_current && (
+                        <div className="text-xs text-green-500">Active</div>
+                      )}
+
+                      {!theme.unlocked && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            className="text-xs bg-green-400/40 text-black px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUnlockTheme(theme.id, false);
+                            }}
+                          >
+                            Unlock
+                          </button>
+                          <button
+                            style={{
+                              backgroundImage: "url('/assets/fr.jpg')",
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              backgroundBlendMode: "overlay",
+                              background:
+                                "linear-gradient(13deg, rgba(40, 130, 70, 30), rgba(36, 40, 545, 0.2))",
+                            }}
+                            className="text-xs bg-purple-500 text-black px-2 py-1 rounded-2xl hover:cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTheme({
+                                ...theme,
+                                styles: themeStyles,
+                              });
+                              setShowAdModal(true);
+                            }}
+                          >
+                            Watch Ad
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
           </div>
         </div>
       </div>
