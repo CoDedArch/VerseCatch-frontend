@@ -452,11 +452,7 @@ const HomePage = () => {
         </main>
         {/* InteractionSection now at the bottom */}
 
-        {userData || isAnonymous ? (
-          <InteractionSection />
-        ) : (
-          <p>Loading user data...</p>
-        )}
+        <InteractionSection />
       </div>
     );
   }, [
@@ -467,7 +463,6 @@ const HomePage = () => {
     parsedData,
     entireBookData,
     handleVerseClick,
-    userData,
     selectedInspirational,
     remaining_time,
     tourState,
@@ -479,7 +474,7 @@ const HomePage = () => {
     <section className="min-h-[100dvh] overflow-hidden">
       {showCancelTour && <CancelTour />}
       {showDonationOverlay && <DonationOverlay />}
-      <RatingOverlay />
+      {isLoggedIn && <RatingOverlay />}
 
       {mainContent}
       {isAnonymous && showAdBanner && (

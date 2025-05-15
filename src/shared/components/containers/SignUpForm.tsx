@@ -166,13 +166,13 @@ const SignUpForm = () => {
           className="bg-white w-[1/2] sm:w-[450px] px-6 py-2 pb-10 rounded-lg hover:cursor-pointer shadow-2xl shadow-black hover:bg-blue-100 transition-colors text-xl font-bold"
         >
           <h1 className="sm:text-3xl text-black font-bold text-center">
-            {isLogin ? "login to VerseCatch" : "create your VerseCatch account"}
+            {isLogin ? "Login to VerseCatch" : "Create your VerseCatch account"}
           </h1>
           <div className="space-y-3">
             <h2 className="text-sm text-center text-black font-bold">
               {isLogin
                 ? "Welcome back! Please log in to continue."
-                : "Start your journey and catch meaningful verses effortlessly."}
+                : "Start your journey and uncover verses full of meaning."}
             </h2>
 
             <h2 className="text-sm sm:text-lg text-center text-blue-500 font-bold">

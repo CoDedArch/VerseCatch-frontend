@@ -218,7 +218,7 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
           </div>
 
           <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">About the Developer</h3>
+            <h3 className="text-lg font-semibold mb-2">About the Developers</h3>
             <div className="flex items-center gap-4">
               <img
                 src="/assets/developer.jpg"
@@ -228,11 +228,13 @@ const AboutModal = ({ isOpen, onClose }: ModalProps) => {
               <div>
                 <p className="font-medium">[CoDed]</p>
                 <p className="text-sm text-gray-600">
-                  Passionate about creating technology that enhances spiritual
-                  growth and makes the Bible more accessible. With a background
-                  in software development and a love for scripture, I built
-                  VerseCatch to help people engage with God's Word in a more
-                  natural, intuitive way.
+                  A full-stack developer passionate about building technology
+                  that serves a higher purpose. Combining technical skills in
+                  web development with a love for scripture, VerseCatch is built
+                  to make the Bible more accessible and foster spiritual growth.
+                  Experienced in developing scalable applications like Digital
+                  Libraries and management systems, I focus on delivering
+                  intuitive, user-centered solutions.
                 </p>
               </div>
             </div>

@@ -97,7 +97,7 @@ const TaskComp = () => {
             transition={{ duration: 0.2 }}
             aria-label="Show task panel"
             onClick={toggleTaskVisibility}
-            className="w-10 h-40 sm:w-14 fixed z-[100] -left-6 sm:-left-6 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 sm:rounded-full rounded-2xl cursor-pointer transition-all hover:bg-slate-500/70 focus:outline-none focus:ring-2 focus:ring-white/5"
+            className="w-10 h-40 sm:w-14 fixed z-[100] -left-3 sm:-left-6 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 sm:rounded-full rounded-2xl cursor-pointer transition-all hover:bg-slate-500/70 focus:outline-none focus:ring-2 focus:ring-white/5"
           >
             <BlurImage
               src="/assets/slide.png"

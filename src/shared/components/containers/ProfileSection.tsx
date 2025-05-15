@@ -38,7 +38,7 @@ const ProfileSection = () => {
           transition={{ duration: 0.2 }}
           aria-label="Show profile panel"
           onClick={toggleMenuVisibility}
-          className={`w-10 h-40 sm:h-14 sm:w-14 fixed z-[10000] sm:hidden -right-6 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 rounded-2xl cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/5 ${
+          className={`w-10 h-40 sm:h-14 sm:w-14 fixed z-[10000] sm:hidden -right-3 backdrop-blur-sm top-[140px] bg-slate-300/50 p-1 rounded-2xl cursor-pointer hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white/5 ${
             tourState.isTourActive && tourState.currentStep === 2
               ? "z-[10002]"
               : ""
