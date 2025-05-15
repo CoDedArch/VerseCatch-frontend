@@ -610,7 +610,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                   }
                 }}
                 disabled={progress < 100 || isProcessing}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
                   progress >= 100
                     ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
