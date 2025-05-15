@@ -67,7 +67,7 @@ const AnonnymousSignUpCard = () => {
             You will not get a feel of the VerseCatch Experience
           </li>
           <li>
-            You can still explore the app and catch Bible verses, go for it.
+            You can still explore the app and catch Bible verses from only King James Version.
           </li>
           <li>
             You can always create an account later to unlock full features.

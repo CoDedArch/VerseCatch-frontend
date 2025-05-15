@@ -197,6 +197,8 @@ const InteractionSection = () => {
             </div>
           )}
 
+          {
+            isLoggedIn && 
           <motion.img
             title="Bible Versions"
             src="/assets/dots.png"
@@ -211,6 +213,7 @@ const InteractionSection = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           />
+          }
 
           <AnimatePresence>
             {dropdownVisible && (
