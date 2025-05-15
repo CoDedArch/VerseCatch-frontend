@@ -400,7 +400,7 @@ const HomePage = () => {
   const mainContent = useMemo(() => {
     if (!introComplete) return <Introduction />;
 
-    if (userData) return (
+    if (userData || isAnonymous) return (
       <div
         
         className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 "
