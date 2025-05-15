@@ -96,15 +96,10 @@ const ProfileSection = () => {
           )}
           {/* Profile Content */}
           <div
-            key={user?.id}
-            className={`gap-5 no-highlight relative ${
+            className={`gap-5 no-highlight relative flex flex-col sm:flex-row right-2 top-[55px] sm:top-0 ${
               isMenuVisible
                 ? "bg-white/50 rounded-2xl backdrop-blur-lg sm:bg-inherit"
                 : ""
-            } ${
-              user
-                ? "flex flex-col sm:flex-row right-2 top-[55px] sm:top-0"
-                : "hidden"
             }`}
           >
             {/* Tour Step 2 Highlight */}
