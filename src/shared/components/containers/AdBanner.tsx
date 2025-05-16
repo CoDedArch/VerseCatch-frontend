@@ -10,22 +10,30 @@ declare global {
 
 const AdBanner = ({ onClose }: Omit<AdBannerProps, "progress">) => {
   useEffect(() => {
-    // Initialize PropellerAds In-Page Push
+    const script = document.createElement("script");
+    script.src = "https://vemtoutcheeg.com/400/9339190";
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+      if (window.propeller) {
+        window.propeller.destroyInPagePush?.();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (window.propeller) {
-      window.propeller.showInPagePush({
-        zone: 9339190, 
+      window.propeller.showInPagePush?.({
+        zone: 9339190,
         container: "propeller-ad-container",
         onClose: () => {
           onClose();
-        }
+        },
       });
     }
-
-    return () => {
-      if (window.propeller) {
-        window.propeller.destroyInPagePush();
-      }
-    };
   }, [onClose]);
 
   return (
@@ -40,13 +48,11 @@ const AdBanner = ({ onClose }: Omit<AdBannerProps, "progress">) => {
             ✕
           </button>
         </div>
-        
-        {/* Real PropellerAds Container */}
+
         <div 
           id="propeller-ad-container" 
           className="bg-gray-100 h-40 flex items-center justify-center rounded relative"
         >
-          {/* Loading state */}
           <div className="text-center p-4">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-2" />
             <p className="text-sm text-gray-600">Loading ad...</p>
