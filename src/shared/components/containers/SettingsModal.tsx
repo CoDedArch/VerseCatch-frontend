@@ -523,7 +523,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
           </div>
         </div>
       )}
-      {showAdModal && selectedTheme && (
+      {/* {showAdModal && selectedTheme && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000000]">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
@@ -665,7 +665,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };

@@ -479,9 +479,9 @@ const HomePage = () => {
       {isLoggedIn && <RatingOverlay />}
 
       {mainContent}
-      {isAnonymous && showAdBanner && (
+      {/* {isAnonymous && showAdBanner && (
         <AdBanner onClose={handleCloseAd} progress={adProgress} />
-      )}
+      )} */}
     </section>
   );
 };
