@@ -22,11 +22,11 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showAdModal, setShowAdModal] = useState(false);
+  // const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [progress, setProgress] = useState(0);
+  // const [adLoaded, setAdLoaded] = useState(false);
+  // const [progress, setProgress] = useState(0);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
@@ -162,46 +162,46 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   };
 
   // simulate add
-  useEffect(() => {
-    if (showAdModal && selectedTheme) {
-      setAdLoaded(false);
-      setProgress(0);
-      setIsProcessing(false); // Reset processing state
+  // useEffect(() => {
+  //   if (showAdModal && selectedTheme) {
+  //     setAdLoaded(false);
+  //     setProgress(0);
+  //     setIsProcessing(false); // Reset processing state
 
-      // Simulate ad loading
-      const loadTimer = setTimeout(() => {
-        setAdLoaded(true);
+  //     // Simulate ad loading
+  //     const loadTimer = setTimeout(() => {
+  //       setAdLoaded(true);
 
-        // Start progress tracking
-        const duration = 5000;
-        const startTime = Date.now();
-        let animationFrameId: number;
+  //       // Start progress tracking
+  //       const duration = 5000;
+  //       const startTime = Date.now();
+  //       let animationFrameId: number;
 
-        const updateProgress = () => {
-          const elapsed = Date.now() - startTime;
-          const newProgress = Math.min((elapsed / duration) * 100, 100);
-          setProgress(newProgress);
+  //       const updateProgress = () => {
+  //         const elapsed = Date.now() - startTime;
+  //         const newProgress = Math.min((elapsed / duration) * 100, 100);
+  //         setProgress(newProgress);
 
-          if (newProgress < 100) {
-            animationFrameId = requestAnimationFrame(updateProgress);
-          } else {
-            // Enable unlock button when ad completes
-            setIsProcessing(false);
-          }
-        };
+  //         if (newProgress < 100) {
+  //           animationFrameId = requestAnimationFrame(updateProgress);
+  //         } else {
+  //           // Enable unlock button when ad completes
+  //           setIsProcessing(false);
+  //         }
+  //       };
 
-        animationFrameId = requestAnimationFrame(updateProgress);
+  //       animationFrameId = requestAnimationFrame(updateProgress);
 
-        return () => {
-          cancelAnimationFrame(animationFrameId);
-        };
-      }, 1000);
+  //       return () => {
+  //         cancelAnimationFrame(animationFrameId);
+  //       };
+  //     }, 1000);
 
-      return () => {
-        clearTimeout(loadTimer);
-      };
-    }
-  }, [showAdModal, selectedTheme]);
+  //     return () => {
+  //       clearTimeout(loadTimer);
+  //     };
+  //   }
+  // }, [showAdModal, selectedTheme]);
 
   if (!isOpen) return null;
 
@@ -341,7 +341,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                                 ...theme,
                                 styles: themeStyles,
                               });
-                              setShowAdModal(true);
+                              // setShowAdModal(true);
                             }}
                           >
                             Watch Ad
