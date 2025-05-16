@@ -10,6 +10,12 @@ export interface PropellerAd {
     zone: number;
     onClose: (completed: boolean) => void;
   }) => void;
+  showInPagePush: (options: {
+    zone: number;
+    container: string;
+    onClose?: () => void;
+  }) => void;
+  destroyInPagePush: () => void; 
 }
 
 
@@ -129,7 +135,6 @@ export interface UserData {
 
 export interface AdBannerProps {
   onClose: () => void;
-  progress: number;
 }
 
 export interface HeaderInterface {

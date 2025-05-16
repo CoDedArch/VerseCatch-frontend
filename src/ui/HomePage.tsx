@@ -27,7 +27,7 @@ import {
 } from "@/store/uiSlice";
 import { useRef } from "react";
 import DonationOverlay from "@/shared/components/containers/DonationOverlay";
-// import AdBanner from "@/shared/components/containers/AdBanner";
+import AdBanner from "@/shared/components/containers/AdBanner";
 import LoadingSpinner from "@/shared/components/presentation/LoadingSpinner";
 import RatingOverlay from "@/shared/components/containers/RatingOverlay";
 import { INSPIRATIONAL_VERSES } from "@/shared/constants/urlConstants";
@@ -60,9 +60,9 @@ const HomePage = () => {
   const [showDonationOverlay, setShowDonationOverlay] = useState(false);
 
   // ad state
-  // const [showAdBanner, setShowAdBanner] = useState(false);
-  // const [adClosed, setAdClosed] = useState(false);
-  // const [adProgress, setAdProgress] = useState(0);
+  const [showAdBanner, setShowAdBanner] = useState(false);
+  const [adClosed, setAdClosed] = useState(false);
+  const [adProgress, setAdProgress] = useState(0);
   const adTimerRef = useRef<NodeJS.Timeout | null>(null);
   const adReappearTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -163,8 +163,7 @@ const HomePage = () => {
         if (!isMobile) return true;
 
         // On mobile (≤768px), only show when there's no ad banner
-        // if (isMobile && !showAdBanner) return true;
-        if (isMobile) return true;
+        if (isMobile && !showAdBanner) return true;
       }
 
       return false;
@@ -175,16 +174,16 @@ const HomePage = () => {
     userData?.payment_status?.has_paid,
     userData?.total_verses_caught,
     isAnonymous,
-    // showAdBanner,
+    showAdBanner,
     isMobile,
   ]);
 
   // Show ad immediately for anonymous users
-  // useEffect(() => {
-  //   if (isAnonymous && !adClosed && !showDonationOverlay) {
-  //     setShowAdBanner(true);
-  //   }
-  // }, [isAnonymous, adClosed, showDonationOverlay]);
+  useEffect(() => {
+    if (isAnonymous && !adClosed && !showDonationOverlay) {
+      setShowAdBanner(true);
+    }
+  }, [isAnonymous, adClosed, showDonationOverlay]);
 
   // fetch the Inspirational Quote for user
   useEffect(() => {
@@ -343,41 +342,41 @@ const HomePage = () => {
   }, [token, isLoggedIn, tokenExpiry, isAnonymous, dispatch]);
 
   // Handle ad progress and auto-close
-  // useEffect(() => {
-  //   if (showAdBanner) {
-  //     const duration = 5000;
-  //     const startTime = Date.now();
-  //     let animationFrameId: number;
+  useEffect(() => {
+    if (showAdBanner) {
+      const duration = 5000;
+      const startTime = Date.now();
+      let animationFrameId: number;
 
-  //     const updateProgress = () => {
-  //       const elapsed = Date.now() - startTime;
-  //       const newProgress = Math.min((elapsed / duration) * 100, 100);
-  //       setAdProgress(newProgress);
+      const updateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const newProgress = Math.min((elapsed / duration) * 100, 100);
+        setAdProgress(newProgress);
 
-  //       if (newProgress < 100) {
-  //         animationFrameId = requestAnimationFrame(updateProgress);
-  //       }
-  //     };
+        if (newProgress < 100) {
+          animationFrameId = requestAnimationFrame(updateProgress);
+        }
+      };
 
-  //     animationFrameId = requestAnimationFrame(updateProgress);
+      animationFrameId = requestAnimationFrame(updateProgress);
 
-  //     return () => {
-  //       cancelAnimationFrame(animationFrameId);
-  //     };
-  //   }
-  // }, [showAdBanner]);
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+      };
+    }
+  }, [showAdBanner]);
 
   // Handle ad closing
-  // const handleCloseAd = () => {
-  //   if (adProgress >= 100) {
-  //     setShowAdBanner(false);
-  //     setAdClosed(true);
+  const handleCloseAd = () => {
+    if (adProgress >= 100) {
+      setShowAdBanner(false);
+      setAdClosed(true);
 
-  //     adReappearTimerRef.current = setTimeout(() => {
-  //       setAdClosed(false);
-  //     }, 3 * 60 * 1000);
-  //   }
-  // };
+      adReappearTimerRef.current = setTimeout(() => {
+        setAdClosed(false);
+      }, 3 * 60 * 1000);
+    }
+  };
 
   // Clean up timers
   useEffect(() => {
@@ -480,9 +479,9 @@ const HomePage = () => {
       {isLoggedIn && <RatingOverlay />}
 
       {mainContent}
-      {/* {isAnonymous && showAdBanner && (
-        <AdBanner onClose={handleCloseAd} progress={adProgress} />
-      )} */}
+      {isAnonymous && showAdBanner && (
+        <AdBanner onClose={handleCloseAd} />
+      )}
     </section>
   );
 };

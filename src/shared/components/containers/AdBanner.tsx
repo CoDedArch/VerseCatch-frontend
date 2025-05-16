@@ -1,7 +1,33 @@
+import { useEffect } from "react";
 import { AdBannerProps } from "@/shared/constants/interfaceConstants";
+import { PropellerAd } from "@/shared/constants/interfaceConstants";
 
+declare global {
+  interface Window {
+    propeller?: PropellerAd;
+  }
+}
 
-const AdBanner = ({ onClose, progress }: AdBannerProps) => {
+const AdBanner = ({ onClose }: Omit<AdBannerProps, "progress">) => {
+  useEffect(() => {
+    // Initialize PropellerAds In-Page Push
+    if (window.propeller) {
+      window.propeller.showInPagePush({
+        zone: 9339190, 
+        container: "propeller-ad-container",
+        onClose: () => {
+          onClose();
+        }
+      });
+    }
+
+    return () => {
+      if (window.propeller) {
+        window.propeller.destroyInPagePush();
+      }
+    };
+  }, [onClose]);
+
   return (
     <div className="fixed right-4 bottom-1/2 sm:bottom-4 w-72 bg-white rounded-lg shadow-xl z-[900] border border-gray-200">
       <div className="p-3">
@@ -10,25 +36,20 @@ const AdBanner = ({ onClose, progress }: AdBannerProps) => {
           <button 
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
-            disabled={progress < 100}
           >
             ✕
           </button>
         </div>
         
-        <div className="bg-gray-100 h-40 flex items-center justify-center rounded relative">
-          {/* Mock Ad Content */}
+        {/* Real PropellerAds Container */}
+        <div 
+          id="propeller-ad-container" 
+          className="bg-gray-100 h-40 flex items-center justify-center rounded relative"
+        >
+          {/* Loading state */}
           <div className="text-center p-4">
-            <p className="font-medium mb-1">Sponsored Content</p>
-            <p className="text-sm text-gray-600">ad would appear here</p>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
-            <div 
-              className="h-full bg-blue-500 transition-all duration-100"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-2" />
+            <p className="text-sm text-gray-600">Loading ad...</p>
           </div>
         </div>
       </div>
