@@ -25,7 +25,9 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const currentTheme = useSelector(
     (state: RootState) => state.theme.currentTheme
   );
-
+const { token } = useSelector(
+    (state: RootState) => state.user
+  );
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -33,13 +35,14 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [showThemePreview, setShowThemePreview] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
+  const [isLoadingAd, setIsLoadingAd] = useState(false);
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
     setIsLoadingThemes(true);
     try {
       const response = await fetch(THEMES_URL, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       const data: Theme[] = await response.json();
@@ -121,20 +124,60 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   }, [isOpen]);
 
-  const showPropellerAd = (themeId: string) => {
-    if (window.propeller) {
-      window.propeller.showInterstitial({
-        zone: 9338850,
-        onClose: (completed: boolean) => {
-          if (completed) {
-            handleUnlockTheme(themeId, true);
-          }
-          setShowAdModal(false);
-        },
-      });
-    } else {
-      alert("Ad service not available. Please try again later.");
+  const loadAdScript = () => {
+    return new Promise<void>((resolve, reject) => {
+      // Check if already loaded
+      if (window.propeller) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://groleegni.net/401/9338850";
+      script.async = true;
+      
+      const timeout = setTimeout(() => {
+        reject(new Error("Ad loading timed out"));
+      }, 10000); // 10 second timeout
+
+      script.onload = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("Failed to load ad script"));
+      };
+
+      document.body.appendChild(script);
+    });
+  };
+
+  const showPropellerAd = async (themeId: string) => {
+    setIsLoadingAd(true);
+    try {
+      await loadAdScript();
+      
+      if (window.propeller) {
+        window.propeller.showInterstitial({
+          zone: 9338850,
+          onClose: (completed: boolean) => {
+            if (completed) {
+              handleUnlockTheme(themeId, true);
+            }
+            setShowAdModal(false);
+          },
+        });
+      } else {
+        throw new Error("Ad service not available");
+      }
+    } catch (error) {
+      console.error("Error showing ad:", error);
+      alert(error instanceof Error ? error.message : "Failed to load ad");
       setShowAdModal(false);
+    } finally {
+      setIsLoadingAd(false);
     }
   };
 
@@ -526,12 +569,19 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
               </p>
 
               <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg">
-                <div className="text-center p-4">
-                  <p className="font-medium mb-2">Sponsored Content</p>
-                  <p className="text-sm text-gray-600">
-                    An ad will play on the next screen
-                  </p>
-                </div>
+                {isLoadingAd ? (
+                  <div className="text-center p-4">
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+                    <p className="mt-2 text-sm text-gray-600">Loading ad...</p>
+                  </div>
+                ) : (
+                  <div className="text-center p-4">
+                    <p className="font-medium mb-2">Sponsored Content</p>
+                    <p className="text-sm text-gray-600">
+                      An ad will play on the next screen
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -539,14 +589,16 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
               <button
                 onClick={() => setShowAdModal(false)}
                 className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                disabled={isLoadingAd}
               >
                 Cancel
               </button>
               <button
                 onClick={() => showPropellerAd(selectedTheme.id)}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                disabled={isLoadingAd}
               >
-                Continue to Ad
+                {isLoadingAd ? "Loading..." : "Continue to Ad"}
               </button>
             </div>
           </div>
