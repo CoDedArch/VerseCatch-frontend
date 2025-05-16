@@ -368,7 +368,6 @@ const HomePage = () => {
 
   // Handle ad closing
 
-
   // Clean up timers
   useEffect(() => {
     const currentAdTimer = adTimerRef.current;
@@ -391,57 +390,71 @@ const HomePage = () => {
   const mainContent = useMemo(() => {
     if (!introComplete) return <Introduction />;
 
-    if (userData || isAnonymous) return (
-      <div
-        
-        className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 "
-      >
-        <Header />
-        <main
-          style={{ background: "inherit" }}
-          className="flex-1 overflow-y-auto"
-        >
-          {!isAnonymous && (
-            <div>
-              <TaskComp />
-            </div>
-          )}
-          <div
-            className={`w-full flex justify-center ${
-              !receivedData ? "min-h-[50vh]" : "h-fit"
-            }`}
-          >
-            {receivedData && (
-              <VerseSection
-                parsedData={parsedData}
-                entireBookData={entireBookData}
-                handleVerseClick={handleVerseClick}
-                setEntireBookData={setEntireBookData}
-              />
-            )}
-
-            {isRefreshingQuote ? (
-              <div className="min-h-[300px] flex items-center justify-center">
-                <LoadingSpinner />
-              </div>
-            ) : (
-              !receivedData &&
-              selectedInspirational &&
-              !tourState.isTourActive && (
-                <InspirationalCard
-                  parsedData={selectedInspirational}
-                  remaining_time={remaining_time ?? 0}
-                  onTimerComplete={handleInspirationalTimerComplete}
-                />
-              )
-            )}
+    if (!userData && !isAnonymous) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+          <div className="relative w-32 h-32">
+            <img
+              src="/assets/book.png"
+              alt="VerseCatch Logo"
+              className="w-full h-full animate-bounce"
+            />
+            <div className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-transparent animate-spin"></div>
           </div>
-        </main>
-        {/* InteractionSection now at the bottom */}
+          <p className="text-lg animate-pulse">Loading your VerseCatch experience...</p>
+        </div>
+      );
+    }
 
-        <InteractionSection />
-      </div>
-    );
+    if (userData || isAnonymous)
+      return (
+        <div className="flex flex-col justify-between min-h-screen xl:gap-10 pt-3 ">
+          <Header />
+          <main
+            style={{ background: "inherit" }}
+            className="flex-1 overflow-y-auto"
+          >
+            {!isAnonymous && (
+              <div>
+                <TaskComp />
+              </div>
+            )}
+            <div
+              className={`w-full flex justify-center ${
+                !receivedData ? "min-h-[50vh]" : "h-fit"
+              }`}
+            >
+              {receivedData && (
+                <VerseSection
+                  parsedData={parsedData}
+                  entireBookData={entireBookData}
+                  handleVerseClick={handleVerseClick}
+                  setEntireBookData={setEntireBookData}
+                />
+              )}
+
+              {isRefreshingQuote ? (
+                <div className="min-h-[300px] flex items-center justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                !receivedData &&
+                selectedInspirational &&
+                !tourState.isTourActive && (
+                  <InspirationalCard
+                    parsedData={selectedInspirational}
+                    remaining_time={remaining_time ?? 0}
+                    onTimerComplete={handleInspirationalTimerComplete}
+                  />
+                )
+              )}
+            </div>
+          </main>
+          {/* InteractionSection now at the bottom */}
+
+          <InteractionSection />
+        </div>
+      );
   }, [
     introComplete,
     isAnonymous,
@@ -454,25 +467,24 @@ const HomePage = () => {
     tourState,
     handleInspirationalTimerComplete,
     isRefreshingQuote,
-    userData
+    userData,
   ]);
 
   return (
     <section
       style={{
-          background: theme.styles.mainBackground.background,
-          backgroundSize: theme.styles.mainBackground.backgroundSize,
-          animation: theme.styles.mainBackground.animation,
-        }}
-      className="min-h-[100dvh] overflow-hidden">
+        background: theme.styles.mainBackground.background,
+        backgroundSize: theme.styles.mainBackground.backgroundSize,
+        animation: theme.styles.mainBackground.animation,
+      }}
+      className="min-h-[100dvh] overflow-hidden"
+    >
       {showCancelTour && <CancelTour />}
       {showDonationOverlay && <DonationOverlay />}
       {isLoggedIn && <RatingOverlay />}
 
       {mainContent}
-      {!isLoggedIn && isAnonymous && introComplete && (
-        <AdBanner  />
-      )}
+      {!isLoggedIn && isAnonymous && introComplete && <AdBanner />}
     </section>
   );
 };
