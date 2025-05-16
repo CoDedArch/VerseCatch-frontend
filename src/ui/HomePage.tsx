@@ -470,7 +470,7 @@ const HomePage = () => {
       {isLoggedIn && <RatingOverlay />}
 
       {mainContent}
-      {!isLoggedIn && isAnonymous && (
+      {!isLoggedIn && isAnonymous && introComplete && (
         <AdBanner  />
       )}
     </section>
