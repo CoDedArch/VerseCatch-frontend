@@ -64,7 +64,7 @@ const AnonnymousSignUpCard = () => {
         >
           <li>Your activity will not be saved or synced across devices.</li>
           <li>
-            You will not get a feel of the VerseCatch Experience
+            You will be disturbed with Ads and You will not fully experience  VerseCatch.
           </li>
           <li>
             You can still explore the app and catch Bible verses from only King James Version.
