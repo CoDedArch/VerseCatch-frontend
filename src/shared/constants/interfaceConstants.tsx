@@ -5,6 +5,14 @@ export interface Verse {
   text: string;
 }
 
+export interface PropellerAd {
+  showInterstitial: (options: {
+    zone: number;
+    onClose: (completed: boolean) => void;
+  }) => void;
+}
+
+
 export interface EntireBookDataInterface {
   chapter: string;
   verses: Verse[];

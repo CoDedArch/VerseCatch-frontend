@@ -7,11 +7,18 @@ import { parseThemeStyles } from "../../Services/ThemeServices";
 import { Theme } from "../../constants/interfaceConstants";
 import { ModalProps } from "../../constants/interfaceConstants";
 import { defaultTheme } from "@/shared/constants/varConstants";
+import { PropellerAd } from "../../constants/interfaceConstants";
 import {
   SET_THEME_URL,
   THEMES_URL,
   UNLOCK_THEME_URL,
 } from "../../constants/urlConstants";
+
+declare global {
+  interface Window {
+    propeller?: PropellerAd;
+  }
+}
 
 const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const dispatch = useDispatch();
@@ -22,11 +29,9 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  // const [showAdModal, setShowAdModal] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
-  // const [adLoaded, setAdLoaded] = useState(false);
-  // const [progress, setProgress] = useState(0);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   // Modify your fetchThemes function to handle initial theme application
   const fetchThemes = async () => {
@@ -116,6 +121,23 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   }, [isOpen]);
 
+  const showPropellerAd = (themeId: string) => {
+    if (window.propeller) {
+      window.propeller.showInterstitial({
+        zone: 9338850,
+        onClose: (completed: boolean) => {
+          if (completed) {
+            handleUnlockTheme(themeId, true);
+          }
+          setShowAdModal(false);
+        },
+      });
+    } else {
+      alert("Ad service not available. Please try again later.");
+      setShowAdModal(false);
+    }
+  };
+
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
     try {
@@ -162,47 +184,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   };
 
   // simulate add
-  // useEffect(() => {
-  //   if (showAdModal && selectedTheme) {
-  //     setAdLoaded(false);
-  //     setProgress(0);
-  //     setIsProcessing(false); // Reset processing state
-
-  //     // Simulate ad loading
-  //     const loadTimer = setTimeout(() => {
-  //       setAdLoaded(true);
-
-  //       // Start progress tracking
-  //       const duration = 5000;
-  //       const startTime = Date.now();
-  //       let animationFrameId: number;
-
-  //       const updateProgress = () => {
-  //         const elapsed = Date.now() - startTime;
-  //         const newProgress = Math.min((elapsed / duration) * 100, 100);
-  //         setProgress(newProgress);
-
-  //         if (newProgress < 100) {
-  //           animationFrameId = requestAnimationFrame(updateProgress);
-  //         } else {
-  //           // Enable unlock button when ad completes
-  //           setIsProcessing(false);
-  //         }
-  //       };
-
-  //       animationFrameId = requestAnimationFrame(updateProgress);
-
-  //       return () => {
-  //         cancelAnimationFrame(animationFrameId);
-  //       };
-  //     }, 1000);
-
-  //     return () => {
-  //       clearTimeout(loadTimer);
-  //     };
-  //   }
-  // }, [showAdModal, selectedTheme]);
-
   if (!isOpen) return null;
 
   return (
@@ -230,8 +211,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {isLoadingThemes
-              ?
-                Array.from({ length: 5 }).map((_, index) => (
+              ? Array.from({ length: 5 }).map((_, index) => (
                   <div
                     key={`loading-${index}`}
                     className="border bg-white rounded-lg p-3 flex flex-col items-center justify-between h-40"
@@ -341,7 +321,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                                 ...theme,
                                 styles: themeStyles,
                               });
-                              // setShowAdModal(true);
+                              setShowAdModal(true);
                             }}
                           >
                             Watch Ad
@@ -523,18 +503,14 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
           </div>
         </div>
       )}
-      {/* {showAdModal && selectedTheme && (
+      {showAdModal && selectedTheme && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000000]">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Unlock with Ad</h2>
               <button
-                onClick={() => progress >= 100 && setShowAdModal(false)}
-                className={`text-gray-500 hover:text-gray-700 ${
-                  progress < 100 ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={progress < 100}
-                aria-label="Close ad modal"
+                onClick={() => setShowAdModal(false)}
+                className="text-gray-500 hover:text-gray-700"
               >
                 ✕
               </button>
@@ -542,130 +518,40 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
             <div className="mb-6">
               <p className="mb-4 text-center">
-                {adLoaded ? (
-                  progress < 100 ? (
-                    <>
-                      Watching ad to unlock{" "}
-                      <strong className="text-blue-600">
-                        {selectedTheme.display_name}
-                      </strong>{" "}
-                      theme...
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-green-600 font-semibold">
-                        Ad complete!
-                      </span>{" "}
-                      You've unlocked{" "}
-                      <strong className="text-blue-600">
-                        {selectedTheme.display_name}
-                      </strong>
-                    </>
-                  )
-                ) : (
-                  <span className="text-gray-600">Loading ad content...</span>
-                )}
+                Watch a short ad to unlock the{" "}
+                <strong className="text-blue-600">
+                  {selectedTheme.display_name}
+                </strong>{" "}
+                theme.
               </p>
 
-              <div className="bg-gray-200 h-48 flex items-center justify-center rounded-lg relative overflow-hidden border border-gray-300">
-                {adLoaded ? (
-                  <>
-                    <div className="w-full h-full bg-black flex flex-col items-center justify-center p-4">
-                      <p className="text-white/80 text-sm mb-2">
-                        ADVERTISEMENT
-                      </p>
-                      <div className="w-full h-4/5 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border-2 border-blue-400/50 rounded-lg flex items-center justify-center">
-                        <div className="text-center p-4">
-                          <p className="text-white/90 font-medium mb-2">
-                            {selectedTheme.display_name} Theme
-                          </p>
-                          <p className="text-white/70 text-sm">
-                            {progress < 100
-                              ? "Demo ad playing..."
-                              : "Ad completed successfully"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gray-300">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-100 ease-linear"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    {progress < 100 && (
-                      <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                        {Math.ceil(5 - progress * 0.05)}s remaining
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center space-y-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
-                    <p className="text-gray-600 text-sm">Preparing ad...</p>
-                  </div>
-                )}
+              <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg">
+                <div className="text-center p-4">
+                  <p className="font-medium mb-2">Sponsored Content</p>
+                  <p className="text-sm text-gray-600">
+                    An ad will play on the next screen
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-between items-center mt-4">
-              <div className="text-sm text-gray-500">
-                {progress < 100 ? (
-                  <span>Please watch the full ad to unlock</span>
-                ) : (
-                  <span className="text-green-600 font-medium">
-                    ✓ Ready to claim your theme
-                  </span>
-                )}
-              </div>
+            <div className="flex justify-end gap-2">
               <button
-                onClick={() => {
-                  if (progress >= 100) {
-                    handleUnlockTheme(selectedTheme.id, true);
-                    setShowAdModal(false);
-                  }
-                }}
-                disabled={progress < 100 || isProcessing}
-                className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
-                  progress >= 100
-                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                } ${isProcessing ? "opacity-70" : ""}`}
+                onClick={() => setShowAdModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
               >
-                {isProcessing ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Processing...
-                  </span>
-                ) : progress < 100 ? (
-                  `Complete ad to unlock (${(5 - progress * 0.05).toFixed(1)}s)`
-                ) : (
-                  "Claim Unlocked Theme"
-                )}
+                Cancel
+              </button>
+              <button
+                onClick={() => showPropellerAd(selectedTheme.id)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                Continue to Ad
               </button>
             </div>
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };
