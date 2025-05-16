@@ -25,9 +25,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const currentTheme = useSelector(
     (state: RootState) => state.theme.currentTheme
   );
-const { token } = useSelector(
-    (state: RootState) => state.user
-  );
+  const { token } = useSelector((state: RootState) => state.user);
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -126,23 +124,37 @@ const { token } = useSelector(
 
   const loadAdScript = () => {
     return new Promise<void>((resolve, reject) => {
-      // Check if already loaded
       if (window.propeller) {
         resolve();
         return;
       }
 
       const script = document.createElement("script");
-      script.src = "https://groleegni.net/401/9338850";
+      script.src = "https://groleegni.net/401/9338850"; // Ensure this matches what Propeller gave you
       script.async = true;
-      
+
       const timeout = setTimeout(() => {
         reject(new Error("Ad loading timed out"));
-      }, 10000); // 10 second timeout
+      }, 10000);
 
       script.onload = () => {
         clearTimeout(timeout);
-        resolve();
+
+        // Wait for window.propeller to be defined
+        const checkInterval = setInterval(() => {
+          if (window.propeller) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+
+        // Give up after 3 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          if (!window.propeller) {
+            reject(new Error("Ad service still not available after load"));
+          }
+        }, 3000);
       };
 
       script.onerror = () => {
@@ -158,7 +170,7 @@ const { token } = useSelector(
     setIsLoadingAd(true);
     try {
       await loadAdScript();
-      
+
       if (window.propeller) {
         window.propeller.showInterstitial({
           zone: 9338850,
