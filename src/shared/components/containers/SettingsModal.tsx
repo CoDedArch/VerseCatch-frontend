@@ -34,7 +34,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const [hasFetched, setHasFetched] = useState(false);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   const [isLoadingAd, setIsLoadingAd] = useState(false);
-  // Modify your fetchThemes function to handle initial theme application
+
   const fetchThemes = async () => {
     setIsLoadingThemes(true);
     try {
@@ -98,7 +98,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         throw new Error(errorData.detail || "Failed to unlock theme");
       }
 
-      // Refresh themes list
       await fetchThemes();
     } catch (error) {
       console.error("Error unlocking theme:", error);
@@ -108,86 +107,75 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   };
 
-  // Fetch themes only when modal opens and hasn't been fetched yet
   useEffect(() => {
     if (isOpen && !hasFetched) {
       fetchThemes();
     }
   }, [isOpen, hasFetched]);
 
-  // Reset hasFetched when modal closes
   useEffect(() => {
     if (!isOpen) {
       setHasFetched(false);
     }
   }, [isOpen]);
 
-  const loadAdScript = () => {
+  const loadOnClickPopunder = (
+    zoneId: number,
+    scriptUrl: string = "https://al5sm.com/tag.min.js"
+  ) => {
     return new Promise<void>((resolve, reject) => {
-      if (window.propeller) {
-        resolve();
-        return;
+      try {
+        const existingScript = document.querySelector(
+          `script[data-zone="${zoneId}"]`
+        );
+        if (existingScript) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = scriptUrl;
+        script.setAttribute("data-zone", zoneId.toString());
+        script.async = true;
+
+        const timeout = setTimeout(() => {
+          reject(new Error("Ad script load timed out."));
+        }, 10000);
+
+        script.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+
+        script.onerror = () => {
+          clearTimeout(timeout);
+          reject(new Error("Failed to load ad script."));
+        };
+
+        const parent = document.body || document.documentElement;
+        parent.appendChild(script);
+      } catch (err) {
+        reject(
+          err instanceof Error ? err : new Error("Unexpected error loading ad")
+        );
       }
-
-      const script = document.createElement("script");
-      script.src = "https://groleegni.net/401/9338850"; // Ensure this matches what Propeller gave you
-      script.async = true;
-
-      const timeout = setTimeout(() => {
-        reject(new Error("Ad loading timed out"));
-      }, 10000);
-
-      script.onload = () => {
-        clearTimeout(timeout);
-
-        // Wait for window.propeller to be defined
-        const checkInterval = setInterval(() => {
-          if (window.propeller) {
-            clearInterval(checkInterval);
-            resolve();
-          }
-        }, 100);
-
-        // Give up after 3 seconds
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          if (!window.propeller) {
-            reject(new Error("Ad service still not available after load"));
-          }
-        }, 3000);
-      };
-
-      script.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error("Failed to load ad script"));
-      };
-
-      document.body.appendChild(script);
     });
   };
 
-  const showPropellerAd = async (themeId: string) => {
+  const showPropellerAd = async () => {
     setIsLoadingAd(true);
     try {
-      await loadAdScript();
-
-      if (window.propeller) {
-        window.propeller.showInterstitial({
-          zone: 9338850,
-          onClose: (completed: boolean) => {
-            if (completed) {
-              handleUnlockTheme(themeId, true);
-            }
-            setShowAdModal(false);
-          },
-        });
-      } else {
-        throw new Error("Ad service not available");
+      await loadOnClickPopunder(9342420);
+      console.log("Popunder ad triggered");
+      
+      // After successful ad load, unlock the theme
+      if (selectedTheme) {
+        await handleUnlockTheme(selectedTheme.id, true);
+        setShowAdModal(false);
       }
-    } catch (error) {
-      console.error("Error showing ad:", error);
-      alert(error instanceof Error ? error.message : "Failed to load ad");
-      setShowAdModal(false);
+    } catch (err) {
+      console.error("Ad error:", err);
+      alert("Failed to load ad. Please try again.");
     } finally {
       setIsLoadingAd(false);
     }
@@ -214,7 +202,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
       await fetchThemes();
 
-      // Handle default theme case
       if (themeId === "default") {
         dispatch(setTheme(defaultTheme));
       } else {
@@ -238,7 +225,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   };
 
-  // simulate add
   if (!isOpen) return null;
 
   return (
@@ -277,7 +263,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                   </div>
                 ))
               : themes.map((theme) => {
-                  // Handle both string and object styles safely
                   const themeStyles = parseThemeStyles(theme.styles);
 
                   console.log("Theme styles:", themeStyles);
@@ -298,7 +283,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                         }
                       }}
                     >
-                      {/* Theme thumbnail with actual style preview */}
                       <div
                         className="w-full h-24 mb-2 rounded-md relative overflow-hidden"
                         style={
@@ -405,7 +389,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             </div>
 
             <div className="mb-6">
-              {/* Mini App Preview */}
               <div
                 style={parseThemeStyles(selectedTheme.styles).mainBackground}
                 className={`border rounded-lg overflow-hidden pt-4 ${
@@ -413,7 +396,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                     .background
                 }`}
               >
-                {/* Preview Header */}
                 <div
                   className={`p-4 flex justify-between items-center ${
                     selectedTheme.display_name === "Twilight" ||
@@ -471,9 +453,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                   </div>
                 </div>
 
-                {/* Preview Content */}
                 <div className="flex gap-5 p-4">
-                  {/* Left Panel - Task Div Preview */}
                   <div
                     style={
                       parseThemeStyles(selectedTheme.styles).taskBackground
@@ -487,7 +467,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                     </ul>
                   </div>
 
-                  {/* Middle Panel - Verse Preview */}
                   <div
                     style={
                       parseThemeStyles(selectedTheme.styles).verseBackground ||
@@ -503,7 +482,6 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                   </div>
                 </div>
                 <div className="flex justify-center">
-                  {/* bottom Panel - Interaction Preview */}
                   <div
                     style={
                       parseThemeStyles(selectedTheme.styles)
@@ -606,7 +584,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                 Cancel
               </button>
               <button
-                onClick={() => showPropellerAd(selectedTheme.id)}
+                onClick={showPropellerAd}
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 disabled={isLoadingAd}
               >
