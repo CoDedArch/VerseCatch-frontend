@@ -17,6 +17,7 @@ import {
 declare global {
   interface Window {
     propeller?: PropellerAd;
+    __ad_zone_9339190_loaded__?: boolean;
   }
 }
 
@@ -122,16 +123,21 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const loadOnClickPopunder = (
     zoneId: number,
     scriptUrl: string = "https://al5sm.com/tag.min.js"
-  ) => {
+  ): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       try {
         const existingScript = document.querySelector(
           `script[data-zone="${zoneId}"]`
         );
-        if (existingScript) {
+
+        if (existingScript || window.__ad_zone_9339190_loaded__) {
+          // Already loaded or in progress
           resolve();
           return;
         }
+
+        // Set the flag to avoid future duplicate loads
+        window.__ad_zone_9339190_loaded__ = true;
 
         const script = document.createElement("script");
         script.src = scriptUrl;
@@ -167,7 +173,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     try {
       await loadOnClickPopunder(9342420);
       console.log("Popunder ad triggered");
-      
+
       // After successful ad load, unlock the theme
       if (selectedTheme) {
         await handleUnlockTheme(selectedTheme.id, true);
