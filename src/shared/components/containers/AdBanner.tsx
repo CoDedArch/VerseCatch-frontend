@@ -2,14 +2,26 @@ import { useEffect } from "react";
 
 const AdBanner = () => {
   useEffect(() => {
-    // Just load the script without initializing ads
+    const zoneId = "9339190";
+    const scriptDomain = "vemtoutcheeg.com";
+    const scriptPath = `/400/${zoneId}`;
+
     const script = document.createElement("script");
-    script.src = "https://vemtoutcheeg.com/400/9339190";
     script.async = true;
-    document.body.appendChild(script);
+
+    // Anti-AdBlock logic mimicking PropellerAds' official format
+    try {
+      script.src = `https://${scriptDomain}${scriptPath}`;
+      script.setAttribute("data-zone", zoneId);
+      (document.body || document.documentElement).appendChild(script);
+    } catch (e) {
+      console.warn("Failed to inject ad script:", e);
+    }
 
     return () => {
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
   }, []);
 
