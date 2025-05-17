@@ -41,7 +41,7 @@ const Introduction = () => {
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="text-white text-2xl sm:text-4xl font-extrabold pl-10"
+          className="text-white text-2xl sm:text-4xl text font-extrabold text-center px-2"
         >
           How would you like to proceed?
         </motion.h2>
