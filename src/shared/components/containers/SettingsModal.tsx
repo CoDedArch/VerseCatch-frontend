@@ -17,7 +17,7 @@ import {
 declare global {
   interface Window {
     propeller?: PropellerAd;
-    __ad_zone_9339190_loaded__?: boolean;
+    __ad_zone_9338850_loaded__?: boolean;
   }
 }
 
@@ -120,68 +120,82 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   }, [isOpen]);
 
-  const loadOnClickPopunder = (
-    zoneId: number,
-    scriptUrl: string = "https://al5sm.com/tag.min.js"
+  const loadInterstitialAd = (
+    zoneId: number = 9338850,
+    domain: string = "groleegni.net"
   ): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
-      try {
-        const existingScript = document.querySelector(
-          `script[data-zone="${zoneId}"]`
-        );
+      // const loadedFlag = `__ad_zone_${zoneId}_loaded__` as const;
 
-        if (existingScript || window.__ad_zone_9339190_loaded__) {
-          // Already loaded or in progress
-          resolve();
-          return;
-        }
-
-        // Set the flag to avoid future duplicate loads
-        window.__ad_zone_9339190_loaded__ = true;
-
-        const script = document.createElement("script");
-        script.src = scriptUrl;
-        script.setAttribute("data-zone", zoneId.toString());
-        script.async = true;
-
-        const timeout = setTimeout(() => {
-          reject(new Error("Ad script load timed out."));
-        }, 10000);
-
-        script.onload = () => {
-          clearTimeout(timeout);
-          resolve();
-        };
-
-        script.onerror = () => {
-          clearTimeout(timeout);
-          reject(new Error("Failed to load ad script."));
-        };
-
-        const parent = document.body || document.documentElement;
-        parent.appendChild(script);
-      } catch (err) {
-        reject(
-          err instanceof Error ? err : new Error("Unexpected error loading ad")
-        );
+      // Prevent loading multiple times
+      if (window.__ad_zone_9338850_loaded__) {
+        resolve();
+        return;
       }
+
+      window.__ad_zone_9338850_loaded__ = true;
+
+      const script = document.createElement("script");
+      script.src = `https://${domain}/401/${zoneId}`;
+      script.async = true;
+
+      const timeout = setTimeout(() => {
+        reject(new Error("Ad script load timed out."));
+      }, 10000);
+
+      script.onload = () => {
+        clearTimeout(timeout);
+
+        // Wait for window.propeller to be defined
+        const checkInterval = setInterval(() => {
+          if (window.propeller?.showInterstitial) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          if (!window.propeller?.showInterstitial) {
+            reject(new Error("Propeller interstitial not available."));
+          }
+        }, 3000);
+      };
+
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("Failed to load ad script."));
+      };
+
+      (document.body || document.documentElement).appendChild(script);
     });
   };
 
-  const showPropellerAd = async () => {
+  const showInterstitialAd = async (onComplete?: () => void) => {
     setIsLoadingAd(true);
     try {
-      await loadOnClickPopunder(9342420);
-      console.log("Popunder ad triggered");
+      await loadInterstitialAd(); // loads 9338850 from groleegni.net
 
-      // After successful ad load, unlock the theme
-      if (selectedTheme) {
-        await handleUnlockTheme(selectedTheme.id, true);
-        setShowAdModal(false);
+      const propeller = window.propeller;
+
+      if (propeller && propeller.showInterstitial) {
+        propeller.showInterstitial({
+          zone: 9338850,
+          onClose: (completed: boolean) => {
+            console.log("Ad closed, completed:", completed);
+            if (completed && onComplete) {
+              onComplete(); // e.g. unlock theme
+            }
+            setShowAdModal(false);
+          },
+        });
+      } else {
+        throw new Error("Interstitial ad function not available");
       }
     } catch (err) {
-      console.error("Ad error:", err);
+      console.error("Interstitial error:", err);
       alert("Failed to load ad. Please try again.");
+      setShowAdModal(false);
     } finally {
       setIsLoadingAd(false);
     }
@@ -590,11 +604,15 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                 Cancel
               </button>
               <button
-                onClick={showPropellerAd}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                onClick={() =>
+                  showInterstitialAd(() => {
+                    handleUnlockTheme(selectedTheme.id, true);
+                  })
+                }
                 disabled={isLoadingAd}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
-                {isLoadingAd ? "Loading..." : "Continue to Ad"}
+                {isLoadingAd ? "Loading..." : "Watch Ad to Unlock"}
               </button>
             </div>
           </div>
