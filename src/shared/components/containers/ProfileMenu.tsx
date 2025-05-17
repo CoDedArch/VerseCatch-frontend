@@ -11,6 +11,7 @@ import BlurImage from "./ImageBlur";
 import DeleteAccount from "./DeleteAccount";
 
 const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
+  const [settingsKey, setSettingsKey] = useState(0);
   const [activeModal, setActiveModal] = useState<
     null | "password" | "about" | "help" | "settings"
   >(null);
@@ -149,7 +150,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               />
               <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
             </motion.li>
-            <DeleteAccount/>
+            <DeleteAccount />
           </ul>
         </motion.div>
       </AnimatePresence>
@@ -157,7 +158,9 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
       <PasswordModal isOpen={activeModal === "password"} onClose={closeModal} />
       <AboutModal isOpen={activeModal === "about"} onClose={closeModal} />
       <HelpModal isOpen={activeModal === "help"} onClose={closeModal} />
-      <SettingsModal isOpen={activeModal === "settings"} onClose={closeModal} />
+      {activeModal === "settings" && (
+        <SettingsModal isOpen={true} onClose={closeModal} key={settingsKey} setSettingsKey={setSettingsKey} />
+      )}
     </>
   );
 };

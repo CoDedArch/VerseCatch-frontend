@@ -213,6 +213,11 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+export interface SettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  setSettingsKey: React.Dispatch<React.SetStateAction<number>>;
+}
 
 export interface VerseSectionProps {
   parsedData: {

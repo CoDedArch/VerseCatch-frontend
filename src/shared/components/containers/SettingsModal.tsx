@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setTheme } from "@/store/themeSlice";
 import { RootState } from "@/store/store";
-import getThemeStyles from "../Hooks/GetThemeHook";
+import { useRef } from "react";
 import { parseThemeStyles } from "../../Services/ThemeServices";
-import { Theme } from "../../constants/interfaceConstants";
-import { ModalProps } from "../../constants/interfaceConstants";
+import { SettingsModalProps, Theme } from "../../constants/interfaceConstants";
 import { defaultTheme } from "@/shared/constants/varConstants";
 import { PropellerAd } from "../../constants/interfaceConstants";
+import { useCallback } from "react";
+import { useMemo } from "react";
+
 import {
   SET_THEME_URL,
   THEMES_URL,
@@ -21,32 +23,43 @@ declare global {
   }
 }
 
-const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
+const SettingsModal = ({ isOpen, onClose, setSettingsKey }: SettingsModalProps) => {
+  const refreshSettings = () => setSettingsKey((prev) => prev + 1);
+  // Ad Loader
   const dispatch = useDispatch();
   const currentTheme = useSelector(
     (state: RootState) => state.theme.currentTheme
   );
   const { token } = useSelector((state: RootState) => state.user);
+
+  // State declarations
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAdModal, setShowAdModal] = useState(false);
   const [showThemePreview, setShowThemePreview] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
   const [isLoadingThemes, setIsLoadingThemes] = useState(false);
   const [isLoadingAd, setIsLoadingAd] = useState(false);
 
-  const fetchThemes = async () => {
+  const hasFetchedRef = useRef(false);
+  const parsedThemes = useMemo(() => {
+    return themes.map((theme) => ({
+      ...theme,
+      styles: parseThemeStyles(theme.styles),
+    }));
+  }, [themes]);
+
+  const fetchThemes = useCallback(async () => {
+    if (hasFetchedRef.current) return;
+
     setIsLoadingThemes(true);
     try {
       const response = await fetch(THEMES_URL, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data: Theme[] = await response.json();
 
-      const parsedThemes = data.map((theme: Theme) => ({
+      const newThemes = data.map((theme: Theme) => ({
         ...theme,
         styles:
           typeof theme.styles === "string"
@@ -54,30 +67,20 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             : theme.styles,
       }));
 
-      if (!parsedThemes.some((t) => t.is_default)) {
-        parsedThemes.push({
-          id: "default",
-          name: "default",
-          display_name: "Default",
-          price: 0,
-          preview_image_url: "",
-          is_default: true,
-          is_current: parsedThemes.some((t) => t.is_current) ? false : true,
-          unlocked: true,
-          styles: getThemeStyles("default"),
-        });
+      if (!newThemes.some((t) => t.is_default)) {
+        newThemes.push(defaultTheme);
       }
 
-      setThemes(parsedThemes);
-      setHasFetched(true);
+      setThemes(newThemes);
+      hasFetchedRef.current = true;
     } catch (error) {
       console.error("Error fetching themes:", error);
-      setSelectedTheme(defaultTheme);
-      setHasFetched(true);
+      setThemes([defaultTheme]);
+      hasFetchedRef.current = true;
     } finally {
       setIsLoadingThemes(false);
     }
-  };
+  }, [token]);
 
   const handleUnlockTheme = async (themeId: string, viaAd: boolean) => {
     setIsProcessing(true);
@@ -109,98 +112,163 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
   };
 
   useEffect(() => {
-    if (isOpen && !hasFetched) {
+    if (isOpen && !hasFetchedRef.current) {
       fetchThemes();
-    }
-  }, [isOpen, hasFetched]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setHasFetched(false);
     }
   }, [isOpen]);
 
-  const loadInterstitialAd = (
-    zoneId: number = 9338850,
-    domain: string = "groleegni.net"
-  ): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      // const loadedFlag = `__ad_zone_${zoneId}_loaded__` as const;
+  useEffect(() => {
+    return () => {
+      hasFetchedRef.current = false;
+    };
+  }, []);
 
-      // Prevent loading multiple times
-      if (window.__ad_zone_9338850_loaded__) {
-        resolve();
-        return;
-      }
+  const renderThemeItems = useMemo(() => {
+    if (isLoadingThemes) {
+      return Array.from({ length: 5 }).map((_, index) => (
+        <div
+          key={`loading-${index}`}
+          className="border bg-white rounded-lg p-3 flex flex-col items-center justify-between h-40"
+        >
+          <div className="w-full h-24 mb-2 rounded-md bg-gray-200 animate-pulse"></div>
+          <div className="h-4 w-3/4 rounded-full bg-gray-200 animate-pulse"></div>
+          <div className="h-4 w-1/2 rounded-full bg-gray-200 animate-pulse mt-2"></div>
+        </div>
+      ));
+    }
 
-      window.__ad_zone_9338850_loaded__ = true;
+    return parsedThemes.map((theme) => {
+      const themeStyles = theme.styles;
 
-      const script = document.createElement("script");
-      script.src = `https://${domain}/401/${zoneId}`;
-      script.async = true;
-
-      const timeout = setTimeout(() => {
-        reject(new Error("Ad script load timed out."));
-      }, 10000);
-
-      script.onload = () => {
-        clearTimeout(timeout);
-
-        // Wait for window.propeller to be defined
-        const checkInterval = setInterval(() => {
-          if (window.propeller?.showInterstitial) {
-            clearInterval(checkInterval);
-            resolve();
-          }
-        }, 100);
-
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          if (!window.propeller?.showInterstitial) {
-            reject(new Error("Propeller interstitial not available."));
-          }
-        }, 3000);
-      };
-
-      script.onerror = () => {
-        clearTimeout(timeout);
-        reject(new Error("Failed to load ad script."));
-      };
-
-      (document.body || document.documentElement).appendChild(script);
-    });
-  };
-
-  const showInterstitialAd = async (onComplete?: () => void) => {
-    setIsLoadingAd(true);
-    try {
-      await loadInterstitialAd(); // loads 9338850 from groleegni.net
-
-      const propeller = window.propeller;
-
-      if (propeller && propeller.showInterstitial) {
-        propeller.showInterstitial({
-          zone: 9338850,
-          onClose: (completed: boolean) => {
-            console.log("Ad closed, completed:", completed);
-            if (completed && onComplete) {
-              onComplete(); // e.g. unlock theme
+      return (
+        <div
+          key={theme.id}
+          className={`border bg-white rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
+            theme.is_current ? "ring-2 ring-blue-500" : ""
+          } ${theme.unlocked ? "hover:shadow-md" : "opacity-70"}`}
+          onClick={() => {
+            if (theme.unlocked) {
+              setSelectedTheme(theme);
+              setShowThemePreview(true);
             }
-            setShowAdModal(false);
-          },
-        });
-      } else {
-        throw new Error("Interstitial ad function not available");
+          }}
+        >
+          <div
+            className="w-full h-24 mb-2 rounded-md relative overflow-hidden"
+            style={themeStyles.taskBackground || { backgroundColor: "#f3f4f6" }}
+          >
+            <div className="absolute inset-0 flex flex-col p-2">
+              <div
+                className="h-2 w-3/4 rounded-full mb-1"
+                style={{
+                  backgroundColor:
+                    themeStyles.taskBackground?.contentBackground || "#ffffff",
+                }}
+              ></div>
+              <div
+                className="h-2 w-1/2 rounded-full"
+                style={{
+                  backgroundColor:
+                    themeStyles.taskBackground?.contentBackground || "#ffffff",
+                }}
+              ></div>
+            </div>
+            {!theme.unlocked && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div className="text-white font-bold text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <img
+                      src="/assets/coin.png"
+                      className="w-5 h-5 pointer-events-none"
+                      alt="Coins"
+                    />
+                    {theme.price}
+                  </div>
+                  <div className="text-xs">or watch ad</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <h3 className="font-medium text-center">{theme.display_name}</h3>
+
+          {theme.unlocked && theme.is_current && (
+            <div className="text-xs text-green-500">Active</div>
+          )}
+
+          {!theme.unlocked && (
+            <div className="flex gap-2 mt-2">
+              <button
+                className="text-xs bg-green-400/40 text-black px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUnlockTheme(theme.id, false);
+                }}
+              >
+                Unlock
+              </button>
+              <button
+                style={{
+                  backgroundImage: "url('/assets/fr.jpg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundBlendMode: "overlay",
+                  background:
+                    "linear-gradient(13deg, rgba(40, 130, 70, 30), rgba(36, 40, 545, 0.2))",
+                }}
+                className="text-xs bg-purple-500 text-black px-2 py-1 rounded-2xl hover:cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedTheme(theme);
+                  setShowAdModal(true);
+                }}
+              >
+                Watch Ad
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    });
+  }, [isLoadingThemes, parsedThemes]);
+
+  const handleWatchAd = async () => {
+    setIsLoadingAd(true);
+
+    try {
+      // Open the ad in a new tab
+      const adWindow = window.open("https://otieu.com/4/9343761", "_blank");
+
+      if (!adWindow) {
+        throw new Error("Popup blocked. Please allow popups for this site.");
       }
+
+      // Show loading in the modal
+      setShowAdModal(false); // Close the ad modal
+      setIsProcessing(true); // Show processing state in main UI
+
+      // Wait a moment before unlocking to ensure ad started
+      setTimeout(async () => {
+        try {
+          if (selectedTheme) {
+            await handleUnlockTheme(selectedTheme.id, true);
+            refreshSettings();
+          }
+        } catch (error) {
+          console.error("Unlock error:", error);
+          alert("Failed to unlock theme. Please try again.");
+        } finally {
+          setIsProcessing(false);
+        }
+      }, 3000);
     } catch (err) {
-      console.error("Interstitial error:", err);
-      alert("Failed to load ad. Please try again.");
+      console.error("Ad error:", err);
+      alert(err instanceof Error ? err.message : "Failed to open ad");
       setShowAdModal(false);
     } finally {
       setIsLoadingAd(false);
     }
   };
-
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
     try {
@@ -271,125 +339,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {isLoadingThemes
-              ? Array.from({ length: 5 }).map((_, index) => (
-                  <div
-                    key={`loading-${index}`}
-                    className="border bg-white rounded-lg p-3 flex flex-col items-center justify-between h-40"
-                  >
-                    <div className="w-full h-24 mb-2 rounded-md bg-gray-200 animate-pulse"></div>
-                    <div className="h-4 w-3/4 rounded-full bg-gray-200 animate-pulse"></div>
-                    <div className="h-4 w-1/2 rounded-full bg-gray-200 animate-pulse mt-2"></div>
-                  </div>
-                ))
-              : themes.map((theme) => {
-                  const themeStyles = parseThemeStyles(theme.styles);
-
-                  console.log("Theme styles:", themeStyles);
-
-                  return (
-                    <div
-                      key={theme.id}
-                      className={`border bg-white rounded-lg p-3 flex flex-col items-center justify-between cursor-pointer transition-all ${
-                        theme.is_current ? "ring-2 ring-blue-500" : ""
-                      } ${theme.unlocked ? "hover:shadow-md" : "opacity-70"}`}
-                      onClick={() => {
-                        if (theme.unlocked) {
-                          setSelectedTheme({
-                            ...theme,
-                            styles: themeStyles,
-                          });
-                          setShowThemePreview(true);
-                        }
-                      }}
-                    >
-                      <div
-                        className="w-full h-24 mb-2 rounded-md relative overflow-hidden"
-                        style={
-                          themeStyles.taskBackground || {
-                            backgroundColor: "#f3f4f6",
-                          }
-                        }
-                      >
-                        <div className="absolute inset-0 flex flex-col p-2">
-                          <div
-                            className="h-2 w-3/4 rounded-full mb-1"
-                            style={{
-                              backgroundColor:
-                                themeStyles.taskBackground.contentBackground ||
-                                "#ffffff",
-                            }}
-                          ></div>
-                          <div
-                            className="h-2 w-1/2 rounded-full"
-                            style={{
-                              backgroundColor:
-                                themeStyles.taskBackground.contentBackground ||
-                                "#ffffff",
-                            }}
-                          ></div>
-                        </div>
-                        {!theme.unlocked && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <div className="text-white font-bold text-center">
-                              <div className="flex items-center justify-center gap-1">
-                                <img
-                                  src="/assets/coin.png"
-                                  className="w-5 h-5 pointer-events-none"
-                                />
-                                {theme.price}
-                              </div>
-                              <div className="text-xs">or watch ad</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <h3 className="font-medium text-center">
-                        {theme.display_name}
-                      </h3>
-
-                      {theme.unlocked && theme.is_current && (
-                        <div className="text-xs text-green-500">Active</div>
-                      )}
-
-                      {!theme.unlocked && (
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            className="text-xs bg-green-400/40 text-black px-2 py-1 rounded-xl font-extrabold hover:cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleUnlockTheme(theme.id, false);
-                            }}
-                          >
-                            Unlock
-                          </button>
-                          <button
-                            style={{
-                              backgroundImage: "url('/assets/fr.jpg')",
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                              backgroundBlendMode: "overlay",
-                              background:
-                                "linear-gradient(13deg, rgba(40, 130, 70, 30), rgba(36, 40, 545, 0.2))",
-                            }}
-                            className="text-xs bg-purple-500 text-black px-2 py-1 rounded-2xl hover:cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedTheme({
-                                ...theme,
-                                styles: themeStyles,
-                              });
-                              setShowAdModal(true);
-                            }}
-                          >
-                            Watch Ad
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+            {renderThemeItems}
           </div>
         </div>
       </div>
@@ -560,7 +510,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[1000000]">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Unlock with Ad</h2>
+              <h2 className="text-lg sm:text-2xl font-bold">Unlock with Ad</h2>
               <button
                 onClick={() => setShowAdModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -570,8 +520,8 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             </div>
 
             <div className="mb-6">
-              <p className="mb-4 text-center">
-                Watch a short ad to unlock the{" "}
+              <p className="mb-4 text-sm  sm:text-md text-center">
+                Click the button below to watch an ad and unlock the{" "}
                 <strong className="text-blue-600">
                   {selectedTheme.display_name}
                 </strong>{" "}
@@ -582,13 +532,15 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
                 {isLoadingAd ? (
                   <div className="text-center p-4">
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-                    <p className="mt-2 text-sm text-gray-600">Loading ad...</p>
+                    <p className="mt-2 text-sm text-gray-600">
+                      Preparing ad...
+                    </p>
                   </div>
                 ) : (
                   <div className="text-center p-4">
                     <p className="font-medium mb-2">Sponsored Content</p>
                     <p className="text-sm text-gray-600">
-                      An ad will play on the next screen
+                      You'll be redirected to watch a sponsored content
                     </p>
                   </div>
                 )}
@@ -598,21 +550,17 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowAdModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 text-sm rounded-md hover:bg-gray-400"
                 disabled={isLoadingAd}
               >
                 Cancel
               </button>
               <button
-                onClick={() =>
-                  showInterstitialAd(() => {
-                    handleUnlockTheme(selectedTheme.id, true);
-                  })
-                }
+                onClick={handleWatchAd}
                 disabled={isLoadingAd}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-sm text-white rounded hover:bg-blue-600"
               >
-                {isLoadingAd ? "Loading..." : "Watch Ad to Unlock"}
+                {isLoadingAd ? "Redirecting..." : "Watch Ad to Unlock"}
               </button>
             </div>
           </div>
