@@ -15,9 +15,9 @@ export interface PropellerAd {
     container: string;
     onClose?: () => void;
   }) => void;
-  destroyInPagePush: () => void; 
+  destroyInPagePush: () => void;
+  showPopunder: (options: { zone: number }) => void;
 }
-
 
 export interface EntireBookDataInterface {
   chapter: string;
@@ -110,7 +110,6 @@ export interface UserRating {
   total_verses_caught: number;
 }
 
-
 export interface UserData {
   id?: string;
   user_name?: string;
@@ -130,7 +129,7 @@ export interface UserData {
   unique_books_caught?: number;
   achievements?: Achievement[];
   payment_status?: PaymentStatus;
-  has_rated?: boolean 
+  has_rated?: boolean;
 }
 
 export interface AdBannerProps {

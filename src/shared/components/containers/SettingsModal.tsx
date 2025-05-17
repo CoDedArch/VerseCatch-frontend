@@ -17,7 +17,7 @@ import {
 declare global {
   interface Window {
     propeller?: PropellerAd;
-    __ad_zone_9339190_loaded__?: boolean;
+    __ad_zone_loaded__?: boolean;
   }
 }
 
@@ -86,7 +86,7 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           theme_id: themeId,
@@ -120,68 +120,76 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
     }
   }, [isOpen]);
 
-  const loadOnClickPopunder = (
+  const loadAdScript = (
     zoneId: number,
     scriptUrl: string = "https://al5sm.com/tag.min.js"
   ): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        const existingScript = document.querySelector(
-          `script[data-zone="${zoneId}"]`
-        );
-
-        if (existingScript || window.__ad_zone_9339190_loaded__) {
-          // Already loaded or in progress
-          resolve();
-          return;
-        }
-
-        // Set the flag to avoid future duplicate loads
-        window.__ad_zone_9339190_loaded__ = true;
-
-        const script = document.createElement("script");
-        script.src = scriptUrl;
-        script.setAttribute("data-zone", zoneId.toString());
-        script.async = true;
-
-        const timeout = setTimeout(() => {
-          reject(new Error("Ad script load timed out."));
-        }, 10000);
-
-        script.onload = () => {
-          clearTimeout(timeout);
-          resolve();
-        };
-
-        script.onerror = () => {
-          clearTimeout(timeout);
-          reject(new Error("Failed to load ad script."));
-        };
-
-        const parent = document.body || document.documentElement;
-        parent.appendChild(script);
-      } catch (err) {
-        reject(
-          err instanceof Error ? err : new Error("Unexpected error loading ad")
-        );
+    return new Promise((resolve, reject) => {
+      // Clean up any previous ad state
+      if (window.__ad_zone_loaded__) {
+        delete window.__ad_zone_loaded__;
       }
+
+      const existingScript = document.querySelector(
+        `script[data-zone="${zoneId}"]`
+      );
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const script = document.createElement("script");
+      script.src = scriptUrl;
+      script.setAttribute("data-zone", zoneId.toString());
+      script.async = true;
+
+      const timeout = setTimeout(() => {
+        reject(new Error("Ad loading timed out"));
+      }, 10000); // 10 second timeout
+
+      script.onload = () => {
+        clearTimeout(timeout);
+        window.__ad_zone_loaded__ = true;
+        resolve();
+      };
+
+      script.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("Failed to load ad script"));
+      };
+
+      document.body.appendChild(script);
+    });
+  };
+
+  const showPopunderAd = async (zoneId: number): Promise<boolean> => {
+    if (!window.propeller || !window.propeller.showPopunder) {
+      throw new Error("Ad system not available");
+    }
+
+    return new Promise((resolve) => {
+      window.propeller?.showPopunder({ zone: zoneId });
+      // Assume the ad was shown successfully
+      resolve(true);
     });
   };
 
   const showPropellerAd = async () => {
     setIsLoadingAd(true);
     try {
-      await loadOnClickPopunder(9342420);
-      console.log("Popunder ad triggered");
+      // First load the ad script
+      await loadAdScript(9342420);
 
-      // After successful ad load, unlock the theme
-      if (selectedTheme) {
+      // Then show the popunder
+      const adShown = await showPopunderAd(9342420);
+
+      if (adShown && selectedTheme) {
+        // Only unlock if ad was shown
         await handleUnlockTheme(selectedTheme.id, true);
         setShowAdModal(false);
       }
-    } catch (err) {
-      console.error("Ad error:", err);
-      alert("Failed to load ad. Please try again.");
+    } catch (error) {
+      console.error("Ad error:", error);
+      alert("Couldn't show the ad. Please try again.");
     } finally {
       setIsLoadingAd(false);
     }
@@ -566,16 +574,20 @@ const SettingsModal = ({ isOpen, onClose }: ModalProps) => {
 
               <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg">
                 {isLoadingAd ? (
-                  <div className="text-center p-4">
+                  <div className="text-center">
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-                    <p className="mt-2 text-sm text-gray-600">Loading ad...</p>
+                    <p className="mt-2 text-sm">Preparing ad...</p>
                   </div>
                 ) : (
                   <div className="text-center p-4">
-                    <p className="font-medium mb-2">Sponsored Content</p>
-                    <p className="text-sm text-gray-600">
-                      An ad will play on the next screen
+                    <p className="font-medium mb-2">Watch a short video</p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      This helps support our free service
                     </p>
+                    <div className="flex items-center justify-center gap-2">
+                      <img src="/assets/ad-icon.png" className="w-6 h-6" />
+                      <span className="text-xs">Advertisement</span>
+                    </div>
                   </div>
                 )}
               </div>
