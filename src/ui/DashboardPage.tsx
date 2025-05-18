@@ -40,6 +40,7 @@ interface UserStats {
   users_with_ratings: number;
   rating_percentage: number;
   supporters_count: number;
+  total_verses_caught: number;
 }
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -192,6 +193,10 @@ const RatingDashboard = () => {
           <Typography variant="h4">{userStats?.total_users || 0}</Typography>
         </Paper>
         <Paper sx={{ p: 2, minWidth: 180 }}>
+          <Typography variant="subtitle2">Total Verses Caught</Typography>
+          <Typography variant="h4">{userStats?.total_verses_caught}</Typography>
+        </Paper>
+        <Paper sx={{ p: 2, minWidth: 180 }}>
           <Typography variant="subtitle2">Users Rated</Typography>
           <Typography variant="h4">{userStats?.users_with_ratings || 0}</Typography>
           <Typography variant="caption" color="text.secondary">
@@ -200,7 +205,7 @@ const RatingDashboard = () => {
         </Paper>
         <Paper sx={{ p: 2, minWidth: 180 }}>
           <Typography variant="subtitle2">Supporters</Typography>
-          <Typography variant="h4">{userStats?.supporters_count || 0}</Typography>
+          <Typography variant="h4">{userStats?.supporters_count}</Typography>
         </Paper>
         {([1, 2, 3, 4, 5] as RatingKey[]).map((rating) => (
           <Paper key={rating} sx={{ p: 2, minWidth: 180 }}>
