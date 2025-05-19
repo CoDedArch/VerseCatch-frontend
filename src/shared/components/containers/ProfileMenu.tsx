@@ -8,7 +8,7 @@ import { ProfileMenuProps } from "@/shared/constants/interfaceConstants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import BlurImage from "./ImageBlur";
-import DeleteAccount from "./DeleteAccount";
+// import DeleteAccount from "./DeleteAccount";
 
 const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
   const [settingsKey, setSettingsKey] = useState(0);
@@ -150,7 +150,7 @@ const ProfileMenu = ({ onClose, triggerRef }: ProfileMenuProps) => {
               />
               <span className="bg-slate-400/10 p-1 rounded">Sign Out</span>
             </motion.li>
-            <DeleteAccount />
+            {/* <DeleteAccount /> */}
           </ul>
         </motion.div>
       </AnimatePresence>
