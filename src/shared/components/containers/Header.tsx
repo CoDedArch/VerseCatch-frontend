@@ -45,7 +45,7 @@ const Header = () => {
             isIcon={true}
           />
           <span className="bg-slate-400/10 p-3">
-            {selectedVersion || "Bible version"}
+            {selectedVersion.replace("_", " ").replace("bible", "Bible") || "Bible version"}
           </span>
 
           {tourState.isTourActive && tourState.currentStep === 1 && (

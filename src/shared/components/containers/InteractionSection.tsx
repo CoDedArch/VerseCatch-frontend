@@ -175,7 +175,7 @@ const InteractionSection = () => {
                     : ""
                 }`}
               >
-                {selectedVersion || "Bible version"}
+                {selectedVersion.replace("_", " ").replace("bible", "Bible") || "Bible version"}
               </span>
 
               {tourState.isTourActive && tourState.currentStep === 1 && (

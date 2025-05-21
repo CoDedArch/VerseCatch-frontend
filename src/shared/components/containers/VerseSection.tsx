@@ -109,7 +109,7 @@ const VerseSection = ({
               className="w-8"
             />
             <span className="bg-slate-400/10 p-2 rounded-lg">
-              {selectedVersion || "Bible version"}
+              {selectedVersion.replace("_", " ").replace("bible", "Bible") || "Bible version"}
             </span>
           </div>
 
