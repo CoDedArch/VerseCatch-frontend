@@ -29,7 +29,6 @@ const InteractionSection = () => {
   const dropdownRef = useRef<HTMLUListElement | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // use speech recognition
   const { receivedData, startListening, stopListening, hasRecognitionSupport } =
     useSpeechRecognitionHook(selectedVersion, user?.email || "anonymous");
 
@@ -105,10 +104,8 @@ const InteractionSection = () => {
       setIsMobile(window.matchMedia("(max-width: 768px)").matches);
     };
 
-    // Initial check
     checkMobile();
 
-    // Listen for resize events
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);

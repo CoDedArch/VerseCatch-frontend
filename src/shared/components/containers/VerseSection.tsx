@@ -51,7 +51,6 @@ const VerseSection = ({
 
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Clear the recieved Data
     dispatch(setReceivedData(null));
   };
 

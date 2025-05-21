@@ -12,7 +12,7 @@ const initialState: TourState = {
   error: null
 };
 
-// Async thunk to update tour status
+// thunk to update tour status
 export const updateHasTakenTour = createAsyncThunk(
   'tour/updateHasTakenTour',
   async ({ email, hasTakenTour }: { email: string; hasTakenTour: boolean }, { rejectWithValue }) => {

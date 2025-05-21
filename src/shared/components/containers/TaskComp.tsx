@@ -76,7 +76,6 @@ const TaskComp = () => {
         setTaskState((prev) => ({
           ...prev,
           isTaskHighlighted: false,
-          // Only set back to hidden if not on mobile
           isTaskVisible: window.matchMedia("(min-width: 641px)").matches,
         }));
       }, 5000);

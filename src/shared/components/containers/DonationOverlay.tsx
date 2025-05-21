@@ -32,7 +32,7 @@ declare global {
 const DonationOverlay = () => {
   const [showOverlay, setShowOverlay] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState(12); // Default rate (1 USD = 12 GHS)
+  const [exchangeRate, setExchangeRate] = useState(12);
   const { isLoggedIn, userData, isAnonymous, token } = useUserData();
   const [lastReference, setLastReference] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,6 @@ const DonationOverlay = () => {
   useEffect(() => {
     loadPaystackScript();
 
-    // Fetch current exchange rate
     const fetchExchangeRate = async () => {
       try {
         const response = await fetch(
@@ -71,14 +70,12 @@ const DonationOverlay = () => {
     return Math.round(usd * exchangeRate);
   };
 
-  // Initialize Payment
   const initializePayment = async (amountInUsd: number) => {
     setIsProcessing(true);
 
     try {
       const amountInCedis = convertToCedis(amountInUsd);
 
-      // First create payment record in backend
       const createPaymentResponse = await fetch(CREATE_PAYMENT_URL, {
         method: "POST",
         headers: {
@@ -145,7 +142,6 @@ const DonationOverlay = () => {
         body: JSON.stringify({ reference }),
       });
 
-      // First check if the response is ok
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(

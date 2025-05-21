@@ -99,10 +99,8 @@ const useSpeechRecognitionHook = (
         },
       });
 
-      // Create a MediaStreamAudioSourceNode
       const source = audioContext.createMediaStreamSource(stream);
 
-      // Create a ScriptProcessorNode to process raw audio data
       const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
       scriptProcessorRef.current = scriptProcessor;
 
@@ -128,10 +126,9 @@ const useSpeechRecognitionHook = (
             pcmData[i] = Math.max(
               -32768,
               Math.min(32767, audioBuffer[i] * 32768)
-            ); // Scale to 16-bit
+            );
           }
 
-          // Send the raw PCM data to the WebSocket server
           if (
             socketRef.current &&
             socketRef.current.readyState === WebSocket.OPEN

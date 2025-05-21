@@ -77,10 +77,8 @@ export const initWebSocketConnection = createAsyncThunk(
       ws.onmessage = (event) => {
         try {
           const userData = JSON.parse(event.data);
-          // Ensure we have minimum required fields
           const completeUserData = {
             ...userData,
-            // Add fallbacks for required fields
             email: userData.email || "anonymous",
             username: userData.username || "anonymous",
             isAnonymous: !!userData.isAnonymous,
@@ -102,10 +100,8 @@ export const initWebSocketConnection = createAsyncThunk(
       ws.onclose = () => {
         console.log("WebSocket disconnected from /auth/me");
         dispatch(setWebSocketStatus(false));
-        // Don't logout immediately on close - might be temporary
       };
 
-      // Add cleanup function
       return () => {
         ws.close();
       };
@@ -117,7 +113,6 @@ export const logoutUser = createAsyncThunk(
   "user/logout",
   async (_, { dispatch }) => {
     dispatch(logout());
-    // Add any additional cleanup logic here if needed
   }
 );
 
@@ -131,7 +126,6 @@ export const checkAuthStatus = createAsyncThunk(
         // Wait for WebSocket to connect and get user data
         const userData = await dispatch(initWebSocketConnection(token)).unwrap();
         
-        // If we still don't have user data after WS connection, throw
         if (!userData) {
           throw new Error('Failed to get user data via WebSocket');
         }
@@ -139,7 +133,6 @@ export const checkAuthStatus = createAsyncThunk(
         return userData;
       } catch (error) {
         console.error('WebSocket connection failed:', error);
-        // Don't logout immediately - might be temporary connection issue
         throw error;
       }
     }

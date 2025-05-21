@@ -31,7 +31,6 @@ const BlurImage = ({
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
-  // Generate srcSet automatically if width is provided
   const srcSet = useMemo(() => {
     if (!width) return undefined;
     return `${src}?w=${width}&q=75 1x, ${src}?w=${width * 2}&q=50 2x`;

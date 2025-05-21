@@ -84,7 +84,6 @@ const HomePage = () => {
     }
   }, [tourState.currentStep, tourState.isTourActive]);
 
-  // Memoize the fetch function to prevent unnecessary recreations
   const fetchEntireBook = useCallback(
     async (bookName: string) => {
       try {
@@ -174,7 +173,6 @@ const HomePage = () => {
     userData?.payment_status?.has_paid,
     userData?.total_verses_caught,
     isAnonymous,
-    // showAdBanner,
     isMobile,
   ]);
 
@@ -243,7 +241,6 @@ const HomePage = () => {
     }
   }, [entireBookData, receivedData, dispatch, parsedData]);
 
-  // Set user's preferred Bible version
   useEffect(() => {
     if (userData?.bible_version) {
       dispatch(setSelectedVersion(userData.bible_version));
@@ -312,7 +309,6 @@ const HomePage = () => {
     };
   }, [tourState, dispatch, userData?.email]);
 
-  // Handle authentication and session management
   useEffect(() => {
     if (isAnonymous) {
       dispatch(setIntroComplete(true));

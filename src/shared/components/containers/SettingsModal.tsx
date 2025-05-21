@@ -25,14 +25,12 @@ declare global {
 
 const SettingsModal = ({ isOpen, onClose, setSettingsKey }: SettingsModalProps) => {
   const refreshSettings = () => setSettingsKey((prev) => prev + 1);
-  // Ad Loader
   const dispatch = useDispatch();
   const currentTheme = useSelector(
     (state: RootState) => state.theme.currentTheme
   );
   const { token } = useSelector((state: RootState) => state.user);
 
-  // State declarations
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -236,16 +234,14 @@ const SettingsModal = ({ isOpen, onClose, setSettingsKey }: SettingsModalProps) 
     setIsLoadingAd(true);
 
     try {
-      // Open the ad in a new tab
       const adWindow = window.open("https://otieu.com/4/9343761", "_blank");
 
       if (!adWindow) {
         throw new Error("Popup blocked. Please allow popups for this site.");
       }
 
-      // Show loading in the modal
-      setShowAdModal(false); // Close the ad modal
-      setIsProcessing(true); // Show processing state in main UI
+      setShowAdModal(false); 
+      setIsProcessing(true);
 
       // Wait a moment before unlocking to ensure ad started
       setTimeout(async () => {
