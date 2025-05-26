@@ -373,3 +373,12 @@ main {
     border-radius: 0;
   }
 }
+
+
+.partner-button {
+  background: linear-gradient(to right, #6bbd6e, #3a7bd5); /* Green-to-blue */
+  color: white;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: bold;
+}

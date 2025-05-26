@@ -1,11 +1,11 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Verse } from "@/shared/constants/interfaceConstants";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { VerseSectionProps } from "@/shared/constants/interfaceConstants";
 import { setReceivedData } from "@/store/uiSlice";
-
+import { useUserData } from "../Hooks/useUserData";
 
 const VerseSection = ({
   parsedData,
@@ -14,10 +14,17 @@ const VerseSection = ({
   setEntireBookData,
 }: VerseSectionProps) => {
   const dispatch = useDispatch();
+  const { isAnonymous } = useUserData();
   const theme = useSelector((state: RootState) => state.theme.currentTheme);
   const { selectedVersion, highlightedVerse } = useSelector(
     (state: RootState) => state.ui
   );
+
+  const [showButton, setShowButton] = React.useState(false);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setShowButton(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Effect that runs only when selectedVersion changes
   const prevVersionRef = React.useRef(selectedVersion);
@@ -49,6 +56,21 @@ const VerseSection = ({
     }
   }, [highlightedVerse, parsedData, entireBookData, selectedVersion]);
 
+  const handleWatchAd = async () => {
+    try {
+      const adWindow = window.open("https://otieu.com/4/9343761", "_blank");
+
+      if (!adWindow) {
+        throw new Error("Popup blocked. Please allow popups for this site.");
+      }
+    } catch (err) {
+      console.error("Ad error:", err);
+      alert(err instanceof Error ? err.message : "Failed to open Gift");
+    } finally {
+      setShowButton(false);
+    }
+  };
+
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     dispatch(setReceivedData(null));
@@ -73,11 +95,29 @@ const VerseSection = ({
           }
         }}
       >
+        {isAnonymous && (
+          <AnimatePresence>
+            {(() => {
+              return showButton ? (
+                <motion.button
+                  className="partner-button absolute top-1 right-1"
+                  onClick={handleWatchAd}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  🤝Support VerseCatch → view partner! 🎁
+                </motion.button>
+              ) : null;
+            })()}
+          </AnimatePresence>
+        )}
         {/* Close button when there's no entireBookData */}
         {!entireBookData && (
           <motion.button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10"
+            className="absolute top-4 right-4 p-2 z-[200] rounded-full hover:bg-white/10"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             title="Close verse"
@@ -108,7 +148,8 @@ const VerseSection = ({
               className="w-8"
             />
             <span className="bg-slate-400/10 p-2 rounded-lg">
-              {selectedVersion.replace("_", " ").replace("bible", "Bible") || "Bible version"}
+              {selectedVersion.replace("_", " ").replace("bible", "Bible") ||
+                "Bible version"}
             </span>
           </div>
 

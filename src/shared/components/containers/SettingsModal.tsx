@@ -265,6 +265,7 @@ const SettingsModal = ({ isOpen, onClose, setSettingsKey }: SettingsModalProps) 
       setIsLoadingAd(false);
     }
   };
+  
   const handleSetTheme = async (themeId: string) => {
     setIsProcessing(true);
     try {
